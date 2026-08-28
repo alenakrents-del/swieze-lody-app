@@ -1,3 +1,24 @@
+const sb = window.supabase.createClient(
+  window.APP_CONFIG.supabaseUrl,
+  window.APP_CONFIG.supabaseAnonKey
+);
+
+async function checkSupabase() {
+  const { data, error } = await sb
+    .from('collections')
+    .select('code,name,icon,active,sort_order')
+    .eq('active', true)
+    .order('sort_order');
+
+  if (error) {
+    console.error('Supabase connection error:', error);
+    return;
+  }
+
+  console.log('Supabase connected:', data);
+}
+
+checkSupabase();
 const DATA={MILKSHAKE:{title:'Twoja kolekcja Milkshake',icon:'🥤',items:[['Mango','mango_real',1],['Lotus','lotus_real',1],['Oreo','oreo_real',1],['Raffaello','raffaello_real',0],['Kinder Bueno','kinder_real',0],['Banan','banana_real',0],['Truskawka','strawberry_real',0],['Czekolada','chocolate',0],['Ice Coffee','ice_coffee_real',0]]},LEMONADE:{title:'Twoja kolekcja Lemoniad',icon:'🍋',items:[['Lemon & Mint','lemonade_lemon_mint',1],['Strawberry','lemonade_strawberry',0],['Mango & Passion','lemonade_mango',0],['Blue Lagoon','lemonade_blue',0]]},VACATION:{title:'Misja 3 Dni',icon:'🏖️',items:[['Dzień 1 • Lody',null,1,'🍦'],['Dzień 2 • Lemoniada',null,0,'🍋'],['Dzień 3 • Milkshake',null,0,'🥤']]}};
 const TOPPINGS=['🍫 Czekolada','🍮 Toffi','🍓 Owocowy','🍪 Oreo','🍪 Lotus','🥥 Kokos','🌈 Kolorowa posypka','☁️ Marshmallow'];
 function showPage(n){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelector('#page-'+n).classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.page===n));scrollTo({top:0,behavior:'smooth'})}document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
