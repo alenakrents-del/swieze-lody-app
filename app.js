@@ -7,229 +7,101 @@ let currentLang =
   localStorage.getItem('swiezeLanguage') || 'pl';
 
 let currentCollection = 'MILKSHAKE';
-
 let DATA = {};
 
 
 /* =========================================================
-   TŁUMACZENIA / TRANSLATIONS
+   TRANSLATIONS
 ========================================================= */
 
 const T = {
 
-  /* POLSKI */
   pl: {
     madeHere: 'Robione na miejscu',
-
     hello: '👋 Cześć!',
-    collectRewards:
-      'Zbieraj smaki i odbieraj nagrody!',
-
+    collectRewards: 'Zbieraj smaki i odbieraj nagrody!',
     lemonades: 'Lemoniady',
     mission: 'Misja',
-
     discovered: 'odkrytych',
 
-    rewardUnlocked:
-      '🎉 NAGRODA ODBLOKOWANA!',
+    rewardUnlocked: '🎉 NAGRODA ODBLOKOWANA!',
+    freeTopping: 'Darmowy topping',
+    freeToppingDesc: 'Wybierz 1 z 8 toppingów gratis.',
+    showCode: '🎟️ Pokaż kod',
+    showCodeSimple: 'Pokaż kod',
 
-    freeTopping:
-      'Darmowy topping',
+    yourRewards: '🎁 Twoje nagrody',
+    rewardSubtitle: 'Aktywne nagrody i odblokowane bonusy.',
+    available: 'DOSTĘPNA',
+    reward3: 'Odblokowane za 3 różne milkshake’i.',
+    stillLocked: 'JESZCZE ZABLOKOWANE',
+    secretDessert: 'Sekretny Deser',
+    discover6: 'Odkryj 6 smaków Milkshake.',
+    collectAll: 'Zbierz całą kolekcję 9/9.',
 
-    freeToppingDesc:
-      'Wybierz 1 z 8 toppingów gratis.',
+    menuTitle: '☰ Menu',
+    tapCategory: 'Dotknij kategorii, aby zobaczyć produkty.',
+    milkshakeCount: '9 smaków • 25 zł',
+    lemonadeCount: '4 smaki • 18 zł',
+    waffles: 'Gofry',
+    from10: 'od 10 zł',
+    iceCream: 'Lody',
+    iceCreamPrice: '100 g • 10 zł',
+    coffee: 'Kawa',
+    onSite: 'na miejscu',
+    toUnlock: 'do odblokowania',
 
-    showCode:
-      '🎟️ Pokaż kod',
+    hereNow: '📍 Tu i teraz',
+    hereNowShop: 'Świeże Lody. Tu i teraz.',
+    distanceStart: 'Kliknij, a pokażę ile zostało iść.',
+    calculateDistance: '📡 Policz odległość',
+    guideMe: '🚶 Prowadź mnie',
 
-    showCodeSimple:
-      'Pokaż kod',
+    more: '••• Więcej',
+    collectorProgram: 'Program kolekcjonera Świeże Lody.',
+    customerProfile: 'Profil klienta',
+    howWorks: 'Jak działa gra?',
+    privacy: 'Prywatność',
 
-    yourRewards:
-      '🎁 Twoje nagrody',
+    yourProfile: '👤 Twój profil',
+    profileSubtitle: 'Karta klienta i kod do skanowania.',
+    collector: 'Kolekcjoner Świeże Lody',
+    showAtOrder: 'Pokaż ten kod przy zamówieniu.',
+    flavours: 'smaki',
+    reward: 'nagroda',
 
-    rewardSubtitle:
-      'Aktywne nagrody i odblokowane bonusy.',
+    collectionNav: 'Kolekcja',
+    rewardsNav: 'Nagrody',
+    locationNav: 'Lokalizacja',
+    moreNav: 'Więcej',
 
-    available:
-      'DOSTĘPNA',
-
-    reward3:
-      'Odblokowane za 3 różne milkshake’i.',
-
-    stillLocked:
-      'JESZCZE ZABLOKOWANE',
-
-    secretDessert:
-      'Sekretny Deser',
-
-    discover6:
-      'Odkryj 6 smaków Milkshake.',
-
-    collectAll:
-      'Zbierz całą kolekcję 9/9.',
-
-
-    menuTitle:
-      '☰ Menu',
-
-    tapCategory:
-      'Dotknij kategorii, aby zobaczyć produkty.',
-
-    milkshakeCount:
-      '9 smaków • 25 zł',
-
-    lemonadeCount:
-      '4 smaki • 18 zł',
-
-    waffles:
-      'Gofry',
-
-    from10:
-      'od 10 zł',
-
-    iceCream:
-      'Lody',
-
-    iceCreamPrice:
-      '100 g • 10 zł',
-
-    coffee:
-      'Kawa',
-
-    onSite:
-      'na miejscu',
-
-    toUnlock:
-      'do odblokowania',
-
-
-    hereNow:
-      '📍 Tu i teraz',
-
-    hereNowShop:
-      'Świeże Lody. Tu i teraz.',
-
-    distanceStart:
-      'Kliknij, a pokażę ile zostało iść.',
-
-    calculateDistance:
-      '📡 Policz odległość',
-
-    guideMe:
-      '🚶 Prowadź mnie',
-
-
-    more:
-      '••• Więcej',
-
-    collectorProgram:
-      'Program kolekcjonera Świeże Lody.',
-
-    customerProfile:
-      'Profil klienta',
-
-    howWorks:
-      'Jak działa gra?',
-
-    privacy:
-      'Prywatność',
-
-
-    yourProfile:
-      '👤 Twój profil',
-
-    profileSubtitle:
-      'Karta klienta i kod do skanowania.',
-
-    collector:
-      'Kolekcjoner Świeże Lody',
-
-    showAtOrder:
-      'Pokaż ten kod przy zamówieniu.',
-
-    flavours:
-      'smaki',
-
-    reward:
-      'nagroda',
-
-
-    collectionNav:
-      'Kolekcja',
-
-    rewardsNav:
-      'Nagrody',
-
-    locationNav:
-      'Lokalizacja',
-
-    moreNav:
-      'Więcej',
-
-
-    yourRewardCode:
-      'TWÓJ KOD NAGRODY',
-
+    yourRewardCode: 'TWÓJ KOD NAGRODY',
     rewardCodeHelp:
       'Pokaż ten ekran przy zamówieniu. Nagrodę zatwierdza obsługa.',
 
-    chooseTopping:
-      '✨ Wybierz topping',
+    chooseTopping: '✨ Wybierz topping',
+    oneFree: 'Jeden topping gratis.',
+    chosen: 'Wybrano',
 
-    oneFree:
-      'Jeden topping gratis.',
+    milkshakeTitle: '🥤 Milkshake',
+    lemonadeTitle: '🍋 Lemoniady',
+    waffleTitle: '🧇 Gofry',
 
-    chosen:
-      'Wybrano',
+    milkshakeCollection: 'Twoja kolekcja Milkshake',
+    lemonadeCollection: 'Twoja kolekcja Lemoniad',
+    vacationCollection: 'Wakacyjna Misja',
 
+    milkshakeHint: '9/9 → Secret Milkshake + status Master',
+    lemonadeHint: 'Zbierz 4 różne lemoniady',
+    vacationHint: 'Ukończ misję → nagroda',
 
-    milkshakeTitle:
-      '🥤 Milkshake',
+    secretDessertLabel: '🔒 SEKRETNY DESER',
+    secretLemonadeLabel: '🔒 SEKRETNA LEMONIADA',
+    missionRewardLabel: '🎁 NAGRODA MISJI',
 
-    lemonadeTitle:
-      '🍋 Lemoniady',
-
-    waffleTitle:
-      '🧇 Gofry',
-
-
-    milkshakeCollection:
-      'Twoja kolekcja Milkshake',
-
-    lemonadeCollection:
-      'Twoja kolekcja Lemoniad',
-
-    vacationCollection:
-      'Wakacyjna Misja',
-
-
-    milkshakeHint:
-      '9/9 → Secret Milkshake + status Master',
-
-    lemonadeHint:
-      'Zbierz 4 różne lemoniady',
-
-    vacationHint:
-      'Ukończ misję → nagroda',
-
-
-    secretDessertLabel:
-      '🔒 SEKRETNY DESER',
-
-    secretLemonadeLabel:
-      '🔒 SEKRETNA LEMONIADA',
-
-    missionRewardLabel:
-      '🎁 NAGRODA MISJI',
-
-
-    lookingLocation:
-      'Szukam Twojej lokalizacji…',
-
+    lookingLocation: 'Szukam Twojej lokalizacji…',
     locationDenied:
       'Włącz dostęp do lokalizacji, aby policzyć odległość.',
-
 
     aboutGame:
       'Próbuj różnych smaków. Ten sam smak nie zwiększa kolekcji. Nowy smak = nowa karta.',
@@ -237,241 +109,102 @@ const T = {
     familyText:
       'Rodzina będzie mogła zbierać wspólną kolekcję jednym kodem.',
 
-    privacyText:
-      'Dane klienta są chronione.',
+    privacyText: 'Dane klienta są chronione.',
 
-
-    icecreamInfo:
-      'Lody 100 g • 10 zł.',
-
-    coffeeInfo:
-      'Kawa i Ice Coffee.',
+    icecreamInfo: 'Lody 100 g • 10 zł.',
+    coffeeInfo: 'Kawa i Ice Coffee.',
 
     secretInfo:
       'Sekretne pozycje odblokowują się po ukończeniu kolekcji i misji.'
   },
 
 
-  /* DEUTSCH */
   de: {
-    madeHere:
-      'Vor Ort gemacht',
+    madeHere: 'Vor Ort gemacht',
+    hello: '👋 Hallo!',
+    collectRewards: 'Sammle Sorten und sichere dir Belohnungen!',
+    lemonades: 'Limonaden',
+    mission: 'Mission',
+    discovered: 'entdeckt',
 
-    hello:
-      '👋 Hallo!',
+    rewardUnlocked: '🎉 BELOHNUNG FREIGESCHALTET!',
+    freeTopping: 'Kostenloses Topping',
+    freeToppingDesc: 'Wähle 1 von 8 Toppings kostenlos.',
+    showCode: '🎟️ Code zeigen',
+    showCodeSimple: 'Code zeigen',
 
-    collectRewards:
-      'Sammle Sorten und sichere dir Belohnungen!',
+    yourRewards: '🎁 Deine Belohnungen',
+    rewardSubtitle: 'Aktive Belohnungen und freigeschaltete Boni.',
+    available: 'VERFÜGBAR',
+    reward3: 'Freigeschaltet nach 3 verschiedenen Milkshakes.',
+    stillLocked: 'NOCH GESPERRT',
+    secretDessert: 'Geheimes Dessert',
+    discover6: 'Entdecke 6 Milkshake-Sorten.',
+    collectAll: 'Sammle die gesamte Kollektion 9/9.',
 
-    lemonades:
-      'Limonaden',
+    menuTitle: '☰ Menü',
+    tapCategory: 'Tippe auf eine Kategorie, um die Produkte zu sehen.',
+    milkshakeCount: '9 Sorten • 25 zł',
+    lemonadeCount: '4 Sorten • 18 zł',
+    waffles: 'Waffeln',
+    from10: 'ab 10 zł',
+    iceCream: 'Eis',
+    iceCreamPrice: '100 g • 10 zł',
+    coffee: 'Kaffee',
+    onSite: 'vor Ort',
+    toUnlock: 'freizuschalten',
 
-    mission:
-      'Mission',
+    hereNow: '📍 Hier und jetzt',
+    hereNowShop: 'Świeże Lody. Hier und jetzt.',
+    distanceStart: 'Tippe hier, um die Entfernung zu berechnen.',
+    calculateDistance: '📡 Entfernung berechnen',
+    guideMe: '🚶 Route starten',
 
-    discovered:
-      'entdeckt',
+    more: '••• Mehr',
+    collectorProgram: 'Świeże Lody Sammlerprogramm.',
+    customerProfile: 'Kundenprofil',
+    howWorks: 'Wie funktioniert das Spiel?',
+    privacy: 'Datenschutz',
 
-    rewardUnlocked:
-      '🎉 BELOHNUNG FREIGESCHALTET!',
+    yourProfile: '👤 Dein Profil',
+    profileSubtitle: 'Kundenkarte und Scan-Code.',
+    collector: 'Świeże Lody Sammler',
+    showAtOrder: 'Zeige diesen Code bei der Bestellung.',
+    flavours: 'Sorten',
+    reward: 'Belohnung',
 
-    freeTopping:
-      'Kostenloses Topping',
+    collectionNav: 'Sammlung',
+    rewardsNav: 'Belohnungen',
+    locationNav: 'Standort',
+    moreNav: 'Mehr',
 
-    freeToppingDesc:
-      'Wähle 1 von 8 Toppings kostenlos.',
-
-    showCode:
-      '🎟️ Code zeigen',
-
-    showCodeSimple:
-      'Code zeigen',
-
-    yourRewards:
-      '🎁 Deine Belohnungen',
-
-    rewardSubtitle:
-      'Aktive Belohnungen und freigeschaltete Boni.',
-
-    available:
-      'VERFÜGBAR',
-
-    reward3:
-      'Freigeschaltet nach 3 verschiedenen Milkshakes.',
-
-    stillLocked:
-      'NOCH GESPERRT',
-
-    secretDessert:
-      'Geheimes Dessert',
-
-    discover6:
-      'Entdecke 6 Milkshake-Sorten.',
-
-    collectAll:
-      'Sammle die gesamte Kollektion 9/9.',
-
-
-    menuTitle:
-      '☰ Menü',
-
-    tapCategory:
-      'Tippe auf eine Kategorie, um die Produkte zu sehen.',
-
-    milkshakeCount:
-      '9 Sorten • 25 zł',
-
-    lemonadeCount:
-      '4 Sorten • 18 zł',
-
-    waffles:
-      'Waffeln',
-
-    from10:
-      'ab 10 zł',
-
-    iceCream:
-      'Eis',
-
-    iceCreamPrice:
-      '100 g • 10 zł',
-
-    coffee:
-      'Kaffee',
-
-    onSite:
-      'vor Ort',
-
-    toUnlock:
-      'freizuschalten',
-
-
-    hereNow:
-      '📍 Hier und jetzt',
-
-    hereNowShop:
-      'Świeże Lody. Hier und jetzt.',
-
-    distanceStart:
-      'Tippe hier, um die Entfernung zu berechnen.',
-
-    calculateDistance:
-      '📡 Entfernung berechnen',
-
-    guideMe:
-      '🚶 Route starten',
-
-
-    more:
-      '••• Mehr',
-
-    collectorProgram:
-      'Świeże Lody Sammlerprogramm.',
-
-    customerProfile:
-      'Kundenprofil',
-
-    howWorks:
-      'Wie funktioniert das Spiel?',
-
-    privacy:
-      'Datenschutz',
-
-
-    yourProfile:
-      '👤 Dein Profil',
-
-    profileSubtitle:
-      'Kundenkarte und Scan-Code.',
-
-    collector:
-      'Świeże Lody Sammler',
-
-    showAtOrder:
-      'Zeige diesen Code bei der Bestellung.',
-
-    flavours:
-      'Sorten',
-
-    reward:
-      'Belohnung',
-
-
-    collectionNav:
-      'Sammlung',
-
-    rewardsNav:
-      'Belohnungen',
-
-    locationNav:
-      'Standort',
-
-    moreNav:
-      'Mehr',
-
-
-    yourRewardCode:
-      'DEIN BELOHNUNGSCODE',
-
+    yourRewardCode: 'DEIN BELOHNUNGSCODE',
     rewardCodeHelp:
       'Zeige diesen Bildschirm bei der Bestellung. Das Personal bestätigt die Belohnung.',
 
-    chooseTopping:
-      '✨ Topping auswählen',
+    chooseTopping: '✨ Topping auswählen',
+    oneFree: 'Ein Topping kostenlos.',
+    chosen: 'Ausgewählt',
 
-    oneFree:
-      'Ein Topping kostenlos.',
+    milkshakeTitle: '🥤 Milkshake',
+    lemonadeTitle: '🍋 Limonaden',
+    waffleTitle: '🧇 Waffeln',
 
-    chosen:
-      'Ausgewählt',
+    milkshakeCollection: 'Deine Milkshake-Sammlung',
+    lemonadeCollection: 'Deine Limonaden-Sammlung',
+    vacationCollection: 'Urlaubsmission',
 
+    milkshakeHint: '9/9 → Secret Milkshake + Master-Status',
+    lemonadeHint: 'Sammle 4 verschiedene Limonaden',
+    vacationHint: 'Mission abschließen → Belohnung',
 
-    milkshakeTitle:
-      '🥤 Milkshake',
+    secretDessertLabel: '🔒 GEHEIMES DESSERT',
+    secretLemonadeLabel: '🔒 GEHEIME LIMONADE',
+    missionRewardLabel: '🎁 MISSIONSBELOHNUNG',
 
-    lemonadeTitle:
-      '🍋 Limonaden',
-
-    waffleTitle:
-      '🧇 Waffeln',
-
-
-    milkshakeCollection:
-      'Deine Milkshake-Sammlung',
-
-    lemonadeCollection:
-      'Deine Limonaden-Sammlung',
-
-    vacationCollection:
-      'Urlaubsmission',
-
-
-    milkshakeHint:
-      '9/9 → Secret Milkshake + Master-Status',
-
-    lemonadeHint:
-      'Sammle 4 verschiedene Limonaden',
-
-    vacationHint:
-      'Mission abschließen → Belohnung',
-
-
-    secretDessertLabel:
-      '🔒 GEHEIMES DESSERT',
-
-    secretLemonadeLabel:
-      '🔒 GEHEIME LIMONADE',
-
-    missionRewardLabel:
-      '🎁 MISSIONSBELOHNUNG',
-
-
-    lookingLocation:
-      'Standort wird gesucht…',
-
+    lookingLocation: 'Standort wird gesucht…',
     locationDenied:
       'Aktiviere den Standortzugriff, um die Entfernung zu berechnen.',
-
 
     aboutGame:
       'Probiere verschiedene Sorten. Dieselbe Sorte erhöht die Sammlung nicht. Neue Sorte = neue Karte.',
@@ -479,241 +212,100 @@ const T = {
     familyText:
       'Eine Familie kann gemeinsam mit einem Code sammeln.',
 
-    privacyText:
-      'Kundendaten werden geschützt.',
+    privacyText: 'Kundendaten werden geschützt.',
 
-
-    icecreamInfo:
-      'Eis 100 g • 10 zł.',
-
-    coffeeInfo:
-      'Kaffee und Ice Coffee.',
+    icecreamInfo: 'Eis 100 g • 10 zł.',
+    coffeeInfo: 'Kaffee und Ice Coffee.',
 
     secretInfo:
       'Geheime Produkte werden nach Abschluss von Sammlungen und Missionen freigeschaltet.'
   },
+    en: {
+    madeHere: 'Made on site',
+    hello: '👋 Hello!',
+    collectRewards: 'Collect flavours and unlock rewards!',
+    lemonades: 'Lemonades',
+    mission: 'Mission',
+    discovered: 'discovered',
 
+    rewardUnlocked: '🎉 REWARD UNLOCKED!',
+    freeTopping: 'Free topping',
+    freeToppingDesc: 'Choose 1 of 8 toppings for free.',
+    showCode: '🎟️ Show code',
+    showCodeSimple: 'Show code',
 
-  /* ENGLISH */
-  en: {
-    madeHere:
-      'Made on site',
+    yourRewards: '🎁 Your rewards',
+    rewardSubtitle: 'Active rewards and unlocked bonuses.',
+    available: 'AVAILABLE',
+    reward3: 'Unlocked after 3 different milkshakes.',
+    stillLocked: 'STILL LOCKED',
+    secretDessert: 'Secret Dessert',
+    discover6: 'Discover 6 Milkshake flavours.',
+    collectAll: 'Complete the full collection 9/9.',
 
-    hello:
-      '👋 Hello!',
+    menuTitle: '☰ Menu',
+    tapCategory: 'Tap a category to see the products.',
+    milkshakeCount: '9 flavours • 25 zł',
+    lemonadeCount: '4 flavours • 18 zł',
+    waffles: 'Waffles',
+    from10: 'from 10 zł',
+    iceCream: 'Ice cream',
+    iceCreamPrice: '100 g • 10 zł',
+    coffee: 'Coffee',
+    onSite: 'on site',
+    toUnlock: 'to unlock',
 
-    collectRewards:
-      'Collect flavours and unlock rewards!',
+    hereNow: '📍 Here and now',
+    hereNowShop: 'Świeże Lody. Here and now.',
+    distanceStart: 'Tap to calculate the walking distance.',
+    calculateDistance: '📡 Calculate distance',
+    guideMe: '🚶 Take me there',
 
-    lemonades:
-      'Lemonades',
+    more: '••• More',
+    collectorProgram: 'Świeże Lody collector programme.',
+    customerProfile: 'Customer profile',
+    howWorks: 'How does the game work?',
+    privacy: 'Privacy',
 
-    mission:
-      'Mission',
+    yourProfile: '👤 Your profile',
+    profileSubtitle: 'Customer card and scanning code.',
+    collector: 'Świeże Lody Collector',
+    showAtOrder: 'Show this code when ordering.',
+    flavours: 'flavours',
+    reward: 'reward',
 
-    discovered:
-      'discovered',
+    collectionNav: 'Collection',
+    rewardsNav: 'Rewards',
+    locationNav: 'Location',
+    moreNav: 'More',
 
-    rewardUnlocked:
-      '🎉 REWARD UNLOCKED!',
-
-    freeTopping:
-      'Free topping',
-
-    freeToppingDesc:
-      'Choose 1 of 8 toppings for free.',
-
-    showCode:
-      '🎟️ Show code',
-
-    showCodeSimple:
-      'Show code',
-
-    yourRewards:
-      '🎁 Your rewards',
-
-    rewardSubtitle:
-      'Active rewards and unlocked bonuses.',
-
-    available:
-      'AVAILABLE',
-
-    reward3:
-      'Unlocked after 3 different milkshakes.',
-
-    stillLocked:
-      'STILL LOCKED',
-
-    secretDessert:
-      'Secret Dessert',
-
-    discover6:
-      'Discover 6 Milkshake flavours.',
-
-    collectAll:
-      'Complete the full collection 9/9.',
-
-
-    menuTitle:
-      '☰ Menu',
-
-    tapCategory:
-      'Tap a category to see the products.',
-
-    milkshakeCount:
-      '9 flavours • 25 zł',
-
-    lemonadeCount:
-      '4 flavours • 18 zł',
-
-    waffles:
-      'Waffles',
-
-    from10:
-      'from 10 zł',
-
-    iceCream:
-      'Ice cream',
-
-    iceCreamPrice:
-      '100 g • 10 zł',
-
-    coffee:
-      'Coffee',
-
-    onSite:
-      'on site',
-
-    toUnlock:
-      'to unlock',
-
-
-    hereNow:
-      '📍 Here and now',
-
-    hereNowShop:
-      'Świeże Lody. Here and now.',
-
-    distanceStart:
-      'Tap to calculate the walking distance.',
-
-    calculateDistance:
-      '📡 Calculate distance',
-
-    guideMe:
-      '🚶 Take me there',
-
-
-    more:
-      '••• More',
-
-    collectorProgram:
-      'Świeże Lody collector programme.',
-
-    customerProfile:
-      'Customer profile',
-
-    howWorks:
-      'How does the game work?',
-
-    privacy:
-      'Privacy',
-
-
-    yourProfile:
-      '👤 Your profile',
-
-    profileSubtitle:
-      'Customer card and scanning code.',
-
-    collector:
-      'Świeże Lody Collector',
-
-    showAtOrder:
-      'Show this code when ordering.',
-
-    flavours:
-      'flavours',
-
-    reward:
-      'reward',
-
-
-    collectionNav:
-      'Collection',
-
-    rewardsNav:
-      'Rewards',
-
-    locationNav:
-      'Location',
-
-    moreNav:
-      'More',
-
-
-    yourRewardCode:
-      'YOUR REWARD CODE',
-
+    yourRewardCode: 'YOUR REWARD CODE',
     rewardCodeHelp:
       'Show this screen when ordering. Staff will confirm the reward.',
 
-    chooseTopping:
-      '✨ Choose a topping',
+    chooseTopping: '✨ Choose a topping',
+    oneFree: 'One topping free.',
+    chosen: 'Selected',
 
-    oneFree:
-      'One topping free.',
+    milkshakeTitle: '🥤 Milkshake',
+    lemonadeTitle: '🍋 Lemonades',
+    waffleTitle: '🧇 Waffles',
 
-    chosen:
-      'Selected',
+    milkshakeCollection: 'Your Milkshake collection',
+    lemonadeCollection: 'Your Lemonade collection',
+    vacationCollection: 'Holiday Mission',
 
+    milkshakeHint: '9/9 → Secret Milkshake + Master status',
+    lemonadeHint: 'Collect 4 different lemonades',
+    vacationHint: 'Complete the mission → reward',
 
-    milkshakeTitle:
-      '🥤 Milkshake',
+    secretDessertLabel: '🔒 SECRET DESSERT',
+    secretLemonadeLabel: '🔒 SECRET LEMONADE',
+    missionRewardLabel: '🎁 MISSION REWARD',
 
-    lemonadeTitle:
-      '🍋 Lemonades',
-
-    waffleTitle:
-      '🧇 Waffles',
-
-
-    milkshakeCollection:
-      'Your Milkshake collection',
-
-    lemonadeCollection:
-      'Your Lemonade collection',
-
-    vacationCollection:
-      'Holiday Mission',
-
-
-    milkshakeHint:
-      '9/9 → Secret Milkshake + Master status',
-
-    lemonadeHint:
-      'Collect 4 different lemonades',
-
-    vacationHint:
-      'Complete the mission → reward',
-
-
-    secretDessertLabel:
-      '🔒 SECRET DESSERT',
-
-    secretLemonadeLabel:
-      '🔒 SECRET LEMONADE',
-
-    missionRewardLabel:
-      '🎁 MISSION REWARD',
-
-
-    lookingLocation:
-      'Finding your location…',
-
+    lookingLocation: 'Finding your location…',
     locationDenied:
       'Enable location access to calculate the distance.',
-
 
     aboutGame:
       'Try different flavours. The same flavour does not increase your collection. New flavour = new card.',
@@ -721,241 +313,102 @@ const T = {
     familyText:
       'A family will be able to collect together using one shared code.',
 
-    privacyText:
-      'Customer data is protected.',
+    privacyText: 'Customer data is protected.',
 
-
-    icecreamInfo:
-      'Ice cream 100 g • 10 zł.',
-
-    coffeeInfo:
-      'Coffee and Ice Coffee.',
+    icecreamInfo: 'Ice cream 100 g • 10 zł.',
+    coffeeInfo: 'Coffee and Ice Coffee.',
 
     secretInfo:
       'Secret items unlock after completing collections and missions.'
   },
 
 
-  /* ČEŠTINA */
   cs: {
-    madeHere:
-      'Vyrobeno na místě',
+    madeHere: 'Vyrobeno na místě',
+    hello: '👋 Ahoj!',
+    collectRewards: 'Sbírej příchutě a získávej odměny!',
+    lemonades: 'Limonády',
+    mission: 'Mise',
+    discovered: 'objeveno',
 
-    hello:
-      '👋 Ahoj!',
+    rewardUnlocked: '🎉 ODMĚNA ODEMČENA!',
+    freeTopping: 'Topping zdarma',
+    freeToppingDesc: 'Vyber si 1 z 8 toppingů zdarma.',
+    showCode: '🎟️ Ukázat kód',
+    showCodeSimple: 'Ukázat kód',
 
-    collectRewards:
-      'Sbírej příchutě a získávej odměny!',
+    yourRewards: '🎁 Tvoje odměny',
+    rewardSubtitle: 'Aktivní odměny a odemčené bonusy.',
+    available: 'DOSTUPNÁ',
+    reward3: 'Odemčeno za 3 různé milkshaky.',
+    stillLocked: 'STÁLE ZAMČENO',
+    secretDessert: 'Tajný dezert',
+    discover6: 'Objev 6 příchutí Milkshake.',
+    collectAll: 'Dokonči celou kolekci 9/9.',
 
-    lemonades:
-      'Limonády',
+    menuTitle: '☰ Menu',
+    tapCategory: 'Klepni na kategorii a zobraz produkty.',
+    milkshakeCount: '9 příchutí • 25 zł',
+    lemonadeCount: '4 příchutě • 18 zł',
+    waffles: 'Vafle',
+    from10: 'od 10 zł',
+    iceCream: 'Zmrzlina',
+    iceCreamPrice: '100 g • 10 zł',
+    coffee: 'Káva',
+    onSite: 'na místě',
+    toUnlock: 'k odemčení',
 
-    mission:
-      'Mise',
+    hereNow: '📍 Tady a teď',
+    hereNowShop: 'Świeże Lody. Tady a teď.',
+    distanceStart: 'Klepni a spočítáme vzdálenost.',
+    calculateDistance: '📡 Spočítat vzdálenost',
+    guideMe: '🚶 Navigovat',
 
-    discovered:
-      'objeveno',
+    more: '••• Více',
+    collectorProgram: 'Sběratelský program Świeże Lody.',
+    customerProfile: 'Profil zákazníka',
+    howWorks: 'Jak hra funguje?',
+    privacy: 'Soukromí',
 
-    rewardUnlocked:
-      '🎉 ODMĚNA ODEMČENA!',
+    yourProfile: '👤 Tvůj profil',
+    profileSubtitle: 'Zákaznická karta a skenovací kód.',
+    collector: 'Sběratel Świeże Lody',
+    showAtOrder: 'Ukaž tento kód při objednávce.',
+    flavours: 'příchutě',
+    reward: 'odměna',
 
-    freeTopping:
-      'Topping zdarma',
+    collectionNav: 'Kolekce',
+    rewardsNav: 'Odměny',
+    locationNav: 'Poloha',
+    moreNav: 'Více',
 
-    freeToppingDesc:
-      'Vyber si 1 z 8 toppingů zdarma.',
-
-    showCode:
-      '🎟️ Ukázat kód',
-
-    showCodeSimple:
-      'Ukázat kód',
-
-    yourRewards:
-      '🎁 Tvoje odměny',
-
-    rewardSubtitle:
-      'Aktivní odměny a odemčené bonusy.',
-
-    available:
-      'DOSTUPNÁ',
-
-    reward3:
-      'Odemčeno za 3 různé milkshaky.',
-
-    stillLocked:
-      'STÁLE ZAMČENO',
-
-    secretDessert:
-      'Tajný dezert',
-
-    discover6:
-      'Objev 6 příchutí Milkshake.',
-
-    collectAll:
-      'Dokonči celou kolekci 9/9.',
-
-
-    menuTitle:
-      '☰ Menu',
-
-    tapCategory:
-      'Klepni na kategorii a zobraz produkty.',
-
-    milkshakeCount:
-      '9 příchutí • 25 zł',
-
-    lemonadeCount:
-      '4 příchutě • 18 zł',
-
-    waffles:
-      'Vafle',
-
-    from10:
-      'od 10 zł',
-
-    iceCream:
-      'Zmrzlina',
-
-    iceCreamPrice:
-      '100 g • 10 zł',
-
-    coffee:
-      'Káva',
-
-    onSite:
-      'na místě',
-
-    toUnlock:
-      'k odemčení',
-
-
-    hereNow:
-      '📍 Tady a teď',
-
-    hereNowShop:
-      'Świeże Lody. Tady a teď.',
-
-    distanceStart:
-      'Klepni a spočítáme vzdálenost.',
-
-    calculateDistance:
-      '📡 Spočítat vzdálenost',
-
-    guideMe:
-      '🚶 Navigovat',
-
-
-    more:
-      '••• Více',
-
-    collectorProgram:
-      'Sběratelský program Świeże Lody.',
-
-    customerProfile:
-      'Profil zákazníka',
-
-    howWorks:
-      'Jak hra funguje?',
-
-    privacy:
-      'Soukromí',
-
-
-    yourProfile:
-      '👤 Tvůj profil',
-
-    profileSubtitle:
-      'Zákaznická karta a skenovací kód.',
-
-    collector:
-      'Sběratel Świeże Lody',
-
-    showAtOrder:
-      'Ukaž tento kód při objednávce.',
-
-    flavours:
-      'příchutě',
-
-    reward:
-      'odměna',
-
-
-    collectionNav:
-      'Kolekce',
-
-    rewardsNav:
-      'Odměny',
-
-    locationNav:
-      'Poloha',
-
-    moreNav:
-      'Více',
-
-
-    yourRewardCode:
-      'TVŮJ KÓD ODMĚNY',
-
+    yourRewardCode: 'TVŮJ KÓD ODMĚNY',
     rewardCodeHelp:
       'Ukaž tuto obrazovku při objednávce. Obsluha odměnu potvrdí.',
 
-    chooseTopping:
-      '✨ Vyber topping',
+    chooseTopping: '✨ Vyber topping',
+    oneFree: 'Jeden topping zdarma.',
+    chosen: 'Vybráno',
 
-    oneFree:
-      'Jeden topping zdarma.',
+    milkshakeTitle: '🥤 Milkshake',
+    lemonadeTitle: '🍋 Limonády',
+    waffleTitle: '🧇 Vafle',
 
-    chosen:
-      'Vybráno',
+    milkshakeCollection: 'Tvoje Milkshake kolekce',
+    lemonadeCollection: 'Tvoje kolekce limonád',
+    vacationCollection: 'Prázdninová mise',
 
+    milkshakeHint: '9/9 → Secret Milkshake + status Master',
+    lemonadeHint: 'Nasbírej 4 různé limonády',
+    vacationHint: 'Dokonči misi → odměna',
 
-    milkshakeTitle:
-      '🥤 Milkshake',
+    secretDessertLabel: '🔒 TAJNÝ DEZERT',
+    secretLemonadeLabel: '🔒 TAJNÁ LIMONÁDA',
+    missionRewardLabel: '🎁 ODMĚNA ZA MISI',
 
-    lemonadeTitle:
-      '🍋 Limonády',
-
-    waffleTitle:
-      '🧇 Vafle',
-
-
-    milkshakeCollection:
-      'Tvoje Milkshake kolekce',
-
-    lemonadeCollection:
-      'Tvoje kolekce limonád',
-
-    vacationCollection:
-      'Prázdninová mise',
-
-
-    milkshakeHint:
-      '9/9 → Secret Milkshake + status Master',
-
-    lemonadeHint:
-      'Nasbírej 4 různé limonády',
-
-    vacationHint:
-      'Dokonči misi → odměna',
-
-
-    secretDessertLabel:
-      '🔒 TAJNÝ DEZERT',
-
-    secretLemonadeLabel:
-      '🔒 TAJNÁ LIMONÁDA',
-
-    missionRewardLabel:
-      '🎁 ODMĚNA ZA MISI',
-
-
-    lookingLocation:
-      'Hledám tvoji polohu…',
-
+    lookingLocation: 'Hledám tvoji polohu…',
     locationDenied:
       'Povol přístup k poloze pro výpočet vzdálenosti.',
-
 
     aboutGame:
       'Zkoušej různé příchutě. Stejná příchuť kolekci nezvyšuje. Nová příchuť = nová karta.',
@@ -963,15 +416,10 @@ const T = {
     familyText:
       'Rodina bude moci sbírat společně pomocí jednoho kódu.',
 
-    privacyText:
-      'Údaje zákazníků jsou chráněny.',
+    privacyText: 'Údaje zákazníků jsou chráněny.',
 
-
-    icecreamInfo:
-      'Zmrzlina 100 g • 10 zł.',
-
-    coffeeInfo:
-      'Káva a Ice Coffee.',
+    icecreamInfo: 'Zmrzlina 100 g • 10 zł.',
+    coffeeInfo: 'Káva a Ice Coffee.',
 
     secretInfo:
       'Tajné položky se odemknou po dokončení kolekcí a misí.'
@@ -980,7 +428,7 @@ const T = {
 
 
 /* =========================================================
-   NAZWY SMAKÓW
+   ITEM NAMES
 ========================================================= */
 
 const ITEM_NAMES = {
@@ -995,11 +443,9 @@ const ITEM_NAMES = {
     CHOCOLATE: 'Czekolada',
     ICE_COFFEE: 'Ice Coffee',
     MANGO: 'Mango',
-
     LEMON_MINT: 'Cytryna & Mięta',
     MANGO_PASSION: 'Mango & Marakuja',
     BLUE_LAGOON: 'Blue Lagoon',
-
     ICE_CREAM: 'Lody',
     WAFFLE: 'Gofr',
     MILKSHAKE: 'Milkshake',
@@ -1017,11 +463,9 @@ const ITEM_NAMES = {
     CHOCOLATE: 'Schokolade',
     ICE_COFFEE: 'Eiskaffee',
     MANGO: 'Mango',
-
     LEMON_MINT: 'Zitrone & Minze',
     MANGO_PASSION: 'Mango & Passionsfrucht',
     BLUE_LAGOON: 'Blue Lagoon',
-
     ICE_CREAM: 'Eis',
     WAFFLE: 'Waffel',
     MILKSHAKE: 'Milkshake',
@@ -1039,11 +483,9 @@ const ITEM_NAMES = {
     CHOCOLATE: 'Chocolate',
     ICE_COFFEE: 'Ice Coffee',
     MANGO: 'Mango',
-
     LEMON_MINT: 'Lemon & Mint',
     MANGO_PASSION: 'Mango & Passion Fruit',
     BLUE_LAGOON: 'Blue Lagoon',
-
     ICE_CREAM: 'Ice Cream',
     WAFFLE: 'Waffle',
     MILKSHAKE: 'Milkshake',
@@ -1061,11 +503,9 @@ const ITEM_NAMES = {
     CHOCOLATE: 'Čokoláda',
     ICE_COFFEE: 'Ledová káva',
     MANGO: 'Mango',
-
     LEMON_MINT: 'Citron & Máta',
     MANGO_PASSION: 'Mango & Marakuja',
     BLUE_LAGOON: 'Blue Lagoon',
-
     ICE_CREAM: 'Zmrzlina',
     WAFFLE: 'Vafle',
     MILKSHAKE: 'Milkshake',
@@ -1076,7 +516,7 @@ const ITEM_NAMES = {
 
 
 /* =========================================================
-   ZDJĘCIA
+   COLLECTION IMAGES
 ========================================================= */
 
 const IMAGE_MAP = {
@@ -1103,7 +543,7 @@ const IMAGE_MAP = {
 
 
 /* =========================================================
-   DEMO ODBLOKOWANIA
+   DEMO UNLOCKS
 ========================================================= */
 
 const UNLOCKED_DEMO = {
@@ -1153,7 +593,6 @@ function applyTranslations() {
       : currentLang;
 
 
-  /* обычные элементы */
   document
     .querySelectorAll('[data-i18n]')
     .forEach(el => {
@@ -1169,7 +608,6 @@ function applyTranslations() {
     });
 
 
-  /* кнопка активного языка */
   document
     .querySelectorAll('[data-lang]')
     .forEach(btn => {
@@ -1181,52 +619,40 @@ function applyTranslations() {
     });
 
 
-  /* заголовок коллекции */
   const title =
     document.querySelector(
       '#collectionTitle'
     );
 
+
   if (title) {
 
-    if (
-      currentCollection ===
-      'MILKSHAKE'
-    ) {
+    if (currentCollection === 'MILKSHAKE') {
       title.textContent =
         tr('milkshakeCollection');
     }
 
-    if (
-      currentCollection ===
-      'LEMONADE'
-    ) {
+    if (currentCollection === 'LEMONADE') {
       title.textContent =
         tr('lemonadeCollection');
     }
 
-    if (
-      currentCollection ===
-      'VACATION'
-    ) {
+    if (currentCollection === 'VACATION') {
       title.textContent =
         tr('vacationCollection');
     }
   }
 
 
-  /* Sekretny deser / Lemonade / Mission */
   updateSecretText();
 
 
-  /* reward */
   const rewardTitle =
     document.querySelector(
       '#rewardTitle'
     );
 
   if (rewardTitle) {
-
     rewardTitle.textContent =
       tr('freeTopping');
   }
@@ -1238,7 +664,6 @@ function applyTranslations() {
     );
 
   if (rewardDesc) {
-
     rewardDesc.textContent =
       tr('freeToppingDesc');
   }
@@ -1247,11 +672,7 @@ function applyTranslations() {
   renderToppings();
 
 
-  /* перерисовать карточки */
-  if (
-    DATA[currentCollection]
-  ) {
-
+  if (DATA[currentCollection]) {
     renderCollection(
       currentCollection
     );
@@ -1280,10 +701,8 @@ document
       applyTranslations();
     };
   });
-
-
 /* =========================================================
-   LOAD SUPABASE CATALOG
+   LOAD CATALOG
 ========================================================= */
 
 async function loadCatalog() {
@@ -1342,48 +761,41 @@ async function loadCatalog() {
 
       DATA[collection.code] = {
 
-        id:
-          collection.id,
-
-        code:
-          collection.code,
-
-        icon:
-          collection.icon,
+        id: collection.id,
+        code: collection.code,
+        icon: collection.icon,
 
         items:
           items
+
             .filter(
               item =>
                 item.collection_id ===
                 collection.id
             )
-            .map(item => ({
 
-              code:
-                item.code,
+            .map(
+              item => ({
 
-              name:
-                item.name,
+                code: item.code,
+                name: item.name,
+                icon: item.icon,
 
-              icon:
-                item.icon,
+                image:
+                  IMAGE_MAP[
+                    collection.code
+                  ]?.[
+                    item.code
+                  ] || null,
 
-              image:
-                IMAGE_MAP[
-                  collection.code
-                ]?.[
-                  item.code
-                ] || null,
-
-              unlocked:
-                UNLOCKED_DEMO[
-                  collection.code
-                ]?.has(
-                  item.code
-                ) || false
-
-            }))
+                unlocked:
+                  UNLOCKED_DEMO[
+                    collection.code
+                  ]?.has(
+                    item.code
+                  ) || false
+              })
+            )
       };
     }
   );
@@ -1398,25 +810,19 @@ async function loadCatalog() {
 
 
 /* =========================================================
-   COLLECTION TITLE
+   COLLECTION HELPERS
 ========================================================= */
 
 function collectionTitle(code) {
 
-  if (
-    code === 'MILKSHAKE'
-  ) {
-
+  if (code === 'MILKSHAKE') {
     return tr(
       'milkshakeCollection'
     );
   }
 
 
-  if (
-    code === 'LEMONADE'
-  ) {
-
+  if (code === 'LEMONADE') {
     return tr(
       'lemonadeCollection'
     );
@@ -1428,10 +834,6 @@ function collectionTitle(code) {
   );
 }
 
-
-/* =========================================================
-   ITEM NAME
-========================================================= */
 
 function itemName(item) {
 
@@ -1544,19 +946,18 @@ function renderCollection(code) {
   const d =
     DATA[code];
 
+
   currentCollection =
     code;
 
 
-  /* заголовок переводим даже если DATA ещё нет */
   const collectionTitleEl =
     document.querySelector(
       '#collectionTitle'
     );
 
-  if (
-    collectionTitleEl
-  ) {
+
+  if (collectionTitleEl) {
 
     collectionTitleEl.textContent =
       collectionTitle(code);
@@ -1578,7 +979,6 @@ function renderCollection(code) {
 
 
   if (!d) {
-
     return;
   }
 
@@ -1589,13 +989,25 @@ function renderCollection(code) {
     );
 
 
-  document.querySelector(
-    '#collectionIcon'
-  ).textContent =
-    d.icon || '🍦';
+  const collectionIcon =
+    document.querySelector(
+      '#collectionIcon'
+    );
 
 
-  cards.innerHTML = '';
+  if (collectionIcon) {
+    collectionIcon.textContent =
+      d.icon || '🍦';
+  }
+
+
+  if (!cards) {
+    return;
+  }
+
+
+  cards.innerHTML =
+    '';
 
 
   d.items.forEach(
@@ -1625,10 +1037,10 @@ function renderCollection(code) {
 
         e.innerHTML =
           `
-          <img
-            src="${item.image}.jpg"
-            alt="${itemName(item)}"
-          >
+            <img
+              src="${item.image}.jpg"
+              alt="${itemName(item)}"
+            >
           `;
       }
 
@@ -1636,30 +1048,32 @@ function renderCollection(code) {
 
         e.innerHTML =
           `
-          <div>
-            ${item.icon || '🍦'}
-          </div>
+            <div>
+              ${item.icon || '🍦'}
+            </div>
           `;
       }
 
 
       e.innerHTML +=
         `
-        <div class="badge">
-          ${
-            item.unlocked
-              ? '✓'
-              : '🔒'
-          }
-        </div>
+          <div class="badge">
+            ${
+              item.unlocked
+                ? '✓'
+                : '🔒'
+            }
+          </div>
 
-        <div class="name">
-          ${itemName(item)}
-        </div>
+          <div class="name">
+            ${itemName(item)}
+          </div>
         `;
 
 
-      cards.appendChild(e);
+      cards.appendChild(
+        e
+      );
     }
   );
 
@@ -1675,51 +1089,77 @@ function renderCollection(code) {
     d.items.length;
 
 
-  document.querySelector(
-    '#now'
-  ).textContent =
-    n;
+  const now =
+    document.querySelector(
+      '#now'
+    );
+
+  if (now) {
+    now.textContent =
+      n;
+  }
 
 
-  document.querySelector(
-    '#total'
-  ).textContent =
-    total;
+  const totalEl =
+    document.querySelector(
+      '#total'
+    );
+
+  if (totalEl) {
+    totalEl.textContent =
+      total;
+  }
 
 
-  document.querySelector(
-    '#bar'
-  ).style.width =
-    total
-      ? (
-          n /
-          total *
-          100
-        ) + '%'
-      : '0%';
+  const bar =
+    document.querySelector(
+      '#bar'
+    );
+
+  if (bar) {
+
+    bar.style.width =
+      total
+        ? (
+            n /
+            total *
+            100
+          ) + '%'
+        : '0%';
+  }
 
 
-  document.querySelector(
-    '#rewardCard'
-  ).classList.toggle(
+  const rewardCard =
+    document.querySelector(
+      '#rewardCard'
+    );
 
-    'hidden',
+  if (rewardCard) {
 
-    code !== 'MILKSHAKE' ||
-    n < 3
-  );
+    rewardCard.classList.toggle(
+      'hidden',
+      code !== 'MILKSHAKE' ||
+      n < 3
+    );
+  }
 
 
   if (
     code === 'MILKSHAKE'
   ) {
 
-    document.querySelector(
-      '#secret'
-    ).textContent =
-      n >= 9
-        ? 'MILKSHAKE MASTER'
-        : '???';
+    const secret =
+      document.querySelector(
+        '#secret'
+      );
+
+    if (secret) {
+
+      secret.textContent =
+        n >= 9
+          ? 'MILKSHAKE MASTER'
+          : '???';
+    }
   }
 
 
@@ -1732,29 +1172,37 @@ function renderCollection(code) {
     );
 
 
-  dots.innerHTML = '';
+  if (dots) {
+
+    dots.innerHTML =
+      '';
 
 
-  for (
-    let i = 0;
-    i < total;
-    i++
-  ) {
+    for (
+      let i = 0;
+      i < total;
+      i++
+    ) {
 
-    const s =
-      document.createElement(
-        'span'
+      const s =
+        document.createElement(
+          'span'
+        );
+
+
+      s.className =
+        'dot ' +
+        (
+          i < n
+            ? 'on'
+            : ''
+        );
+
+
+      dots.appendChild(
+        s
       );
-
-    s.className =
-      'dot ' +
-      (
-        i < n
-          ? 'on'
-          : ''
-      );
-
-    dots.appendChild(s);
+    }
   }
 }
 
@@ -1811,11 +1259,13 @@ function showPage(n) {
       'nav button'
     )
     .forEach(
-      b =>
+      b => {
+
         b.classList.toggle(
           'on',
           b.dataset.page === n
-        )
+        );
+      }
     );
 
 
@@ -1859,36 +1309,72 @@ const topDlg =
   );
 
 
-document.querySelector(
-  '#code'
-).onclick = () => {
-
-  topDlg.showModal();
-};
+const codeBtn =
+  document.querySelector(
+    '#code'
+  );
 
 
-document.querySelector(
-  '#rewardShowCode'
-).onclick = () => {
+if (codeBtn) {
 
-  topDlg.showModal();
-};
+  codeBtn.onclick = () => {
 
-
-document.querySelector(
-  '#x'
-).onclick = () => {
-
-  dlg.close();
-};
+    if (topDlg) {
+      topDlg.showModal();
+    }
+  };
+}
 
 
-document.querySelector(
-  '#topX'
-).onclick = () => {
+const rewardShowCode =
+  document.querySelector(
+    '#rewardShowCode'
+  );
 
-  topDlg.close();
-};
+
+if (rewardShowCode) {
+
+  rewardShowCode.onclick = () => {
+
+    if (topDlg) {
+      topDlg.showModal();
+    }
+  };
+}
+
+
+const xBtn =
+  document.querySelector(
+    '#x'
+  );
+
+
+if (xBtn) {
+
+  xBtn.onclick = () => {
+
+    if (dlg) {
+      dlg.close();
+    }
+  };
+}
+
+
+const topX =
+  document.querySelector(
+    '#topX'
+  );
+
+
+if (topX) {
+
+  topX.onclick = () => {
+
+    if (topDlg) {
+      topDlg.close();
+    }
+  };
+}
 
 
 /* =========================================================
@@ -1965,14 +1451,15 @@ const TOPPING_KEYS = [
 
 function toppingName(row) {
 
-  const index = {
-
-    pl: 1,
-    de: 2,
-    en: 3,
-    cs: 4
-
-  }[currentLang] || 1;
+  const index =
+    {
+      pl: 1,
+      de: 2,
+      en: 3,
+      cs: 4
+    }[
+      currentLang
+    ] || 1;
 
 
   return (
@@ -1998,14 +1485,16 @@ function renderToppings() {
 
   grid.innerHTML =
     TOPPING_KEYS
+
       .map(
         row =>
           `
-          <button>
-            ${toppingName(row)}
-          </button>
+            <button>
+              ${toppingName(row)}
+            </button>
           `
       )
+
       .join('');
 
 
@@ -2018,596 +1507,454 @@ function renderToppings() {
 
         b.onclick = () => {
 
-          document.querySelector(
-            '#chosenTopping'
-          ).textContent =
-            tr('chosen') +
-            ': ' +
-            b.textContent;
+          const chosen =
+            document.querySelector(
+              '#chosenTopping'
+            );
 
 
-          document.querySelector(
-            '#confirmTopping'
-          ).disabled =
-            false;
+          if (chosen) {
+
+            chosen.textContent =
+              tr('chosen') +
+              ': ' +
+              b.textContent;
+          }
+
+
+          const confirm =
+            document.querySelector(
+              '#confirmTopping'
+            );
+
+
+          if (confirm) {
+            confirm.disabled =
+              false;
+          }
         };
       }
     );
 }
 
 
-document.querySelector(
-  '#confirmTopping'
-).onclick = () => {
-
-  topDlg.close();
-
-  dlg.showModal();
-};
+const confirmTopping =
+  document.querySelector(
+    '#confirmTopping'
+  );
 
 
+if (confirmTopping) {
+
+  confirmTopping.onclick = () => {
+
+    if (topDlg) {
+      topDlg.close();
+    }
+
+    if (dlg) {
+      dlg.showModal();
+    }
+  };
+}
 /* =========================================================
-   MENU PRODUCTS
+   MENU
 ========================================================= */
 
 const MENU = {
 
   milkshake: [
 
-    [
-      'Mango',
-      'mango_real.jpg',
-      '25 zł'
-    ],
+    {
+      name: {
+        pl: 'Mango',
+        de: 'Mango',
+        en: 'Mango',
+        cs: 'Mango'
+      },
+      image: 'mango_real.jpg',
+      price: '25 zł'
+    },
 
-    [
-      'Lotus',
-      'lotus_real.jpg',
-      '25 zł'
-    ],
+    {
+      name: {
+        pl: 'Lotus',
+        de: 'Lotus',
+        en: 'Lotus',
+        cs: 'Lotus'
+      },
+      image: 'lotus_real.jpg',
+      price: '25 zł'
+    },
 
-    [
-      'Oreo',
-      'oreo_real.jpg',
-      '25 zł'
-    ],
+    {
+      name: {
+        pl: 'Oreo',
+        de: 'Oreo',
+        en: 'Oreo',
+        cs: 'Oreo'
+      },
+      image: 'oreo_real.jpg',
+      price: '25 zł'
+    },
 
-    [
-      'Raffaello',
-      'raffaello_real.jpg',
-      '25 zł'
-    ],
+    {
+      name: {
+        pl: 'Raffaello',
+        de: 'Raffaello',
+        en: 'Raffaello',
+        cs: 'Raffaello'
+      },
+      image: 'raffaello_real.jpg',
+      price: '25 zł'
+    },
 
-    [
-      'Kinder Bueno',
-      'kinder_real.jpg',
-      '25 zł'
-    ],
+    {
+      name: {
+        pl: 'Kinder Bueno',
+        de: 'Kinder Bueno',
+        en: 'Kinder Bueno',
+        cs: 'Kinder Bueno'
+      },
+      image: 'kinder_real.jpg',
+      price: '25 zł'
+    },
 
-    [
-      'Banana',
-      'banana_real.jpg',
-      '25 zł'
-    ],
+    {
+      name: {
+        pl: 'Banan',
+        de: 'Banane',
+        en: 'Banana',
+        cs: 'Banán'
+      },
+      image: 'banana_real.jpg',
+      price: '25 zł'
+    },
 
-    [
-      'Strawberry',
-      'strawberry_real.jpg',
-      '25 zł'
-    ],
+    {
+      name: {
+        pl: 'Truskawka',
+        de: 'Erdbeere',
+        en: 'Strawberry',
+        cs: 'Jahoda'
+      },
+      image: 'strawberry_real.jpg',
+      price: '25 zł'
+    },
 
-    [
-      'Chocolate',
-      'chocolate.jpg',
-      '25 zł'
-    ],
+    {
+      name: {
+        pl: 'Czekolada',
+        de: 'Schokolade',
+        en: 'Chocolate',
+        cs: 'Čokoláda'
+      },
+      image: 'chocolate.jpg',
+      price: '25 zł'
+    },
 
-    [
-      'Ice Coffee',
-      'ice_coffee_real.jpg',
-      '25 zł'
-    ]
+    {
+      name: {
+        pl: 'Ice Coffee',
+        de: 'Eiskaffee',
+        en: 'Ice Coffee',
+        cs: 'Ledová káva'
+      },
+      image: 'ice_coffee_real.jpg',
+      price: '25 zł'
+    }
   ],
 
 
   lemonade: [
 
-    [
-      'Blue Lagoon',
-      'lemonade_blue.jpg',
-      '18 zł'
-    ],
+    {
+      name: {
+        pl: 'Blue Lagoon',
+        de: 'Blue Lagoon',
+        en: 'Blue Lagoon',
+        cs: 'Blue Lagoon'
+      },
+      image: 'lemonade_blue.jpg',
+      price: '18 zł'
+    },
 
-    [
-      'Strawberry',
-      'lemonade_strawberry.jpg',
-      '18 zł'
-    ],
+    {
+      name: {
+        pl: 'Truskawka',
+        de: 'Erdbeere',
+        en: 'Strawberry',
+        cs: 'Jahoda'
+      },
+      image: 'lemonade_strawberry.jpg',
+      price: '18 zł'
+    },
 
-    [
-      'Lemon & Mint',
-      'lemonade_lemon_mint.jpg',
-      '18 zł'
-    ],
+    {
+      name: {
+        pl: 'Cytryna + mięta',
+        de: 'Zitrone + Minze',
+        en: 'Lemon + mint',
+        cs: 'Citron + máta'
+      },
+      image: 'lemonade_lemon_mint.jpg',
+      price: '18 zł'
+    },
 
-    [
-      'Mango & Passion',
-      'lemonade_mango.jpg',
-      '18 zł'
-    ]
+    {
+      name: {
+        pl: 'Mango + marakuja',
+        de: 'Mango + Passionsfrucht',
+        en: 'Mango + passion fruit',
+        cs: 'Mango + marakuja'
+      },
+      image: 'lemonade_mango.jpg',
+      price: '18 zł'
+    }
   ],
 
 
   waffle: [
 
-    [
-      'Frużelina + śmietana',
-      'waffle_cherry.jpg',
-      '25 zł'
-    ],
+    {
+      name: {
+        pl: 'Klasyczny',
+        de: 'Klassisch',
+        en: 'Classic',
+        cs: 'Klasický'
+      },
+      image: null,
+      price: '10 zł'
+    },
 
-    [
-      'Owoce + Nutella',
-      'waffle_fruit_nutella.jpg',
-      ''
-    ],
+    {
+      name: {
+        pl: 'Z cukrem pudrem',
+        de: 'Mit Puderzucker',
+        en: 'With powdered sugar',
+        cs: 'S moučkovým cukrem'
+      },
+      image: null,
+      price: '12 zł'
+    },
 
-    [
-      'Śmietana + sos',
-      'waffle_cream_sauce.jpg',
-      '20 zł'
-    ],
+    {
+      name: {
+        pl: 'Z sosem',
+        de: 'Mit Soße',
+        en: 'With sauce',
+        cs: 'S omáčkou'
+      },
+      image: null,
+      price: '15 zł'
+    },
 
-    [
-      'Śmietana',
-      'waffle_cream.jpg',
-      '17 zł'
-    ],
+    {
+      name: {
+        pl: 'Z frużeliną',
+        de: 'Mit Fruchttopping',
+        en: 'With fruit topping',
+        cs: 'S ovocnou polevou'
+      },
+      image: 'waffle_cherry.jpg',
+      price: '17 zł'
+    },
 
-    [
-      'Owoce + śmietana',
-      'waffle_fruit_cream.jpg',
-      '24 zł'
-    ],
+    {
+      name: {
+        pl: 'Z bitą śmietaną',
+        de: 'Mit Schlagsahne',
+        en: 'With whipped cream',
+        cs: 'Se šlehačkou'
+      },
+      image: 'waffle_cream.jpg',
+      price: '17 zł'
+    },
 
-    [
-      'Owoce',
-      'waffle_fruit.jpg',
-      '17 zł'
-    ],
+    {
+      name: {
+        pl: 'Z Nutellą',
+        de: 'Mit Nutella',
+        en: 'With Nutella',
+        cs: 'S Nutellou'
+      },
+      image: null,
+      price: '17 zł'
+    },
 
-    [
-      'Owoce + śmietana',
-      'waffle_berries_cream.jpg',
-      '24 zł'
-    ],
+    {
+      name: {
+        pl: 'Z owocami',
+        de: 'Mit Früchten',
+        en: 'With fruit',
+        cs: 'S ovocem'
+      },
+      image: 'waffle_fruit.jpg',
+      price: '17 zł'
+    },
 
-    [
-      'Posypka + marshmallow',
-      'waffle_candy.jpg',
-      ''
-    ]
+    {
+      name: {
+        pl: 'Z dżemem',
+        de: 'Mit Marmelade',
+        en: 'With jam',
+        cs: 'S džemem'
+      },
+      image: null,
+      price: '17 zł'
+    },
+
+    {
+      name: {
+        pl: 'Bita śmietana + sos',
+        de: 'Schlagsahne + Soße',
+        en: 'Whipped cream + sauce',
+        cs: 'Šlehačka + omáčka'
+      },
+      image: 'waffle_cream_sauce.jpg',
+      price: '20 zł'
+    },
+
+    {
+      name: {
+        pl: 'Bita śmietana + posypka',
+        de: 'Schlagsahne + Streusel',
+        en: 'Whipped cream + sprinkles',
+        cs: 'Šlehačka + posypka'
+      },
+      image: 'waffle_candy.jpg',
+      price: '20 zł'
+    },
+
+    {
+      name: {
+        pl: 'Nutella + owoce',
+        de: 'Nutella + Früchte',
+        en: 'Nutella + fruit',
+        cs: 'Nutella + ovoce'
+      },
+      image: 'waffle_fruit_nutella.jpg',
+      price: '25 zł'
+    },
+
+    {
+      name: {
+        pl: 'Bita śmietana + owoce',
+        de: 'Schlagsahne + Früchte',
+        en: 'Whipped cream + fruit',
+        cs: 'Šlehačka + ovoce'
+      },
+      image: 'waffle_fruit_cream.jpg',
+      price: '25 zł'
+    },
+
+    {
+      name: {
+        pl: 'Bita śmietana + frużelina',
+        de: 'Schlagsahne + Fruchttopping',
+        en: 'Whipped cream + fruit topping',
+        cs: 'Šlehačka + ovocná poleva'
+      },
+      image: 'waffle_berries_cream.jpg',
+      price: '25 zł'
+    },
+
+    {
+      name: {
+        pl: '1 porcja lodów + bita śmietana + owoce + sos',
+        de: '1 Portion Eis + Schlagsahne + Früchte + Soße',
+        en: '1 serving of ice cream + whipped cream + fruit + sauce',
+        cs: '1 porce zmrzliny + šlehačka + ovoce + omáčka'
+      },
+      image: null,
+      price: '34 zł'
+    }
   ]
 };
+
+
+/* =========================================================
+   MENU PRODUCT NAME
+========================================================= */
+
+function menuProductName(product) {
+
+  return (
+    product.name?.[currentLang] ||
+    product.name?.pl ||
+    ''
+  );
+}
 
 
 /* =========================================================
    OPEN MENU
 ========================================================= */
 
-function openMenu(
-  k,
-  title
-) {
+function openMenu(k, title) {
 
-  document.querySelector(
-    '#menuTitle'
-  ).textContent =
+  const menuTitle =
+    document.querySelector(
+      '#menuTitle'
+    );
+
+  const menuItems =
+    document.querySelector(
+      '#menuItems'
+    );
+
+
+  if (!menuTitle || !menuItems) {
+    return;
+  }
+
+
+  menuTitle.textContent =
     title;
 
 
-  document.querySelector(
-    '#menuItems'
-  ).innerHTML =
+  menuItems.innerHTML =
+    (MENU[k] || [])
 
-    (
-      MENU[k] ||
-      []
-    )
+      .map(product => {
 
-      .map(
-        x =>
-          `
+        const name =
+          menuProductName(product);
+
+
+        const picture =
+          product.image
+
+            ? `
+              <img
+                src="${product.image}"
+                alt="${name}"
+              >
+            `
+
+            : `
+              <div
+                style="
+                  min-width:90px;
+                  width:90px;
+                  height:90px;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  font-size:42px;
+                  border-radius:14px;
+                  background:#fff7d6;
+                "
+              >
+                🧇
+              </div>
+            `;
+
+
+        return `
           <article class="food">
 
-            <img
-              src="${x[1]}"
-              alt="${x[0]}"
-            >
+            ${picture}
 
             <div>
-
-              <b>
-                ${x[0]}
-              </b>
-
-              <span>
-                ${x[2]}
-              </span>
-
-            </div>
-
-          </article>
-          `
-      )
-
-      .join('');
-
-
-  document.querySelector(
-    '#menuDlg'
-  ).showModal();
-}
-
-
-document
-  .querySelectorAll(
-    '[data-menu]'
-  )
-  .forEach(
-    b => {
-
-      b.onclick = () => {
-
-        const key =
-          b.dataset.titleKey;
-
-
-        openMenu(
-          b.dataset.menu,
-          tr(key)
-        );
-      };
-    }
-  );
-
-
-document.querySelector(
-  '#menuX'
-).onclick = () => {
-
-  document.querySelector(
-    '#menuDlg'
-  ).close();
-};
-
-
-/* =========================================================
-   INFO DIALOG
-========================================================= */
-
-const info =
-  document.querySelector(
-    '#infoDlg'
-  );
-
-
-function openInfo(
-  title,
-  text
-) {
-
-  document.querySelector(
-    '#infoTitle'
-  ).textContent =
-    title;
-
-
-  document.querySelector(
-    '#infoText'
-  ).textContent =
-    text;
-
-
-  info.showModal();
-}
-
-
-document.querySelector(
-  '#infoX'
-).onclick = () => {
-
-  info.close();
-};
-
-
-document.querySelector(
-  '#howItWorks'
-).onclick = () => {
-
-  openInfo(
-    '🎮 ' +
-    tr('howWorks'),
-
-    tr('aboutGame')
-  );
-};
-
-
-document.querySelector(
-  '#familyPass'
-).onclick = () => {
-
-  openInfo(
-    '👨‍👩‍👧 Family Pass',
-
-    tr('familyText')
-  );
-};
-
-
-document.querySelector(
-  '#privacy'
-).onclick = () => {
-
-  openInfo(
-    '🔐 ' +
-    tr('privacy'),
-
-    tr('privacyText')
-  );
-};
-
-
-document
-  .querySelectorAll(
-    '[data-info]'
-  )
-  .forEach(
-    btn => {
-
-      btn.onclick = () => {
-
-        if (
-          btn.dataset.info ===
-          'icecream'
-        ) {
-
-          openInfo(
-
-            '🍦 ' +
-            tr('iceCream'),
-
-            tr('icecreamInfo')
-          );
-        }
-
-
-        if (
-          btn.dataset.info ===
-          'coffee'
-        ) {
-
-          openInfo(
-
-            '☕ ' +
-            tr('coffee'),
-
-            tr('coffeeInfo')
-          );
-        }
-
-
-        if (
-          btn.dataset.info ===
-          'secret'
-        ) {
-
-          openInfo(
-
-            '🔒 Secret Menu',
-
-            tr('secretInfo')
-          );
-        }
-      };
-    }
-  );
-
-
-/* =========================================================
-   LOCATION
-========================================================= */
-
-const DEST = {
-
-  lat:
-    53.91835,
-
-  lon:
-    14.2442
-};
-
-
-function hav(
-  a,
-  b,
-  c,
-  d
-) {
-
-  const R =
-    6371e3;
-
-
-  const p =
-    x =>
-      x *
-      Math.PI /
-      180;
-
-
-  const q1 =
-    p(a);
-
-
-  const q2 =
-    p(c);
-
-
-  const dq =
-    p(c - a);
-
-
-  const dl =
-    p(d - b);
-
-
-  const h =
-
-    Math.sin(
-      dq / 2
-    ) ** 2 +
-
-    Math.cos(q1) *
-
-    Math.cos(q2) *
-
-    Math.sin(
-      dl / 2
-    ) ** 2;
-
-
-  return (
-
-    2 *
-    R *
-    Math.asin(
-      Math.sqrt(h)
-    )
-  );
-}
-
-
-document.querySelector(
-  '#locate'
-).onclick = () => {
-
-  const status =
-    document.querySelector(
-      '#distanceStatus'
-    );
-
-
-  status.textContent =
-    tr(
-      'lookingLocation'
-    );
-
-
-  navigator.geolocation
-    .getCurrentPosition(
-
-      p => {
-
-        const m =
-          hav(
-
-            p.coords.latitude,
-
-            p.coords.longitude,
-
-            DEST.lat,
-
-            DEST.lon
-          );
-
-
-        const distance =
-
-          m < 1000
-
-            ? (
-                Math.round(m) +
-                ' m'
-              )
-
-            : (
-                (
-                  m / 1000
-                ).toFixed(1) +
-                ' km'
-              );
-
-
-        status.innerHTML =
-          `<b>${distance}</b>`;
-
-
-        document.querySelector(
-          '#walkbar'
-        ).style.width =
-
-          Math.max(
-
-            8,
-
-            Math.min(
-
-              100,
-
-              100 -
-              (
-                m /
-                3000 *
-                100
-              )
-            )
-
-          ) + '%';
-      },
-
-
-      () => {
-
-        status.textContent =
-          tr(
-            'locationDenied'
-          );
-      }
-    );
-};
-
-
-/* =========================================================
-   START
-========================================================= */
-
-renderToppings();
-
-applyTranslations();
-
-loadCatalog();
-
-
-/* =========================================================
-   SERVICE WORKER
-========================================================= */
-
-if (
-  'serviceWorker'
-  in navigator
-) {
-
-  window.addEventListener(
-    'load',
-    () => {
-
-      navigator
-        .serviceWorker
-        .register(
-          'sw.js'
-        );
-    }
-  );
-}
+              <b>${name}</
