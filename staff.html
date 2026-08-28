@@ -685,7 +685,19 @@
                   item.name ||
                   item.product_name ||
                   'Produkt';
+                const categoryKey =
+  String(item.product_key || '')
+    .split(':')[0];
 
+const categoryLabels = {
+  milkshake: '🥤 Milkshake',
+  lemonade: '🍋 Lemoniada',
+  waffle: '🧇 Gofr'
+};
+
+const category =
+  categoryLabels[categoryKey] ||
+  '🍦 Produkt';
                 const qty =
                   item.quantity ||
                   item.qty ||
@@ -699,10 +711,11 @@
                 return `
                   <div class="item">
 
-                    <div>
-                      ${escapeHtml(name)}
-                      × ${escapeHtml(qty)}
-                    </div>
+                   <div>
+  <b>${escapeHtml(category)}</b><br>
+  ${escapeHtml(name)}
+  × ${escapeHtml(qty)}
+</div>
 
                     <b>
                       ${money(
