@@ -12,19 +12,51 @@
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <style>
+    .language-switcher{
+      display:flex;
+      gap:4px;
+      justify-content:center;
+      padding:8px 10px;
+      background:#fff;
+    }
+
+    .language-switcher button{
+      border:1px solid #ddd;
+      background:#fff;
+      border-radius:10px;
+      padding:5px 8px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .language-switcher button.active{
+      background:#ffc728;
+      border-color:#ffc728;
+    }
+  </style>
 </head>
 
 <body>
+
 <div class="app">
 
   <header>
     <div>
       <div class="brand">ŚWIEŻE LODY 🍦</div>
-      <div class="tag">Robione na miejscu</div>
+      <div class="tag" data-i18n="madeHere">Robione na miejscu</div>
     </div>
 
     <button class="avatar" data-page="profile">👤</button>
   </header>
+
+  <div class="language-switcher">
+    <button data-lang="pl">🇵🇱 PL</button>
+    <button data-lang="de">🇩🇪 DE</button>
+    <button data-lang="en">🇬🇧 EN</button>
+    <button data-lang="cs">🇨🇿 CZ</button>
+  </div>
 
   <main>
 
@@ -32,39 +64,49 @@
 
       <section class="hello">
         <div>
-          <b>👋 Cześć!</b>
-          <span>Zbieraj smaki i odbieraj nagrody!</span>
+          <b data-i18n="hello">👋 Cześć!</b>
+          <span data-i18n="collectRewards">
+            Zbieraj smaki i odbieraj nagrody!
+          </span>
         </div>
         <i>🍦</i>
       </section>
 
       <section class="switcher">
+
         <button class="chip active" data-collection="MILKSHAKE">
           🥤 Milkshake
         </button>
 
         <button class="chip" data-collection="LEMONADE">
-          🍋 Lemoniady
+          🍋 <span data-i18n="lemonades">Lemoniady</span>
         </button>
 
         <button class="chip" data-collection="VACATION">
-          🏖️ Misja
+          🏖️ <span data-i18n="mission">Misja</span>
         </button>
+
       </section>
 
       <section class="title">
-        <div class="round" id="collectionIcon">🥤</div>
+
+        <div class="round" id="collectionIcon">
+          🥤
+        </div>
 
         <div>
-          <h1 id="collectionTitle">Twoja kolekcja Milkshake</h1>
+          <h1 id="collectionTitle">
+            Twoja kolekcja Milkshake
+          </h1>
 
           <p>
             <strong id="now">0</strong>
             /
             <span id="total">0</span>
-            odkrytych
+            <span data-i18n="discovered">odkrytych</span>
           </p>
         </div>
+
       </section>
 
       <div class="progress">
@@ -74,180 +116,192 @@
       <section id="cards" class="cards"></section>
 
       <section id="rewardCard" class="reward hidden">
+
         <div class="gift">🎁</div>
 
         <div>
-          <small>🎉 NAGRODA ODBLOKOWANA!</small>
-          <h2 id="rewardTitle">Darmowy topping</h2>
+          <small data-i18n="rewardUnlocked">
+            🎉 NAGRODA ODBLOKOWANA!
+          </small>
+
+          <h2 id="rewardTitle">
+            Darmowy topping
+          </h2>
+
           <p id="rewardDesc">
             Wybierz 1 z 8 toppingów gratis.
           </p>
         </div>
 
-        <button id="code">
+        <button id="code" data-i18n="showCode">
           🎟️ Pokaż kod
         </button>
+
       </section>
 
       <section class="secret">
+
         <div>
-          <b id="secretLabel">
-            🔒 SEKRETNY DESER
-          </b>
+          <b id="secretLabel">🔒 SEKRETNY DESER</b>
 
           <h2 id="secret">???</h2>
 
-          <p id="hint">
-            Odkryj kolejne smaki
-          </p>
+          <p id="hint"></p>
 
           <div id="dots" class="dots"></div>
         </div>
 
-        <div class="shadowdessert">
-          🍨
-        </div>
+        <div class="shadowdessert">🍨</div>
+
       </section>
 
     </section>
 
+
     <section id="page-rewards" class="page">
 
       <div class="section-head">
-        <h1>🎁 Twoje nagrody</h1>
-        <p>Aktywne nagrody i odblokowane bonusy.</p>
+        <h1 data-i18n="yourRewards">🎁 Twoje nagrody</h1>
+
+        <p data-i18n="rewardSubtitle">
+          Aktywne nagrody i odblokowane bonusy.
+        </p>
       </div>
 
       <div class="reward-list">
 
         <article class="big-reward available">
+
           <div class="r-emoji">✨</div>
 
           <div>
-            <small>DOSTĘPNA</small>
-            <h2>Darmowy topping</h2>
-            <p>
+            <small data-i18n="available">DOSTĘPNA</small>
+
+            <h2 data-i18n="freeTopping">
+              Darmowy topping
+            </h2>
+
+            <p data-i18n="reward3">
               Odblokowane za 3 różne milkshake’i.
             </p>
           </div>
 
-          <button id="rewardShowCode">
+          <button id="rewardShowCode" data-i18n="showCodeSimple">
             Pokaż kod
           </button>
+
         </article>
 
         <article class="big-reward locked">
+
           <div class="r-emoji">🔒</div>
 
           <div>
-            <small>JESZCZE ZABLOKOWANE</small>
-            <h2>Sekretny Deser</h2>
-            <p>
+            <small data-i18n="stillLocked">
+              JESZCZE ZABLOKOWANE
+            </small>
+
+            <h2 data-i18n="secretDessert">
+              Sekretny Deser
+            </h2>
+
+            <p data-i18n="discover6">
               Odkryj 6 smaków Milkshake.
             </p>
           </div>
+
         </article>
 
         <article class="big-reward locked">
+
           <div class="r-emoji">🔒</div>
 
           <div>
-            <small>JESZCZE ZABLOKOWANE</small>
+            <small data-i18n="stillLocked">
+              JESZCZE ZABLOKOWANE
+            </small>
+
             <h2>Secret Milkshake</h2>
-            <p>
+
+            <p data-i18n="collectAll">
               Zbierz całą kolekcję 9/9.
             </p>
           </div>
+
         </article>
 
       </div>
+
     </section>
+
 
     <section id="page-menu" class="page">
 
       <div class="section-head">
-        <h1>☰ Menu ze zdjęciami</h1>
-        <p>Dotknij kategorii, aby zobaczyć produkty.</p>
+        <h1 data-i18n="menuTitle">☰ Menu</h1>
+
+        <p data-i18n="tapCategory">
+          Dotknij kategorii, aby zobaczyć produkty.
+        </p>
       </div>
 
       <div class="menu-grid">
 
         <button
           data-menu="milkshake"
-          data-title="🥤 Milkshake"
+          data-title-key="milkshakeTitle"
         >
-          <img src="lotus_real.jpg" alt="Milkshake">
-
+          <div>🥤</div>
           <b>Milkshake</b>
-          <span>9 smaków • 25 zł</span>
+          <span data-i18n="milkshakeCount">9 smaków • 25 zł</span>
         </button>
 
         <button
           data-menu="lemonade"
-          data-title="🍋 Lemoniady"
+          data-title-key="lemonadeTitle"
         >
-          <img src="lemonade_blue.jpg" alt="Lemoniady">
-
-          <b>Lemoniady</b>
-          <span>4 smaki • 18 zł</span>
+          <div>🍋</div>
+          <b data-i18n="lemonades">Lemoniady</b>
+          <span data-i18n="lemonadeCount">4 smaki • 18 zł</span>
         </button>
 
         <button
           data-menu="waffle"
-          data-title="🧇 Gofry"
+          data-title-key="waffleTitle"
         >
-          <img src="waffle_berries_cream.jpg" alt="Gofry">
-
-          <b>Gofry</b>
-          <span>duży wybór</span>
+          <div>🧇</div>
+          <b data-i18n="waffles">Gofry</b>
+          <span data-i18n="from10">od 10 zł</span>
         </button>
 
-        <button
-          onclick="openInfo(
-            '🍦 Lody',
-            'Lody 100 g • 10 zł.'
-          )"
-        >
+        <button data-info="icecream">
           <div>🍦</div>
-
-          <b>Lody</b>
-          <span>100 g • 10 zł</span>
+          <b data-i18n="iceCream">Lody</b>
+          <span data-i18n="iceCreamPrice">100 g • 10 zł</span>
         </button>
 
-        <button
-          onclick="openInfo(
-            '☕ Kawa',
-            'Kawa i Ice Coffee.'
-          )"
-        >
-          <img
-            src="ice_coffee_real.jpg"
-            alt="Kawa"
-          >
-
-          <b>Kawa</b>
-          <span>na miejscu</span>
+        <button data-info="coffee">
+          <div>☕</div>
+          <b data-i18n="coffee">Kawa</b>
+          <span data-i18n="onSite">na miejscu</span>
         </button>
 
-        <button
-          onclick="openInfo(
-            '🔒 Secret Menu',
-            'Sekretne pozycje odblokowują się po ukończeniu kolekcji i misji.'
-          )"
-        >
+        <button data-info="secret">
           <div>🔒</div>
-
           <b>Secret Menu</b>
-          <span>do odblokowania</span>
+          <span data-i18n="toUnlock">do odblokowania</span>
         </button>
 
       </div>
+
     </section>
+
 
     <section id="page-location" class="page">
 
       <div class="section-head">
-        <h1>📍 Tu i teraz</h1>
+        <h1 data-i18n="hereNow">📍 Tu i teraz</h1>
+
         <p>
           Świeże Lody • Stefana Żeromskiego 69
         </p>
@@ -260,7 +314,7 @@
           <span>📍</span>
         </div>
 
-        <h2>
+        <h2 data-i18n="hereNowShop">
           Świeże Lody. Tu i teraz.
         </h2>
 
@@ -268,10 +322,8 @@
           Stefana Żeromskiego 69, Świnoujście
         </p>
 
-        <div
-          id="distanceStatus"
-          class="distance"
-        >
+        <div id="distanceStatus" class="distance"
+             data-i18n="distanceStart">
           Kliknij, a pokażę ile zostało iść.
         </div>
 
@@ -279,10 +331,8 @@
           <div id="walkbar"></div>
         </div>
 
-        <button
-          id="locate"
-          class="locate"
-        >
+        <button id="locate" class="locate"
+                data-i18n="calculateDistance">
           📡 Policz odległość
         </button>
 
@@ -291,18 +341,22 @@
           href="https://maps.apple.com/?q=Stefana+Zeromskiego+69+Swinoujscie"
           target="_blank"
           rel="noopener"
+          data-i18n="guideMe"
         >
           🚶 Prowadź mnie
         </a>
 
       </div>
+
     </section>
+
 
     <section id="page-more" class="page">
 
       <div class="section-head">
-        <h1>••• Więcej</h1>
-        <p>
+        <h1 data-i18n="more">••• Więcej</h1>
+
+        <p data-i18n="collectorProgram">
           Program kolekcjonera Świeże Lody.
         </p>
       </div>
@@ -311,13 +365,13 @@
 
         <button data-page="profile">
           👤
-          <span>Profil klienta</span>
+          <span data-i18n="customerProfile">Profil klienta</span>
           <b>›</b>
         </button>
 
         <button id="howItWorks">
           🎮
-          <span>Jak działa gra?</span>
+          <span data-i18n="howWorks">Jak działa gra?</span>
           <b>›</b>
         </button>
 
@@ -329,29 +383,32 @@
 
         <button id="privacy">
           🔐
-          <span>Prywatność</span>
+          <span data-i18n="privacy">Prywatność</span>
           <b>›</b>
         </button>
 
       </div>
+
     </section>
+
 
     <section id="page-profile" class="page">
 
       <div class="section-head">
-        <h1>👤 Twój profil</h1>
-        <p>Karta klienta i kod do skanowania.</p>
+        <h1 data-i18n="yourProfile">👤 Twój profil</h1>
+
+        <p data-i18n="profileSubtitle">
+          Karta klienta i kod do skanowania.
+        </p>
       </div>
 
       <div class="profile-card">
 
-        <div class="profile-avatar">
-          🍦
-        </div>
+        <div class="profile-avatar">🍦</div>
 
         <h2>Test Klient</h2>
 
-        <p class="muted">
+        <p class="muted" data-i18n="collector">
           Kolekcjoner Świeże Lody
         </p>
 
@@ -360,7 +417,7 @@
           <small>TEST-KLIENT</small>
         </div>
 
-        <p class="scan-help">
+        <p class="scan-help" data-i18n="showAtOrder">
           Pokaż ten kod przy zamówieniu.
         </p>
 
@@ -368,12 +425,12 @@
 
           <div>
             <b>3</b>
-            <span>smaki</span>
+            <span data-i18n="flavours">smaki</span>
           </div>
 
           <div>
             <b>1</b>
-            <span>nagroda</span>
+            <span data-i18n="reward">nagroda</span>
           </div>
 
           <div>
@@ -382,24 +439,24 @@
           </div>
 
         </div>
+
       </div>
+
     </section>
 
   </main>
 
+
   <nav>
 
-    <button
-      class="on"
-      data-page="collection"
-    >
+    <button class="on" data-page="collection">
       🏠
-      <span>Kolekcja</span>
+      <span data-i18n="collectionNav">Kolekcja</span>
     </button>
 
     <button data-page="rewards">
       🎁
-      <span>Nagrody</span>
+      <span data-i18n="rewardsNav">Nagrody</span>
     </button>
 
     <button data-page="menu">
@@ -409,51 +466,56 @@
 
     <button data-page="location">
       📍
-      <span>Lokalizacja</span>
+      <span data-i18n="locationNav">Lokalizacja</span>
     </button>
 
     <button data-page="more">
       •••
-      <span>Więcej</span>
+      <span data-i18n="moreNav">Więcej</span>
     </button>
 
   </nav>
 
 </div>
 
+
 <dialog id="dlg">
 
   <button class="x" id="x">×</button>
 
-  <h3>TWÓJ KOD NAGRODY</h3>
+  <h3 data-i18n="yourRewardCode">
+    TWÓJ KOD NAGRODY
+  </h3>
 
   <div class="qr">
     <b>ŚL</b>
   </div>
 
-  <h2>Darmowy topping</h2>
+  <h2 data-i18n="freeTopping">
+    Darmowy topping
+  </h2>
 
-  <p>
+  <p data-i18n="rewardCodeHelp">
     Pokaż ten ekran przy zamówieniu.
     Nagrodę zatwierdza obsługa.
   </p>
 
 </dialog>
 
+
 <dialog id="toppingDlg">
 
   <button class="x" id="topX">×</button>
 
-  <h2>✨ Wybierz topping</h2>
+  <h2 data-i18n="chooseTopping">
+    ✨ Wybierz topping
+  </h2>
 
-  <p>
+  <p data-i18n="oneFree">
     Jeden topping gratis.
   </p>
 
-  <div
-    id="toppingGrid"
-    class="topping-grid"
-  ></div>
+  <div id="toppingGrid" class="topping-grid"></div>
 
   <b id="chosenTopping"></b>
 
@@ -461,44 +523,35 @@
     id="confirmTopping"
     class="locate"
     disabled
+    data-i18n="showCodeSimple"
   >
     Pokaż kod
   </button>
 
 </dialog>
 
+
 <dialog id="menuDlg">
 
-  <button
-    class="x"
-    id="menuX"
-  >
-    ×
-  </button>
+  <button class="x" id="menuX">×</button>
 
   <h2 id="menuTitle"></h2>
 
-  <div
-    id="menuItems"
-    class="food-list"
-  ></div>
+  <div id="menuItems" class="food-list"></div>
 
 </dialog>
 
+
 <dialog id="infoDlg">
 
-  <button
-    class="x"
-    id="infoX"
-  >
-    ×
-  </button>
+  <button class="x" id="infoX">×</button>
 
   <h2 id="infoTitle"></h2>
 
   <p id="infoText"></p>
 
 </dialog>
+
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
