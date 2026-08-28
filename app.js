@@ -700,20 +700,20 @@ const MENU = {
   ],
 
   waffle: [
-    { name: { pl: 'Klasyczny', de: 'Klassisch', en: 'Classic', cs: 'Klasický' }, image: null, price: '10 zł' },
-    { name: { pl: 'Z cukrem pudrem', de: 'Mit Puderzucker', en: 'With powdered sugar', cs: 'S moučkovým cukrem' }, image: null, price: '12 zł' },
-    { name: { pl: 'Z sosem', de: 'Mit Soße', en: 'With sauce', cs: 'S omáčkou' }, image: null, price: '15 zł' },
+    { name: { pl: 'Klasyczny', de: 'Klassisch', en: 'Classic', cs: 'Klasický' }, image: image: 'waffle_classic.jpg', price: '10 zł' },
+    { name: { pl: 'Z cukrem pudrem', de: 'Mit Puderzucker', en: 'With powdered sugar', cs: 'S moučkovým cukrem' }, image: image: 'waffle_powdered.jpg', price: '12 zł' },
+    { name: { pl: 'Z sosem', de: 'Mit Soße', en: 'With sauce', cs: 'S omáčkou' }, image: image: 'waffle_sauce.jpg', price: '15 zł' },
     { name: { pl: 'Z frużeliną', de: 'Mit Fruchttopping', en: 'With fruit topping', cs: 'S ovocnou polevou' }, image: 'waffle_cherry.jpg', price: '17 zł' },
     { name: { pl: 'Z bitą śmietaną', de: 'Mit Schlagsahne', en: 'With whipped cream', cs: 'Se šlehačkou' }, image: 'waffle_cream.jpg', price: '17 zł' },
-    { name: { pl: 'Z Nutellą', de: 'Mit Nutella', en: 'With Nutella', cs: 'S Nutellou' }, image: null, price: '17 zł' },
+    { name: { pl: 'Z Nutellą', de: 'Mit Nutella', en: 'With Nutella', cs: 'S Nutellou' }, image:image: 'waffle_nutella.jpg', price: '17 zł' },
     { name: { pl: 'Z owocami', de: 'Mit Früchten', en: 'With fruit', cs: 'S ovocem' }, image: 'waffle_fruit.jpg', price: '17 zł' },
-    { name: { pl: 'Z dżemem', de: 'Mit Marmelade', en: 'With jam', cs: 'S džemem' }, image: null, price: '17 zł' },
+    { name: { pl: 'Z dżemem', de: 'Mit Marmelade', en: 'With jam', cs: 'S džemem' }, image: image: 'waffle_jam.jpg', price: '17 zł' },
     { name: { pl: 'Bita śmietana + sos', de: 'Schlagsahne + Soße', en: 'Whipped cream + sauce', cs: 'Šlehačka + omáčka' }, image: 'waffle_cream_sauce.jpg', price: '20 zł' },
     { name: { pl: 'Bita śmietana + posypka', de: 'Schlagsahne + Streusel', en: 'Whipped cream + sprinkles', cs: 'Šlehačka + posypka' }, image: 'waffle_candy.jpg', price: '20 zł' },
     { name: { pl: 'Nutella + owoce', de: 'Nutella + Früchte', en: 'Nutella + fruit', cs: 'Nutella + ovoce' }, image: 'waffle_fruit_nutella.jpg', price: '25 zł' },
     { name: { pl: 'Bita śmietana + owoce', de: 'Schlagsahne + Früchte', en: 'Whipped cream + fruit', cs: 'Šlehačka + ovoce' }, image: 'waffle_fruit_cream.jpg', price: '25 zł' },
     { name: { pl: 'Bita śmietana + frużelina', de: 'Schlagsahne + Fruchttopping', en: 'Whipped cream + fruit topping', cs: 'Šlehačka + ovocná poleva' }, image: 'waffle_berries_cream.jpg', price: '25 zł' },
-    { name: { pl: '1 porcja lodów + bita śmietana + owoce + sos', de: '1 Portion Eis + Schlagsahne + Früchte + Soße', en: '1 serving of ice cream + whipped cream + fruit + sauce', cs: '1 porce zmrzliny + šlehačka + ovoce + omáčka' }, image: null, price: '34 zł' }
+    { name: { pl: '1 porcja lodów + bita śmietana + owoce + sos', de: '1 Portion Eis + Schlagsahne + Früchte + Soße', en: '1 serving of ice cream + whipped cream + fruit + sauce', cs: '1 porce zmrzliny + šlehačka + ovoce + omáčka' }, image: image: 'waffle_icecream.jpg', price: '34 zł' }
   ]
 };
 
