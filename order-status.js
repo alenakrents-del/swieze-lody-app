@@ -499,31 +499,61 @@
         '#slOrderStatusContent'
       );
 
-    if (order.status === 'ready') {
-      content.innerHTML = `
-        <div class="sl-ready-screen">
+   if (order.status === 'collected') {
+  clearInterval(countdownTimer);
 
-          <div class="sl-ready-icon">
-            ✅
-          </div>
+  content.innerHTML = `
+    <div class="sl-ready-screen">
 
-          <div class="sl-ready-title">
-            ${text('readyTitle')}
-          </div>
+      <div class="sl-ready-icon">
+        ❤️
+      </div>
 
-          <div class="sl-ready-number">
-            #${order.order_number}
-          </div>
+      <div class="sl-ready-title">
+        Dziękujemy!
+      </div>
 
-          <div class="sl-ready-text">
-            ${text('readyText')}
-          </div>
+      <div class="sl-ready-number">
+        #${order.order_number}
+      </div>
 
-        </div>
-      `;
+      <div class="sl-ready-text">
+        Zamówienie odebrane.
+      </div>
 
-      return;
-    }
+    </div>
+  `;
+
+  return;
+}
+
+if (order.status === 'ready') {
+  clearInterval(countdownTimer);
+
+  content.innerHTML = `
+    <div class="sl-ready-screen">
+
+      <div class="sl-ready-icon">
+        ✅
+      </div>
+
+      <div class="sl-ready-title">
+        ${text('readyTitle')}
+      </div>
+
+      <div class="sl-ready-number">
+        #${order.order_number}
+      </div>
+
+      <div class="sl-ready-text">
+        ${text('readyText')}
+      </div>
+
+    </div>
+  `;
+
+  return;
+}
 
     content.innerHTML = `
       <div class="sl-order-card">
