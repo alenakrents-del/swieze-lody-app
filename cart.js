@@ -1,5 +1,5 @@
 /* =========================================================
-   ŚWIEŻE LODY — CART / ORDER DEMO
+   ŚWIEŻE LODY — REAL CART + SUPABASE ORDERS
 ========================================================= */
 
 (() => {
@@ -12,10 +12,14 @@
       order: 'Zamów',
       remove: 'Usuń',
       added: 'Dodano do koszyka',
+      sending: 'Wysyłam zamówienie…',
       orderReady: 'Zamówienie przyjęte!',
-      estimate: 'Szacowany czas odbioru: 15 min',
       pickup: 'Odbiór na miejscu',
-      continue: 'Wróć do menu'
+      estimatePrefix: 'Szacowany czas odbioru:',
+      minutes: 'min',
+      continue: 'Wróć do menu',
+      error: 'Nie udało się wysłać zamówienia. Spróbuj ponownie.',
+      orderNumber: 'Numer zamówienia'
     },
 
     de: {
@@ -26,10 +30,14 @@
       order: 'Bestellen',
       remove: 'Entfernen',
       added: 'Zum Warenkorb hinzugefügt',
+      sending: 'Bestellung wird gesendet…',
       orderReady: 'Bestellung angenommen!',
-      estimate: 'Geschätzte Abholzeit: 15 Min.',
       pickup: 'Abholung vor Ort',
-      continue: 'Zurück zum Menü'
+      estimatePrefix: 'Geschätzte Abholzeit:',
+      minutes: 'Min.',
+      continue: 'Zurück zum Menü',
+      error: 'Die Bestellung konnte nicht gesendet werden. Bitte erneut versuchen.',
+      orderNumber: 'Bestellnummer'
     },
 
     en: {
@@ -40,10 +48,14 @@
       order: 'Order',
       remove: 'Remove',
       added: 'Added to cart',
+      sending: 'Sending order…',
       orderReady: 'Order received!',
-      estimate: 'Estimated pickup time: 15 min',
       pickup: 'Pickup on site',
-      continue: 'Back to menu'
+      estimatePrefix: 'Estimated pickup time:',
+      minutes: 'min',
+      continue: 'Back to menu',
+      error: 'Could not send the order. Please try again.',
+      orderNumber: 'Order number'
     },
 
     cs: {
@@ -54,17 +66,23 @@
       order: 'Objednat',
       remove: 'Odstranit',
       added: 'Přidáno do košíku',
+      sending: 'Odesílám objednávku…',
       orderReady: 'Objednávka přijata!',
-      estimate: 'Odhadovaný čas vyzvednutí: 15 min',
       pickup: 'Vyzvednutí na místě',
-      continue: 'Zpět do menu'
+      estimatePrefix: 'Odhadovaný čas vyzvednutí:',
+      minutes: 'min',
+      continue: 'Zpět do menu',
+      error: 'Objednávku se nepodařilo odeslat. Zkuste to znovu.',
+      orderNumber: 'Číslo objednávky'
     }
   };
 
   let cart = [];
 
   try {
-    cart = JSON.parse(localStorage.getItem('swiezeCart') || '[]');
+    cart = JSON.parse(
+      localStorage.getItem('swiezeCart') || '[]'
+    );
 
     if (!Array.isArray(cart)) {
       cart = [];
@@ -102,6 +120,15 @@
     return `${value.toFixed(2).replace('.00', '')} zł`;
   }
 
+  function productName(item) {
+    return (
+      item.name?.[lang()] ||
+      item.name?.pl ||
+      item.name?.en ||
+      ''
+    );
+  }
+
   function saveCart() {
     localStorage.setItem(
       'swiezeCart',
@@ -122,6 +149,7 @@
       padding: 10px 13px;
       font-weight: 800;
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .sl-cart-fab {
@@ -251,6 +279,7 @@
 
     .sl-order-btn:disabled {
       opacity: .45;
+      cursor: not-allowed;
     }
 
     .sl-empty {
@@ -272,6 +301,12 @@
       margin: 8px 0;
     }
 
+    .sl-success .number {
+      font-size: 28px;
+      font-weight: 900;
+      margin: 14px 0;
+    }
+
     .sl-success .time {
       font-size: 20px;
       font-weight: 900;
@@ -279,6 +314,14 @@
       border-radius: 14px;
       padding: 14px;
       margin: 16px 0;
+    }
+
+    .sl-error {
+      background: #ffe8e8;
+      border-radius: 12px;
+      padding: 12px;
+      margin: 12px 0;
+      font-weight: 700;
     }
   `;
 
@@ -418,11 +461,7 @@
             <div>
 
               <b>
-                ${
-                  item.name?.[lang()] ||
-                  item.name?.pl ||
-                  ''
-                }
+                ${productName(item)}
               </b>
 
               <span>
@@ -493,7 +532,10 @@
 
       </div>
 
+      <div id="slOrderError"></div>
+
       <button
+        id="slOrderButton"
         class="sl-order-btn"
         type="button"
         ${cart.length ? '' : 'disabled'}
@@ -562,24 +604,92 @@
     });
 
     const orderBtn =
-      box.querySelector('.sl-order-btn');
+      box.querySelector('#slOrderButton');
 
     if (cart.length) {
       orderBtn.onclick =
-        placeDemoOrder;
+        placeRealOrder;
     }
   }
 
-  function placeDemoOrder() {
-    const orderNo =
-      Math.floor(
-        100 + Math.random() * 900
+  async function placeRealOrder() {
+    if (!cart.length) {
+      return;
+    }
+
+    const button =
+      dialog.querySelector('#slOrderButton');
+
+    const errorBox =
+      dialog.querySelector('#slOrderError');
+
+    button.disabled = true;
+    button.textContent = text('sending');
+
+    errorBox.innerHTML = '';
+
+    try {
+      const orderItems = cart.map(item => ({
+        key: item.key,
+        name: productName(item),
+        price: priceNumber(item.price),
+        qty: item.qty
+      }));
+
+      const { data, error } =
+        await sb.rpc(
+          'create_pickup_order',
+          {
+            p_items: orderItems,
+            p_locale: lang()
+          }
+        );
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data || !data.length) {
+        throw new Error('No order returned');
+      }
+
+      const order = data[0];
+
+      localStorage.setItem(
+        'swiezeLastOrder',
+        JSON.stringify({
+          publicToken: order.public_token,
+          orderNumber: order.order_number,
+          status: order.status,
+          estimatedMinutes:
+            order.estimated_minutes,
+          total: order.total
+        })
       );
 
-    cart = [];
+      cart = [];
+      saveCart();
 
-    saveCart();
+      showOrderSuccess(order);
 
+    } catch (error) {
+      console.error(
+        'ORDER ERROR:',
+        error
+      );
+
+      button.disabled = false;
+      button.textContent = text('order');
+
+      errorBox.innerHTML = `
+        <div class="sl-error">
+          ${text('error')}
+        </div>
+      `;
+    }
+  }
+
+  function showOrderSuccess(order) {
     const box =
       dialog.querySelector('#slCartContent');
 
@@ -587,7 +697,7 @@
       <div class="sl-cart-head">
 
         <h2>
-          #${orderNo}
+          ${text('orderNumber')}
         </h2>
 
         <button
@@ -609,12 +719,19 @@
           ${text('orderReady')}
         </h2>
 
+        <div class="number">
+          #${order.order_number}
+        </div>
+
         <p>
           ${text('pickup')}
         </p>
 
         <div class="time">
-          ⏱️ ${text('estimate')}
+          ⏱️
+          ${text('estimatePrefix')}
+          ${order.estimated_minutes}
+          ${text('minutes')}
         </div>
 
         <button
