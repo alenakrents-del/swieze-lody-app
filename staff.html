@@ -1,0 +1,996 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#ffc728">
+
+  <title>Świeże Lody — Staff</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f6f6f6;
+      color: #171717;
+    }
+
+    .wrap {
+      width: min(100%, 900px);
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .top h1 {
+      margin: 0;
+      font-size: 25px;
+    }
+
+    .muted {
+      color: #777;
+      font-size: 14px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.07);
+      margin-bottom: 16px;
+    }
+
+    input,
+    select,
+    button {
+      font: inherit;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      background: white;
+    }
+
+    .primary {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      background: #ffc728;
+      padding: 14px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .secondary {
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: white;
+      padding: 10px 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .danger {
+      border: 0;
+      border-radius: 12px;
+      background: #111;
+      color: white;
+      padding: 10px 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .orders {
+      display: grid;
+      gap: 14px;
+    }
+
+    .order-card {
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.07);
+      border-left: 7px solid #ddd;
+    }
+
+    .order-card[data-status="new"] {
+      border-left-color: #ff5a5a;
+    }
+
+    .order-card[data-status="accepted"] {
+      border-left-color: #ffb020;
+    }
+
+    .order-card[data-status="preparing"] {
+      border-left-color: #4b8cff;
+    }
+
+    .order-card[data-status="ready"] {
+      border-left-color: #20b26b;
+    }
+
+    .order-card[data-status="collected"] {
+      border-left-color: #999;
+      opacity: .78;
+    }
+
+    .order-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .order-number {
+      font-size: 26px;
+      font-weight: 900;
+    }
+
+    .order-total {
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .status {
+      display: inline-block;
+      margin-top: 5px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #f0f0f0;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .items {
+      margin: 12px 0;
+      padding: 12px;
+      background: #f8f8f8;
+      border-radius: 12px;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid #e9e9e9;
+    }
+
+    .item:last-child {
+      border-bottom: 0;
+    }
+
+    .controls {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .status-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .status-buttons button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 8px;
+      font-weight: 900;
+      cursor: pointer;
+      background: #ececec;
+    }
+
+    .status-buttons button[data-next="accepted"] {
+      background: #ffd48b;
+    }
+
+    .status-buttons button[data-next="preparing"] {
+      background: #b9d1ff;
+    }
+
+    .status-buttons button[data-next="ready"] {
+      background: #a8e6c7;
+    }
+
+    .status-buttons button[data-next="collected"] {
+      background: #222;
+      color: white;
+    }
+
+    .time-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .time-row button {
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .notice {
+      background: #fff4c7;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    .error {
+      background: #ffe4e4;
+      color: #8f0000;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      font-weight: 700;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px 10px;
+      color: #777;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .toolbar button {
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    @media (min-width: 650px) {
+      .status-buttons {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+
+    <div class="top">
+      <div>
+        <h1>🍦 Świeże Lody Staff</h1>
+        <div class="muted">
+          Panel zamówień
+        </div>
+      </div>
+
+      <button
+        id="logoutBtn"
+        class="danger hidden"
+        type="button"
+      >
+        Wyloguj
+      </button>
+    </div>
+
+
+    <section id="loginPanel" class="panel">
+
+      <h2>Logowanie</h2>
+
+      <p class="muted">
+        Dostęp tylko dla obsługi.
+      </p>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Email"
+        autocomplete="username"
+      >
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Hasło"
+        autocomplete="current-password"
+      >
+
+      <button
+        id="loginBtn"
+        class="primary"
+        type="button"
+      >
+        Zaloguj
+      </button>
+
+      <div id="loginError"></div>
+
+    </section>
+
+
+    <section id="staffPanel" class="hidden">
+
+      <div class="notice">
+        🔔 Nowe zamówienia pojawiają się tutaj.
+      </div>
+
+      <div class="toolbar">
+
+        <button
+          id="refreshBtn"
+          type="button"
+        >
+          ↻ Odśwież
+        </button>
+
+        <button
+          data-filter="active"
+          type="button"
+        >
+          Aktywne
+        </button>
+
+        <button
+          data-filter="all"
+          type="button"
+        >
+          Wszystkie
+        </button>
+
+      </div>
+
+      <div id="orders" class="orders"></div>
+
+    </section>
+
+  </div>
+
+
+  <script src="config.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const sb = window.supabase.createClient(
+      window.APP_CONFIG.supabaseUrl,
+      window.APP_CONFIG.supabaseAnonKey
+    );
+
+    const loginPanel =
+      document.getElementById('loginPanel');
+
+    const staffPanel =
+      document.getElementById('staffPanel');
+
+    const loginBtn =
+      document.getElementById('loginBtn');
+
+    const logoutBtn =
+      document.getElementById('logoutBtn');
+
+    const refreshBtn =
+      document.getElementById('refreshBtn');
+
+    const loginError =
+      document.getElementById('loginError');
+
+    const ordersBox =
+      document.getElementById('orders');
+
+    let currentFilter = 'active';
+
+    let lastKnownOrderIds = new Set();
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function money(value) {
+      const n = Number(value || 0);
+
+      return `${n.toFixed(2).replace('.00', '')} zł`;
+    }
+
+    function statusLabel(status) {
+      const labels = {
+        new: 'NOWE',
+        accepted: 'PRZYJĘTE',
+        preparing: 'PRZYGOTOWANIE',
+        ready: 'GOTOWE',
+        collected: 'WYDANE',
+        cancelled: 'ANULOWANE'
+      };
+
+      return labels[status] || status;
+    }
+
+    function formatTime(dateString) {
+      if (!dateString) {
+        return '';
+      }
+
+      const d = new Date(dateString);
+
+      return d.toLocaleTimeString(
+        'pl-PL',
+        {
+          hour: '2-digit',
+          minute: '2-digit'
+        }
+      );
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) {
+        return '';
+      }
+
+      const d = new Date(dateString);
+
+      return d.toLocaleDateString(
+        'pl-PL',
+        {
+          day: '2-digit',
+          month: '2-digit'
+        }
+      );
+    }
+
+    async function checkStaff() {
+      const {
+        data: sessionData
+      } =
+        await sb.auth.getSession();
+
+      const session =
+        sessionData?.session;
+
+      if (!session) {
+        showLogin();
+        return;
+      }
+
+      const {
+        data,
+        error
+      } =
+        await sb.rpc('is_staff');
+
+      if (error || data !== true) {
+        await sb.auth.signOut();
+        showLogin();
+        return;
+      }
+
+      showStaff();
+      await loadOrders();
+    }
+
+    function showLogin() {
+      loginPanel.classList.remove('hidden');
+      staffPanel.classList.add('hidden');
+      logoutBtn.classList.add('hidden');
+    }
+
+    function showStaff() {
+      loginPanel.classList.add('hidden');
+      staffPanel.classList.remove('hidden');
+      logoutBtn.classList.remove('hidden');
+    }
+
+    loginBtn.addEventListener(
+      'click',
+      async () => {
+
+        loginError.innerHTML = '';
+
+        const email =
+          document
+            .getElementById('email')
+            .value
+            .trim();
+
+        const password =
+          document
+            .getElementById('password')
+            .value;
+
+        if (!email || !password) {
+          loginError.innerHTML =
+            '<div class="error">Wpisz email i hasło.</div>';
+
+          return;
+        }
+
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Logowanie…';
+
+        const {
+          error
+        } =
+          await sb.auth.signInWithPassword({
+            email,
+            password
+          });
+
+        if (error) {
+          loginError.innerHTML =
+            '<div class="error">Nieprawidłowy email lub hasło.</div>';
+
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Zaloguj';
+
+          return;
+        }
+
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Zaloguj';
+
+        await checkStaff();
+      }
+    );
+
+    logoutBtn.addEventListener(
+      'click',
+      async () => {
+
+        await sb.auth.signOut();
+
+        showLogin();
+      }
+    );
+
+    refreshBtn.addEventListener(
+      'click',
+      loadOrders
+    );
+
+    document
+      .querySelectorAll('[data-filter]')
+      .forEach(button => {
+
+        button.addEventListener(
+          'click',
+          () => {
+
+            currentFilter =
+              button.dataset.filter;
+
+            loadOrders();
+          }
+        );
+      });
+
+    async function loadOrders() {
+      ordersBox.innerHTML =
+        '<div class="empty">Ładowanie…</div>';
+
+      const {
+        data,
+        error
+      } =
+        await sb.rpc(
+          'staff_list_orders'
+        );
+
+      if (error) {
+        console.error(error);
+
+        ordersBox.innerHTML =
+          '<div class="error">Nie udało się pobrać zamówień.</div>';
+
+        return;
+      }
+
+      let orders =
+        Array.isArray(data)
+          ? data
+          : [];
+
+      if (currentFilter === 'active') {
+        orders =
+          orders.filter(order =>
+            ![
+              'collected',
+              'cancelled'
+            ].includes(order.status)
+          );
+      }
+
+      const newIds =
+        new Set(
+          orders
+            .filter(
+              order =>
+                order.status === 'new'
+            )
+            .map(
+              order =>
+                String(order.id)
+            )
+        );
+
+      if (
+        lastKnownOrderIds.size &&
+        [...newIds].some(
+          id =>
+            !lastKnownOrderIds.has(id)
+        )
+      ) {
+        playNotification();
+      }
+
+      lastKnownOrderIds = newIds;
+
+      renderOrders(orders);
+    }
+
+    function renderOrders(orders) {
+      if (!orders.length) {
+        ordersBox.innerHTML =
+          '<div class="empty">Brak zamówień.</div>';
+
+        return;
+      }
+
+      ordersBox.innerHTML =
+        orders.map(order => {
+
+          const items =
+            Array.isArray(order.items)
+              ? order.items
+              : [];
+
+          const itemsHtml =
+            items.length
+              ? items.map(item => {
+
+                const name =
+                  item.name ||
+                  item.product_name ||
+                  'Produkt';
+
+                const qty =
+                  item.quantity ||
+                  item.qty ||
+                  1;
+
+                const price =
+                  item.unit_price ||
+                  item.price ||
+                  0;
+
+                return `
+                  <div class="item">
+
+                    <div>
+                      ${escapeHtml(name)}
+                      × ${escapeHtml(qty)}
+                    </div>
+
+                    <b>
+                      ${money(
+                        Number(price) *
+                        Number(qty)
+                      )}
+                    </b>
+
+                  </div>
+                `;
+              }).join('')
+              : '<div class="muted">Brak pozycji</div>';
+
+          return `
+            <article
+              class="order-card"
+              data-order-id="${order.id}"
+              data-status="${escapeHtml(order.status)}"
+            >
+
+              <div class="order-head">
+
+                <div>
+
+                  <div class="order-number">
+                    #${escapeHtml(order.order_number)}
+                  </div>
+
+                  <div class="status">
+                    ${statusLabel(order.status)}
+                  </div>
+
+                  <div class="muted">
+                    ${formatDate(order.created_at)}
+                    •
+                    ${formatTime(order.created_at)}
+                    •
+                    ${escapeHtml(
+                      String(order.locale || 'pl').toUpperCase()
+                    )}
+                  </div>
+
+                </div>
+
+                <div class="order-total">
+                  ${money(order.total)}
+                </div>
+
+              </div>
+
+              <div class="items">
+                ${itemsHtml}
+              </div>
+
+              <div class="muted">
+                ⏱️ Czas:
+                <b>
+                  ${escapeHtml(order.estimated_minutes)}
+                  min
+                </b>
+              </div>
+
+              <div class="controls">
+
+                <div class="time-row">
+
+                  <b>Czas:</b>
+
+                  <button
+                    type="button"
+                    data-minutes="10"
+                  >
+                    10 min
+                  </button>
+
+                  <button
+                    type="button"
+                    data-minutes="15"
+                  >
+                    15 min
+                  </button>
+
+                  <button
+                    type="button"
+                    data-minutes="20"
+                  >
+                    20 min
+                  </button>
+
+                  <button
+                    type="button"
+                    data-minutes="30"
+                  >
+                    30 min
+                  </button>
+
+                </div>
+
+                <div class="status-buttons">
+
+                  <button
+                    type="button"
+                    data-next="accepted"
+                  >
+                    ✓ Przyjęte
+                  </button>
+
+                  <button
+                    type="button"
+                    data-next="preparing"
+                  >
+                    👩‍🍳 Przygotowanie
+                  </button>
+
+                  <button
+                    type="button"
+                    data-next="ready"
+                  >
+                    ✅ Gotowe
+                  </button>
+
+                  <button
+                    type="button"
+                    data-next="collected"
+                  >
+                    🛍️ Wydane
+                  </button>
+
+                </div>
+
+              </div>
+
+            </article>
+          `;
+        }).join('');
+
+      attachOrderButtons();
+    }
+
+    function attachOrderButtons() {
+      document
+        .querySelectorAll(
+          '.order-card'
+        )
+        .forEach(card => {
+
+          const orderId =
+            Number(
+              card.dataset.orderId
+            );
+
+          card
+            .querySelectorAll(
+              '[data-next]'
+            )
+            .forEach(button => {
+
+              button.addEventListener(
+                'click',
+                async () => {
+
+                  await updateOrder(
+                    orderId,
+                    button.dataset.next,
+                    null
+                  );
+                }
+              );
+            });
+
+          card
+            .querySelectorAll(
+              '[data-minutes]'
+            )
+            .forEach(button => {
+
+              button.addEventListener(
+                'click',
+                async () => {
+
+                  await updateOrder(
+                    orderId,
+                    null,
+                    Number(
+                      button.dataset.minutes
+                    )
+                  );
+                }
+              );
+            });
+        });
+    }
+
+    async function updateOrder(
+      orderId,
+      status,
+      minutes
+    ) {
+      const {
+        error
+      } =
+        await sb.rpc(
+          'staff_update_order',
+          {
+            p_order_id: orderId,
+            p_status: status,
+            p_estimated_minutes: minutes
+          }
+        );
+
+      if (error) {
+        console.error(error);
+
+        alert(
+          'Nie udało się zaktualizować zamówienia.'
+        );
+
+        return;
+      }
+
+      await loadOrders();
+    }
+
+    function playNotification() {
+      try {
+        const AudioContext =
+          window.AudioContext ||
+          window.webkitAudioContext;
+
+        if (!AudioContext) {
+          return;
+        }
+
+        const ctx =
+          new AudioContext();
+
+        const oscillator =
+          ctx.createOscillator();
+
+        const gain =
+          ctx.createGain();
+
+        oscillator.frequency.value = 880;
+
+        gain.gain.value = 0.12;
+
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+
+        oscillator.start();
+
+        setTimeout(
+          () => {
+            oscillator.stop();
+            ctx.close();
+          },
+          250
+        );
+
+      } catch (e) {
+        console.log(
+          'Sound unavailable'
+        );
+      }
+    }
+
+    setInterval(
+      async () => {
+
+        const {
+          data
+        } =
+          await sb.auth.getSession();
+
+        if (
+          data?.session &&
+          !staffPanel.classList.contains(
+            'hidden'
+          )
+        ) {
+          loadOrders();
+        }
+      },
+      15000
+    );
+
+    checkStaff();
+  </script>
+
+</body>
+</html>
