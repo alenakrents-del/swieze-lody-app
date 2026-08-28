@@ -561,7 +561,7 @@ async function openIceCreamMenu() {
 
   document.querySelector('#menuDlg')?.showModal();
 
-  const { data, error } = await sb.rpc(
+const { data, error } = await sb.rpc(
     'get_today_ice_cream_flavours'
   );
 
@@ -834,6 +834,9 @@ async function openIceCreamMenu() {
       };
     });
 }
+
+async function loadCatalog() 
+{  
   const { data: collections, error: collectionsError } = await sb
     .from('collections')
     .select('id,code,name,icon,sort_order')
