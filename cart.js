@@ -357,7 +357,30 @@
   }
 
   function addToCart(category, product, index) {
-     window.addIceCreamToCart = function(flavour) {
+  const key = `${category}:${index}`;
+
+  const existing =
+    cart.find(item => item.key === key);
+
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({
+      key,
+      category,
+      index,
+      name: product.name,
+      price: product.price,
+      image: product.image || null,
+      qty: 1
+    });
+  }
+
+  saveCart();
+  showToast(text('added'));
+}
+
+window.addIceCreamToCart = function(flavour) {
   if (!flavour || !flavour.id) return;
 
   addToCart(
@@ -374,29 +397,7 @@
     },
     flavour.id
   );
-};  const key = `${category}:${index}`;
-
-    const existing =
-      cart.find(item => item.key === key);
-
-    if (existing) {
-      existing.qty += 1;
-    } else {
-      cart.push({
-        key,
-        category,
-        index,
-        name: product.name,
-        price: product.price,
-        image: product.image || null,
-        qty: 1
-      });
-    }
-
-    saveCart();
-    showToast(text('added'));
-  }
-
+};
   function showToast(message) {
     const old =
       document.querySelector('.sl-toast');
