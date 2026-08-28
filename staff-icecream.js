@@ -1,6 +1,6 @@
 /* =========================================================
    ŚWIEŻE LODY — STAFF ICE CREAM
-   Dzisiejsze smaki lodów
+   AKTUALNE / UKRYTE
 ========================================================= */
 
 (() => {
@@ -46,19 +46,19 @@
       background:#fff;
       border-radius:16px;
       padding:14px;
-      border:2px solid #eee;
+      border:2px solid #ddd;
     }
 
-    .sl-ice-card.on{
+    .sl-ice-card.active{
       border-color:#20b26b;
-      background:#f3fff8;
+      background:#f1fff7;
     }
 
     .sl-ice-name{
       font-family:"Bangers", Impact, sans-serif;
-      font-size:26px;
+      font-size:27px;
       letter-spacing:.7px;
-      margin-bottom:4px;
+      margin-bottom:5px;
     }
 
     .sl-ice-badge{
@@ -80,51 +80,71 @@
     .sl-ice-desc{
       color:#666;
       font-size:14px;
-      line-height:1.35;
+      line-height:1.4;
       margin-bottom:10px;
     }
 
     .sl-ice-price{
+      font-size:19px;
       font-weight:900;
-      font-size:18px;
-      margin-bottom:10px;
+      margin-bottom:12px;
     }
 
-    .sl-ice-actions{
-      display:flex;
+    .sl-ice-state{
+      display:grid;
+      grid-template-columns:1fr 1fr;
       gap:8px;
-      flex-wrap:wrap;
+      margin-bottom:8px;
     }
 
-    .sl-ice-actions button{
-      border:0;
-      border-radius:10px;
-      padding:9px 11px;
+    .sl-ice-state button{
+      border:2px solid transparent;
+      border-radius:12px;
+      padding:11px 8px;
       font-weight:900;
       cursor:pointer;
     }
 
-    .sl-ice-on{
-      background:#a8e6c7;
+    .sl-ice-current{
+      background:#20b26b;
+      color:#fff;
+      border-color:#12884e !important;
+      box-shadow:0 3px 12px rgba(32,178,107,.25);
     }
 
-    .sl-ice-off{
+    .sl-ice-current-inactive{
+      background:#e9e9e9;
+      color:#999;
+    }
+
+    .sl-ice-hidden{
+      background:#222;
+      color:#fff;
+      border-color:#000 !important;
+    }
+
+    .sl-ice-hidden-inactive{
       background:#eee;
+      color:#777;
     }
 
     .sl-ice-edit{
+      width:100%;
+      border:0;
+      border-radius:11px;
+      padding:10px;
       background:#dbe8ff;
-    }
-
-    .sl-ice-hide{
-      background:#222;
-      color:#fff;
+      font-weight:900;
+      cursor:pointer;
     }
 
     .sl-ice-form{
       display:grid;
       gap:10px;
-      margin-top:14px;
+      margin:14px 0;
+      padding:14px;
+      border-radius:15px;
+      background:#fff8dd;
     }
 
     .sl-ice-form input,
@@ -138,7 +158,7 @@
     }
 
     .sl-ice-form textarea{
-      min-height:80px;
+      min-height:85px;
       resize:vertical;
     }
 
@@ -177,6 +197,7 @@
 
   document.head.appendChild(style);
 
+
   function esc(value){
     return String(value ?? '')
       .replaceAll('&','&amp;')
@@ -186,10 +207,13 @@
       .replaceAll("'","&#039;");
   }
 
+
   function money(value){
     const n = Number(value || 0);
+
     return `${n.toFixed(2).replace('.00','')} zł`;
   }
+
 
   function mount(){
     const staffPanel =
@@ -199,19 +223,23 @@
 
     if (document.getElementById(PANEL_ID)) return;
 
-    const panel = document.createElement('section');
+    const panel =
+      document.createElement('section');
 
     panel.id = PANEL_ID;
     panel.className = 'panel';
 
     panel.innerHTML = `
       <div class="sl-ice-head">
+
         <div>
           <h2 class="sl-ice-title">
             🍦 DZISIEJSZE SMAKI LODÓW
           </h2>
+
           <div class="muted">
-            Włącz tylko smaki dostępne dzisiaj.
+            Zielone = klient widzi smak.
+            Ukryte = smak zostaje tylko tutaj.
           </div>
         </div>
 
@@ -222,6 +250,7 @@
         >
           + Dodaj smak
         </button>
+
       </div>
 
       <div id="slIceFormBox"></div>
@@ -236,13 +265,11 @@
 
     document
       .getElementById('slIceAdd')
-      .addEventListener(
-        'click',
-        () => renderForm()
-      );
+      .onclick = () => renderForm();
 
     loadFlavours();
   }
+
 
   async function loadFlavours(){
     const list =
@@ -271,7 +298,7 @@
 
     const flavours =
       Array.isArray(data)
-        ? data.filter(x => !x.archived)
+        ? data
         : [];
 
     if (!flavours.length){
@@ -282,137 +309,173 @@
     }
 
     list.innerHTML =
-      flavours.map(flavour => `
-        <article
-          class="sl-ice-card ${flavour.available_today ? 'on' : ''}"
-          data-id="${esc(flavour.id)}"
-        >
+      flavours.map(flavour => {
 
-          <div class="sl-ice-name">
-            ${esc(flavour.name)}
-          </div>
+        const active =
+          flavour.available_today === true;
 
-          ${
-            flavour.badge
-              ? `<div class="sl-ice-badge">
-                  ${esc(flavour.badge)}
-                </div>`
-              : ''
-          }
+        return `
+          <article
+            class="sl-ice-card ${active ? 'active' : ''}"
+            data-id="${esc(flavour.id)}"
+          >
 
-          ${
-            flavour.base_label
-              ? `<div class="sl-ice-base">
-                  🥛 ${esc(flavour.base_label)}
-                </div>`
-              : ''
-          }
+            <div class="sl-ice-name">
+              ${esc(flavour.name)}
+            </div>
 
-          ${
-            flavour.description
-              ? `<div class="sl-ice-desc">
-                  ${esc(flavour.description)}
-                </div>`
-              : ''
-          }
+            ${
+              flavour.badge
+                ? `
+                  <div class="sl-ice-badge">
+                    ${esc(flavour.badge)}
+                  </div>
+                `
+                : ''
+            }
 
-          <div class="sl-ice-price">
-            ${money(flavour.price)} / porcja
-          </div>
+            ${
+              flavour.base_label
+                ? `
+                  <div class="sl-ice-base">
+                    ${
+                      String(flavour.base_label)
+                        .toLowerCase()
+                        .includes('jogur')
+                        ? '🥣'
+                        : '🥛'
+                    }
+                    ${esc(flavour.base_label)}
+                  </div>
+                `
+                : ''
+            }
 
-          <div class="sl-ice-actions">
+            ${
+              flavour.description
+                ? `
+                  <div class="sl-ice-desc">
+                    ${esc(flavour.description)}
+                  </div>
+                `
+                : ''
+            }
 
-            <button
-              type="button"
-              class="${flavour.available_today ? 'sl-ice-off' : 'sl-ice-on'}"
-              data-act="toggle"
-            >
-              ${
-                flavour.available_today
-                  ? 'Brak dzisiaj'
-                  : '✓ Jest dzisiaj'
-              }
-            </button>
+            <div class="sl-ice-price">
+              ${money(flavour.price)} / porcja
+            </div>
+
+            <div class="sl-ice-state">
+
+              <button
+                type="button"
+                data-act="active"
+                class="${
+                  active
+                    ? 'sl-ice-current'
+                    : 'sl-ice-current-inactive'
+                }"
+              >
+                🟢 AKTUALNE
+              </button>
+
+              <button
+                type="button"
+                data-act="hidden"
+                class="${
+                  active
+                    ? 'sl-ice-hidden-inactive'
+                    : 'sl-ice-hidden'
+                }"
+              >
+                ⚫ UKRYTE
+              </button>
+
+            </div>
 
             <button
               type="button"
               class="sl-ice-edit"
               data-act="edit"
             >
-              Edytuj
+              ✏️ Edytuj
             </button>
 
-            <button
-              type="button"
-              class="sl-ice-hide"
-              data-act="hide"
-            >
-              Ukryj
-            </button>
+          </article>
+        `;
+      }).join('');
 
-          </div>
-
-        </article>
-      `).join('');
 
     list
       .querySelectorAll('.sl-ice-card')
       .forEach(card => {
 
-        const id =
-          card.dataset.id;
-
         const flavour =
           flavours.find(
-            x => String(x.id) === String(id)
+            item =>
+              String(item.id) ===
+              String(card.dataset.id)
           );
 
         if (!flavour) return;
 
+
         card
-          .querySelector('[data-act="toggle"]')
+          .querySelector('[data-act="active"]')
           .onclick = async () => {
 
-            await sb.rpc(
+            const {
+              error
+            } = await sb.rpc(
               'staff_set_ice_cream_available',
               {
                 p_id: flavour.id,
-                p_available:
-                  !flavour.available_today
+                p_available: true
               }
             );
 
+            if (error){
+              console.error(error);
+              alert('Nie udało się zmienić statusu.');
+              return;
+            }
+
             loadFlavours();
           };
+
+
+        card
+          .querySelector('[data-act="hidden"]')
+          .onclick = async () => {
+
+            const {
+              error
+            } = await sb.rpc(
+              'staff_set_ice_cream_available',
+              {
+                p_id: flavour.id,
+                p_available: false
+              }
+            );
+
+            if (error){
+              console.error(error);
+              alert('Nie udało się zmienić statusu.');
+              return;
+            }
+
+            loadFlavours();
+          };
+
 
         card
           .querySelector('[data-act="edit"]')
           .onclick = () => {
             renderForm(flavour);
           };
-
-        card
-          .querySelector('[data-act="hide"]')
-          .onclick = async () => {
-
-            const ok =
-              confirm(
-                `Ukryć smak "${flavour.name}"?`
-              );
-
-            if (!ok) return;
-
-            await sb.rpc(
-              'staff_archive_ice_cream_flavour',
-              {
-                p_id: flavour.id
-              }
-            );
-
-            loadFlavours();
-          };
       });
   }
+
 
   function renderForm(flavour = null){
     const box =
@@ -433,7 +496,7 @@
         <input
           id="slIcePrice"
           type="number"
-          min="0"
+          min="0.5"
           step="0.50"
           placeholder="Cena za porcję"
           value="${esc(flavour?.price ?? 10)}"
@@ -442,20 +505,23 @@
         <input
           id="slIceBase"
           type="text"
-          placeholder="Baza, np. Na śmietance i mleku"
-          value="${esc(flavour?.base_label || '')}"
+          placeholder="Np. Na śmietance i mleku"
+          value="${esc(
+            flavour?.base_label ||
+            'Na śmietance i mleku'
+          )}"
         >
 
         <input
           id="slIceBadge"
           type="text"
-          placeholder="Etykieta, np. 🍪 OREO"
+          placeholder="Np. 🍪 OREO"
           value="${esc(flavour?.badge || '')}"
         >
 
         <textarea
           id="slIceDescription"
-          placeholder="Krótki opis smaku"
+          placeholder="Piękny krótki opis smaku"
         >${esc(flavour?.description || '')}</textarea>
 
         <input
@@ -472,7 +538,7 @@
             class="sl-ice-save"
             id="slIceSave"
           >
-            Zapisz smak
+            Zapisz
           </button>
 
           <button
@@ -488,11 +554,13 @@
       </div>
     `;
 
+
     document
       .getElementById('slIceCancel')
       .onclick = () => {
         box.innerHTML = '';
       };
+
 
     document
       .getElementById('slIceSave')
@@ -540,6 +608,7 @@
             .value
             .trim();
 
+
         const {
           error
         } = await sb.rpc(
@@ -577,6 +646,7 @@
           }
         );
 
+
         if (error){
           console.error(error);
 
@@ -593,8 +663,6 @@
       };
   }
 
-  const oldShowStaff =
-    window.showStaff;
 
   function tryMount(){
     const panel =
@@ -607,6 +675,7 @@
       mount();
     }
   }
+
 
   setInterval(
     tryMount,
