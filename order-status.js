@@ -1,5 +1,6 @@
-/* =========================================================f
-   ŚWIEŻE LODY — CUSTOMER ORDER STATUS
+/* =========================================================
+   ŚWIEŻE LODY — CUSTOMER ORDER STATUS V2
+   Timer + Progress + Ready screen + Sound
 ========================================================= */
 
 (() => {
@@ -8,8 +9,7 @@
       title: 'Twoje zamówienie',
       number: 'Numer zamówienia',
       status: 'Status',
-      time: 'Szacowany czas',
-      minutes: 'min',
+      remaining: 'Pozostało około',
       new: 'Nowe',
       accepted: 'Przyjęte',
       preparing: 'Przygotowanie',
@@ -17,14 +17,19 @@
       collected: 'Wydane',
       cancelled: 'Anulowane',
       noOrder: 'Brak aktywnego zamówienia',
-      close: 'Zamknij'
+      readyTitle: 'Zamówienie gotowe!',
+      readyText: 'Możesz już odebrać swoje zamówienie.',
+      overdue: 'Prawie gotowe',
+      step1: 'Przyjęte',
+      step2: 'Robimy',
+      step3: 'Gotowe'
     },
+
     de: {
       title: 'Deine Bestellung',
       number: 'Bestellnummer',
       status: 'Status',
-      time: 'Geschätzte Zeit',
-      minutes: 'Min.',
+      remaining: 'Ungefähr noch',
       new: 'Neu',
       accepted: 'Angenommen',
       preparing: 'In Vorbereitung',
@@ -32,14 +37,19 @@
       collected: 'Abgeholt',
       cancelled: 'Storniert',
       noOrder: 'Keine aktive Bestellung',
-      close: 'Schließen'
+      readyTitle: 'Bestellung ist fertig!',
+      readyText: 'Du kannst deine Bestellung jetzt abholen.',
+      overdue: 'Fast fertig',
+      step1: 'Angenommen',
+      step2: 'Wir machen es',
+      step3: 'Fertig'
     },
+
     en: {
       title: 'Your order',
       number: 'Order number',
       status: 'Status',
-      time: 'Estimated time',
-      minutes: 'min',
+      remaining: 'About',
       new: 'New',
       accepted: 'Accepted',
       preparing: 'Preparing',
@@ -47,14 +57,19 @@
       collected: 'Collected',
       cancelled: 'Cancelled',
       noOrder: 'No active order',
-      close: 'Close'
+      readyTitle: 'Your order is ready!',
+      readyText: 'You can pick up your order now.',
+      overdue: 'Almost ready',
+      step1: 'Accepted',
+      step2: 'Preparing',
+      step3: 'Ready'
     },
+
     cs: {
       title: 'Tvoje objednávka',
       number: 'Číslo objednávky',
       status: 'Stav',
-      time: 'Odhadovaný čas',
-      minutes: 'min',
+      remaining: 'Přibližně zbývá',
       new: 'Nová',
       accepted: 'Přijatá',
       preparing: 'Příprava',
@@ -62,9 +77,18 @@
       collected: 'Vydáno',
       cancelled: 'Zrušeno',
       noOrder: 'Žádná aktivní objednávka',
-      close: 'Zavřít'
+      readyTitle: 'Objednávka je připravena!',
+      readyText: 'Objednávku si můžeš vyzvednout.',
+      overdue: 'Téměř hotovo',
+      step1: 'Přijatá',
+      step2: 'Příprava',
+      step3: 'Hotovo'
     }
   };
+
+  let currentOrder = null;
+  let countdownTimer = null;
+  let lastNotifiedStatus = null;
 
   function lang() {
     if (
@@ -80,53 +104,8 @@
   function text(key) {
     return COPY[lang()]?.[key] || COPY.pl[key] || key;
   }
-let lastNotifiedStatus = null;
 
-function playReadySound() {
-  try {
-    const AudioContext =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-    if (!AudioContext) return;
-
-    const ctx = new AudioContext();
-
-    function beep(delay, frequency) {
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      oscillator.frequency.value = frequency;
-      gain.gain.value = 0.18;
-
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-
-      const start = ctx.currentTime + delay;
-
-      oscillator.start(start);
-      oscillator.stop(start + 0.28);
-    }
-
-    beep(0, 880);
-    beep(0.38, 1100);
-
-    setTimeout(() => {
-      ctx.close();
-    }, 1200);
-
-  } catch (e) {
-    console.log('Sound unavailable');
-  }
-}
-
-function showReadyAlert(orderNumber) {
-  playReadySound();
-
-  alert(
-    `🔔 ${text('ready')}\n\n#${orderNumber}`
-  );
-}  function loadLastOrder() {
+  function loadLastOrder() {
     try {
       return JSON.parse(
         localStorage.getItem('swiezeLastOrder') || 'null'
@@ -134,6 +113,53 @@ function showReadyAlert(orderNumber) {
     } catch (e) {
       return null;
     }
+  }
+
+  function playReadySound() {
+    try {
+      const AudioContext =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+      if (!AudioContext) return;
+
+      const ctx = new AudioContext();
+
+      function beep(delay, frequency) {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        oscillator.frequency.value = frequency;
+        gain.gain.value = 0.2;
+
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+
+        const start = ctx.currentTime + delay;
+
+        oscillator.start(start);
+        oscillator.stop(start + 0.3);
+      }
+
+      beep(0, 880);
+      beep(0.4, 1100);
+      beep(0.8, 1320);
+
+      setTimeout(() => {
+        ctx.close();
+      }, 1600);
+
+    } catch (e) {
+      console.log('Sound unavailable');
+    }
+  }
+
+  function showReadyAlert(orderNumber) {
+    playReadySound();
+
+    alert(
+      `🔔 ${text('readyTitle')}\n\n#${orderNumber}`
+    );
   }
 
   const style = document.createElement('style');
@@ -148,22 +174,23 @@ function showReadyAlert(orderNumber) {
       border-radius: 999px;
       background: #ffc728;
       color: #111;
-      padding: 12px 16px;
+      padding: 13px 17px;
       font-weight: 900;
       box-shadow: 0 7px 24px rgba(0,0,0,.18);
       cursor: pointer;
+      font-size: 15px;
     }
 
     .sl-order-status-modal {
       border: 0;
-      border-radius: 22px;
-      width: min(92vw, 500px);
+      border-radius: 24px;
+      width: min(92vw, 520px);
       padding: 0;
-      box-shadow: 0 20px 70px rgba(0,0,0,.28);
+      box-shadow: 0 20px 70px rgba(0,0,0,.3);
     }
 
     .sl-order-status-modal::backdrop {
-      background: rgba(0,0,0,.42);
+      background: rgba(0,0,0,.45);
     }
 
     .sl-order-status-wrap {
@@ -172,68 +199,147 @@ function showReadyAlert(orderNumber) {
 
     .sl-order-status-head {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       gap: 12px;
+    }
+
+    .sl-order-status-head h2 {
+      margin: 0;
+      font-size: 24px;
     }
 
     .sl-order-status-close {
       border: 0;
       background: #f1f1f1;
-      width: 38px;
-      height: 38px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      font-size: 22px;
+      font-size: 24px;
       cursor: pointer;
     }
 
-    .sl-order-status-card {
+    .sl-order-card {
       margin-top: 16px;
       background: #f8f8f8;
-      border-radius: 16px;
-      padding: 16px;
+      border-radius: 20px;
+      padding: 18px;
     }
 
     .sl-order-number {
-      font-size: 30px;
+      font-size: 34px;
       font-weight: 900;
-      margin: 8px 0 16px;
+      margin: 5px 0 15px;
     }
 
-    .sl-order-status-badge {
+    .sl-status-badge {
       display: inline-block;
-      padding: 9px 13px;
+      padding: 10px 14px;
       border-radius: 999px;
-      background: #eee;
       font-weight: 900;
-      margin-bottom: 14px;
+      margin-bottom: 18px;
+      background: #eee;
     }
 
-    .sl-order-status-badge[data-status="new"] {
-      background: #ffe0e0;
+    .sl-status-badge[data-status="new"] {
+      background: #ffe2e2;
     }
 
-    .sl-order-status-badge[data-status="accepted"] {
+    .sl-status-badge[data-status="accepted"] {
       background: #fff0bf;
     }
 
-    .sl-order-status-badge[data-status="preparing"] {
+    .sl-status-badge[data-status="preparing"] {
       background: #dce8ff;
     }
 
-    .sl-order-status-badge[data-status="ready"] {
+    .sl-status-badge[data-status="ready"] {
       background: #d8f6e5;
     }
 
-    .sl-order-time {
-      font-size: 20px;
+    .sl-timer-label {
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .sl-countdown {
+      font-size: 42px;
       font-weight: 900;
-      margin-top: 10px;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    .sl-progress {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 18px;
+    }
+
+    .sl-step {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #aaa;
+    }
+
+    .sl-step-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      margin: 0 auto 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e4e4e4;
+      font-size: 16px;
+    }
+
+    .sl-step.active {
+      color: #111;
+    }
+
+    .sl-step.active .sl-step-circle {
+      background: #ffc728;
+    }
+
+    .sl-step.done .sl-step-circle {
+      background: #bdebcf;
+    }
+
+    .sl-ready-screen {
+      text-align: center;
+      padding: 28px 10px 22px;
+    }
+
+    .sl-ready-icon {
+      font-size: 72px;
+      margin-bottom: 10px;
+    }
+
+    .sl-ready-title {
+      font-size: 30px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .sl-ready-number {
+      font-size: 42px;
+      font-weight: 900;
+      margin: 16px 0;
+    }
+
+    .sl-ready-text {
+      font-size: 18px;
+      line-height: 1.4;
     }
 
     .sl-order-empty {
       text-align: center;
-      padding: 30px 10px;
+      padding: 35px 10px;
       color: #777;
     }
   `;
@@ -244,71 +350,183 @@ function showReadyAlert(orderNumber) {
   button.type = 'button';
   button.className = 'sl-order-status-btn';
   button.textContent = `🧾 ${text('title')}`;
+
   document.body.appendChild(button);
 
   const dialog = document.createElement('dialog');
   dialog.className = 'sl-order-status-modal';
+
   dialog.innerHTML = `
     <div class="sl-order-status-wrap">
+
       <div class="sl-order-status-head">
         <h2 id="slOrderStatusTitle"></h2>
+
         <button
           type="button"
           class="sl-order-status-close"
-        >×</button>
+        >
+          ×
+        </button>
       </div>
 
       <div id="slOrderStatusContent"></div>
+
     </div>
   `;
 
   document.body.appendChild(dialog);
 
-  dialog.querySelector(
-    '.sl-order-status-close'
-  ).onclick = () => dialog.close();
+  dialog
+    .querySelector('.sl-order-status-close')
+    .onclick = () => dialog.close();
 
-  async function fetchStatus() {
-    const lastOrder = loadLastOrder();
+  function getProgressIndex(status) {
+    if (status === 'ready') return 3;
+    if (status === 'preparing') return 2;
+    if (status === 'accepted') return 1;
+    if (status === 'new') return 0;
 
-    const title =
-      dialog.querySelector('#slOrderStatusTitle');
+    return 0;
+  }
+
+  function renderProgress(status) {
+    const current = getProgressIndex(status);
+
+    const steps = [
+      {
+        icon: '🧾',
+        label: text('new')
+      },
+      {
+        icon: '✓',
+        label: text('step1')
+      },
+      {
+        icon: '👩‍🍳',
+        label: text('step2')
+      },
+      {
+        icon: '✅',
+        label: text('step3')
+      }
+    ];
+
+    return `
+      <div class="sl-progress">
+        ${steps.map((step, index) => {
+          let className = 'sl-step';
+
+          if (index < current) {
+            className += ' done';
+          }
+
+          if (index === current) {
+            className += ' active';
+          }
+
+          return `
+            <div class="${className}">
+              <div class="sl-step-circle">
+                ${step.icon}
+              </div>
+
+              <div>
+                ${step.label}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function countdownText(readyAt) {
+    if (!readyAt) {
+      return '--:--';
+    }
+
+    const diff =
+      new Date(readyAt).getTime() -
+      Date.now();
+
+    if (diff <= 0) {
+      return text('overdue');
+    }
+
+    const totalSeconds =
+      Math.floor(diff / 1000);
+
+    const minutes =
+      Math.floor(totalSeconds / 60);
+
+    const seconds =
+      totalSeconds % 60;
+
+    return (
+      String(minutes).padStart(2, '0') +
+      ':' +
+      String(seconds).padStart(2, '0')
+    );
+  }
+
+  function startCountdown() {
+    clearInterval(countdownTimer);
+
+    countdownTimer =
+      setInterval(() => {
+        if (!currentOrder) return;
+
+        const timer =
+          dialog.querySelector(
+            '#slCountdown'
+          );
+
+        if (!timer) return;
+
+        timer.textContent =
+          countdownText(
+            currentOrder.ready_at
+          );
+      }, 1000);
+  }
+
+  function renderOrder(order) {
+    currentOrder = order;
 
     const content =
-      dialog.querySelector('#slOrderStatusContent');
-
-    title.textContent = text('title');
-
-    if (!lastOrder?.publicToken) {
-      content.innerHTML = `
-        <div class="sl-order-empty">
-          ${text('noOrder')}
-        </div>
-      `;
-      return;
-    }
-
-    const { data, error } =
-      await sb.rpc(
-        'get_pickup_order_status',
-        {
-          p_public_token: lastOrder.publicToken
-        }
+      dialog.querySelector(
+        '#slOrderStatusContent'
       );
 
-    if (error || !data || !data.length) {
+    if (order.status === 'ready') {
       content.innerHTML = `
-        <div class="sl-order-empty">
-          ${text('noOrder')}
+        <div class="sl-ready-screen">
+
+          <div class="sl-ready-icon">
+            ✅
+          </div>
+
+          <div class="sl-ready-title">
+            ${text('readyTitle')}
+          </div>
+
+          <div class="sl-ready-number">
+            #${order.order_number}
+          </div>
+
+          <div class="sl-ready-text">
+            ${text('readyText')}
+          </div>
+
         </div>
       `;
+
       return;
     }
 
-    const order = data[0];
-
     content.innerHTML = `
-      <div class="sl-order-status-card">
+      <div class="sl-order-card">
 
         <div>
           ${text('number')}
@@ -323,41 +541,107 @@ function showReadyAlert(orderNumber) {
         </div>
 
         <div
-          class="sl-order-status-badge"
+          class="sl-status-badge"
           data-status="${order.status}"
         >
           ${text(order.status)}
         </div>
 
-        <div>
-          ${text('time')}
+        <div class="sl-timer-label">
+          ${text('remaining')}
         </div>
 
-        <div class="sl-order-time">
-          ⏱️
-          ${order.estimated_minutes}
-          ${text('minutes')}
+        <div
+          id="slCountdown"
+          class="sl-countdown"
+        >
+          ${countdownText(order.ready_at)}
         </div>
+
+        ${renderProgress(order.status)}
 
       </div>
     `;
 
+    startCountdown();
+  }
+
+  async function fetchStatus() {
+    const lastOrder = loadLastOrder();
+
+    const title =
+      dialog.querySelector(
+        '#slOrderStatusTitle'
+      );
+
+    const content =
+      dialog.querySelector(
+        '#slOrderStatusContent'
+      );
+
+    title.textContent = text('title');
+
+    if (!lastOrder?.publicToken) {
+      content.innerHTML = `
+        <div class="sl-order-empty">
+          ${text('noOrder')}
+        </div>
+      `;
+
+      return;
+    }
+
+    const { data, error } =
+      await sb.rpc(
+        'get_pickup_order_status',
+        {
+          p_public_token:
+            lastOrder.publicToken
+        }
+      );
+
+    if (
+      error ||
+      !data ||
+      !data.length
+    ) {
+      content.innerHTML = `
+        <div class="sl-order-empty">
+          ${text('noOrder')}
+        </div>
+      `;
+
+      return;
+    }
+
+    const order = data[0];
+
+    renderOrder(order);
+
     localStorage.setItem(
       'swiezeLastOrder',
       JSON.stringify({
-        publicToken: lastOrder.publicToken,
-        orderNumber: order.order_number,
-        status: order.status,
-        estimatedMinutes: order.estimated_minutes,
-        total: order.total
+        publicToken:
+          lastOrder.publicToken,
+        orderNumber:
+          order.order_number,
+        status:
+          order.status,
+        estimatedMinutes:
+          order.estimated_minutes,
+        readyAt:
+          order.ready_at,
+        total:
+          order.total
       })
     );
   }
 
-  button.onclick = async () => {
-    await fetchStatus();
-    dialog.showModal();
-  };
+  button.onclick =
+    async () => {
+      await fetchStatus();
+      dialog.showModal();
+    };
 
   document
     .querySelectorAll('[data-lang]')
@@ -369,6 +653,10 @@ function showReadyAlert(orderNumber) {
             () => {
               button.textContent =
                 `🧾 ${text('title')}`;
+
+              if (dialog.open) {
+                fetchStatus();
+              }
             },
             0
           );
@@ -378,7 +666,8 @@ function showReadyAlert(orderNumber) {
 
   setInterval(
     async () => {
-      const lastOrder = loadLastOrder();
+      const lastOrder =
+        loadLastOrder();
 
       if (!lastOrder?.publicToken) {
         return;
@@ -388,37 +677,55 @@ function showReadyAlert(orderNumber) {
         await sb.rpc(
           'get_pickup_order_status',
           {
-            p_public_token: lastOrder.publicToken
+            p_public_token:
+              lastOrder.publicToken
           }
         );
 
-      if (!data || !data.length) {
+      if (
+        !data ||
+        !data.length
+      ) {
         return;
       }
 
       const order = data[0];
-if (
-  order.status === 'ready' &&
-  lastNotifiedStatus !== 'ready'
-) {
-  showReadyAlert(order.order_number);
-}
 
-lastNotifiedStatus = order.status;      localStorage.setItem(
+      if (
+        order.status === 'ready' &&
+        lastNotifiedStatus !== 'ready'
+      ) {
+        showReadyAlert(
+          order.order_number
+        );
+      }
+
+      lastNotifiedStatus =
+        order.status;
+
+      localStorage.setItem(
         'swiezeLastOrder',
         JSON.stringify({
-          publicToken: lastOrder.publicToken,
-          orderNumber: order.order_number,
-          status: order.status,
-          estimatedMinutes: order.estimated_minutes,
-          total: order.total
+          publicToken:
+            lastOrder.publicToken,
+          orderNumber:
+            order.order_number,
+          status:
+            order.status,
+          estimatedMinutes:
+            order.estimated_minutes,
+          readyAt:
+            order.ready_at,
+          total:
+            order.total
         })
       );
 
       if (dialog.open) {
-        await fetchStatus();
+        renderOrder(order);
       }
+
     },
-    10000
+    5000
   );
 })();
