@@ -357,7 +357,24 @@
   }
 
   function addToCart(category, product, index) {
-    const key = `${category}:${index}`;
+     window.addIceCreamToCart = function(flavour) {
+  if (!flavour || !flavour.id) return;
+
+  addToCart(
+    'icecream',
+    {
+      name: {
+        pl: flavour.name,
+        de: flavour.name,
+        en: flavour.name,
+        cs: flavour.name
+      },
+      price: `${Number(flavour.price || 10)} zł`,
+      image: flavour.image_url || null
+    },
+    flavour.id
+  );
+};  const key = `${category}:${index}`;
 
     const existing =
       cart.find(item => item.key === key);
