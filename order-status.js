@@ -1,4 +1,4 @@
-/* =========================================================
+/* =========================================================f
    ŚWIEŻE LODY — CUSTOMER ORDER STATUS
 ========================================================= */
 
@@ -80,8 +80,53 @@
   function text(key) {
     return COPY[lang()]?.[key] || COPY.pl[key] || key;
   }
+let lastNotifiedStatus = null;
 
-  function loadLastOrder() {
+function playReadySound() {
+  try {
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if (!AudioContext) return;
+
+    const ctx = new AudioContext();
+
+    function beep(delay, frequency) {
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      oscillator.frequency.value = frequency;
+      gain.gain.value = 0.18;
+
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+
+      const start = ctx.currentTime + delay;
+
+      oscillator.start(start);
+      oscillator.stop(start + 0.28);
+    }
+
+    beep(0, 880);
+    beep(0.38, 1100);
+
+    setTimeout(() => {
+      ctx.close();
+    }, 1200);
+
+  } catch (e) {
+    console.log('Sound unavailable');
+  }
+}
+
+function showReadyAlert(orderNumber) {
+  playReadySound();
+
+  alert(
+    `🔔 ${text('ready')}\n\n#${orderNumber}`
+  );
+}  function loadLastOrder() {
     try {
       return JSON.parse(
         localStorage.getItem('swiezeLastOrder') || 'null'
@@ -352,8 +397,14 @@
       }
 
       const order = data[0];
+if (
+  order.status === 'ready' &&
+  lastNotifiedStatus !== 'ready'
+) {
+  showReadyAlert(order.order_number);
+}
 
-      localStorage.setItem(
+lastNotifiedStatus = order.status;      localStorage.setItem(
         'swiezeLastOrder',
         JSON.stringify({
           publicToken: lastOrder.publicToken,
