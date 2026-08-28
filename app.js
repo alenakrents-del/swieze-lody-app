@@ -468,7 +468,372 @@ document.querySelectorAll('[data-lang]').forEach(btn => {
    LOAD CATALOG
 ========================================================= */
 
-async function loadCatalog() {
+async function openIceCreamMenu() {
+  const menuTitle = document.querySelector('#menuTitle');
+  const menuItems = document.querySelector('#menuItems');
+
+  if (!menuTitle || !menuItems) return;
+
+  const words = {
+    pl: {
+      loading: 'Ładowanie smaków…',
+      empty: 'DZISIAJ BRAK SMAKÓW',
+      emptyText: 'Sprawdź ponownie trochę później.',
+      add: '➕ Dodaj',
+      favourite: '🤍 Ulubione',
+      favouriteOn: '❤️ Ulubione',
+      addedFavourite: 'Dodano do ulubionych ❤️',
+      removedFavourite: 'Usunięto z ulubionych',
+      package: 'Opakowanie wybierzesz przy odbiorze: wafelek lub pudełko.'
+    },
+
+    de: {
+      loading: 'Sorten werden geladen…',
+      empty: 'HEUTE KEINE SORTEN',
+      emptyText: 'Schau später noch einmal vorbei.',
+      add: '➕ Hinzufügen',
+      favourite: '🤍 Favorit',
+      favouriteOn: '❤️ Favorit',
+      addedFavourite: 'Zu Favoriten hinzugefügt ❤️',
+      removedFavourite: 'Aus Favoriten entfernt',
+      package: 'Die Verpackung wählst du bei der Abholung: Waffel oder Becher.'
+    },
+
+    en: {
+      loading: 'Loading flavours…',
+      empty: 'NO FLAVOURS TODAY',
+      emptyText: 'Check again a little later.',
+      add: '➕ Add',
+      favourite: '🤍 Favourite',
+      favouriteOn: '❤️ Favourite',
+      addedFavourite: 'Added to favourites ❤️',
+      removedFavourite: 'Removed from favourites',
+      package: 'Choose the packaging at pickup: cone or cup.'
+    },
+
+    cs: {
+      loading: 'Načítání příchutí…',
+      empty: 'DNES NEJSOU PŘÍCHUTĚ',
+      emptyText: 'Zkuste to prosím později.',
+      add: '➕ Přidat',
+      favourite: '🤍 Oblíbené',
+      favouriteOn: '❤️ Oblíbené',
+      addedFavourite: 'Přidáno do oblíbených ❤️',
+      removedFavourite: 'Odebráno z oblíbených',
+      package: 'Obal si vyberete při vyzvednutí: kornout nebo kelímek.'
+    }
+  };
+
+  const w = words[currentLang] || words.pl;
+
+  function getFavourites() {
+    try {
+      return JSON.parse(
+        localStorage.getItem('swiezeIceCreamFavourites') || '[]'
+      );
+    } catch {
+      return [];
+    }
+  }
+
+  function saveFavourites(list) {
+    localStorage.setItem(
+      'swiezeIceCreamFavourites',
+      JSON.stringify(list)
+    );
+  }
+
+  function isFavourite(id) {
+    return getFavourites().includes(String(id));
+  }
+
+  menuTitle.textContent = '🍦 ' + tr('iceCream');
+
+  menuItems.innerHTML = `
+    <div style="
+      text-align:center;
+      padding:24px;
+      color:#777;
+    ">
+      ${w.loading}
+    </div>
+  `;
+
+  document.querySelector('#menuDlg')?.showModal();
+
+  const { data, error } = await sb.rpc(
+    'get_today_ice_cream_flavours'
+  );
+
+  if (error) {
+    console.error(error);
+
+    menuItems.innerHTML = `
+      <div style="text-align:center;padding:24px;">
+        Nie udało się pobrać smaków.
+      </div>
+    `;
+
+    return;
+  }
+
+  const flavours = Array.isArray(data) ? data : [];
+
+  if (!flavours.length) {
+    menuItems.innerHTML = `
+      <div style="
+        text-align:center;
+        padding:26px 10px;
+      ">
+        <div style="font-size:52px;">🍦</div>
+
+        <b style="
+          display:block;
+          font-family:'Bangers', Impact, sans-serif;
+          font-size:28px;
+          margin-top:8px;
+        ">
+          ${w.empty}
+        </b>
+
+        <div style="
+          color:#777;
+          margin-top:8px;
+        ">
+          ${w.emptyText}
+        </div>
+      </div>
+    `;
+
+    return;
+  }
+
+  menuItems.innerHTML = flavours.map(flavour => {
+    const price = Number(flavour.price || 10);
+
+    const favourite = isFavourite(flavour.id);
+
+    const picture = flavour.image_url
+      ? `
+        <img
+          src="${flavour.image_url}"
+          alt="${flavour.name}"
+        >
+      `
+      : `
+        <div style="
+          min-width:90px;
+          width:90px;
+          height:90px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:46px;
+          border-radius:14px;
+          background:#fff1b8;
+        ">
+          🍦
+        </div>
+      `;
+
+    const baseIcon =
+      String(flavour.base_label || '')
+        .toLowerCase()
+        .includes('jogur')
+          ? '🥣'
+          : '🥛';
+
+    return `
+      <article
+        class="food sl-ice-client"
+        data-flavour-id="${flavour.id}"
+        style="
+          position:relative;
+          align-items:flex-start;
+          padding-bottom:14px;
+        "
+      >
+        ${picture}
+
+        <div style="
+          flex:1;
+          padding:8px 8px 0 0;
+        ">
+
+          <b style="
+            font-family:'Bangers', Impact, sans-serif;
+            font-size:25px;
+            letter-spacing:.6px;
+          ">
+            ${flavour.name}
+          </b>
+
+          ${
+            flavour.badge
+              ? `
+                <div style="
+                  display:table;
+                  background:#111;
+                  color:#fff;
+                  border-radius:999px;
+                  padding:4px 8px;
+                  font-size:11px;
+                  font-weight:900;
+                  margin:5px 0;
+                ">
+                  ${flavour.badge}
+                </div>
+              `
+              : ''
+          }
+
+          ${
+            flavour.base_label
+              ? `
+                <div style="
+                  font-size:13px;
+                  font-weight:800;
+                  margin-top:4px;
+                ">
+                  ${baseIcon} ${flavour.base_label}
+                </div>
+              `
+              : ''
+          }
+
+          ${
+            flavour.description
+              ? `
+                <div style="
+                  font-size:13px;
+                  color:#666;
+                  line-height:1.35;
+                  margin-top:5px;
+                ">
+                  ${flavour.description}
+                </div>
+              `
+              : ''
+          }
+
+          <div style="
+            font-size:18px;
+            font-weight:900;
+            margin-top:9px;
+          ">
+            ${price} zł / porcja
+          </div>
+
+          <div style="
+            font-size:12px;
+            color:#777;
+            margin-top:5px;
+          ">
+            ${w.package}
+          </div>
+
+          <div style="
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:8px;
+            margin-top:12px;
+          ">
+
+            <button
+              type="button"
+              class="sl-ice-favourite"
+              data-id="${flavour.id}"
+              style="
+                min-height:46px;
+                border:2px solid ${favourite ? '#e94b72' : '#ddd'};
+                border-radius:12px;
+                background:${favourite ? '#fff0f4' : '#fff'};
+                font-weight:900;
+                cursor:pointer;
+              "
+            >
+              ${favourite ? w.favouriteOn : w.favourite}
+            </button>
+
+            <button
+              type="button"
+              class="sl-ice-add"
+              data-id="${flavour.id}"
+              style="
+                min-height:46px;
+                border:0;
+                border-radius:12px;
+                background:#ffc728;
+                color:#111;
+                font-weight:900;
+                cursor:pointer;
+              "
+            >
+              ${w.add}
+            </button>
+
+          </div>
+
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  menuItems
+    .querySelectorAll('.sl-ice-add')
+    .forEach(button => {
+
+      button.onclick = event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const flavour = flavours.find(
+          item => String(item.id) === String(button.dataset.id)
+        );
+
+        if (!flavour) return;
+
+        if (typeof window.addIceCreamToCart === 'function') {
+          window.addIceCreamToCart(flavour);
+        } else {
+          console.error('addIceCreamToCart is not available');
+        }
+      };
+    });
+
+  menuItems
+    .querySelectorAll('.sl-ice-favourite')
+    .forEach(button => {
+
+      button.onclick = event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const id = String(button.dataset.id);
+
+        let favourites = getFavourites();
+
+        if (favourites.includes(id)) {
+          favourites = favourites.filter(x => x !== id);
+
+          saveFavourites(favourites);
+
+          button.textContent = w.favourite;
+          button.style.background = '#fff';
+          button.style.borderColor = '#ddd';
+
+        } else {
+          favourites.push(id);
+
+          saveFavourites(favourites);
+
+          button.textContent = w.favouriteOn;
+          button.style.background = '#fff0f4';
+          button.style.borderColor = '#e94b72';
+        }
+      };
+    });
+}
   const { data: collections, error: collectionsError } = await sb
     .from('collections')
     .select('id,code,name,icon,sort_order')
