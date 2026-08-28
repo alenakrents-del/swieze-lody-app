@@ -5,7 +5,7 @@ const sb = window.supabase.createClient(
 
 async function checkSupabase() {
   const { data, error } = await sb
-    .from('collections')
+    .from('collections')f
     .select('code,name,icon,active,sort_order')
     .eq('active', true)
     .order('sort_order');
