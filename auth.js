@@ -372,3 +372,197 @@ window.addEventListener(
 
 
 refreshCustomerProfileUI();
+
+// ===============================
+// MY ORDERS UI
+// ===============================
+
+async function refreshCustomerOrdersUI() {
+  const profileBox =
+    document.getElementById('authProfile');
+
+  if (!profileBox) return;
+
+  const session =
+    await window.customerAuth.getSession();
+
+  let section =
+    document.getElementById('customerOrders');
+
+  if (!session) {
+    if (section) {
+      section.remove();
+    }
+    return;
+  }
+
+  if (!section) {
+    section = document.createElement('div');
+    section.id = 'customerOrders';
+
+    section.style.marginTop = '22px';
+    section.style.textAlign = 'left';
+
+    const logoutButton =
+      document.getElementById('authLogout');
+
+    profileBox.insertBefore(
+      section,
+      logoutButton
+    );
+  }
+
+  section.innerHTML = `
+    <h3 style="
+      margin:0 0 12px;
+      font-size:20px;
+    ">
+      🧾 Moje zamówienia
+    </h3>
+
+    <div
+      id="customerOrdersList"
+      style="
+        display:grid;
+        gap:10px;
+      "
+    >
+      Ładowanie…
+    </div>
+  `;
+
+  const list =
+    document.getElementById(
+      'customerOrdersList'
+    );
+
+  const { data, error } =
+    await sb.rpc('get_my_orders');
+
+  if (error) {
+    console.error(
+      'get_my_orders error:',
+      error
+    );
+
+    list.textContent =
+      'Nie udało się pobrać zamówień.';
+    return;
+  }
+
+  if (!data || !data.length) {
+    list.textContent =
+      'Nie masz jeszcze zamówień.';
+    return;
+  }
+
+  const statusNames = {
+    new: 'Nowe',
+    accepted: 'Przyjęte',
+    preparing: 'W przygotowaniu',
+    ready: 'Gotowe do odbioru',
+    collected: 'Odebrane',
+    cancelled: 'Anulowane'
+  };
+
+  data.forEach(order => {
+    const card =
+      document.createElement('div');
+
+    card.style.padding = '14px';
+    card.style.border =
+      '1px solid #e5e5e5';
+    card.style.borderRadius = '16px';
+    card.style.background = '#fff';
+
+    const top =
+      document.createElement('div');
+
+    top.style.display = 'flex';
+    top.style.justifyContent =
+      'space-between';
+    top.style.gap = '12px';
+    top.style.fontWeight = '800';
+
+    const number =
+      document.createElement('span');
+
+    number.textContent =
+      `Zamówienie #${order.order_number}`;
+
+    const total =
+      document.createElement('span');
+
+    total.textContent =
+      `${Number(order.total || 0)} zł`;
+
+    top.appendChild(number);
+    top.appendChild(total);
+
+    const status =
+      document.createElement('div');
+
+    status.style.marginTop = '7px';
+    status.style.fontWeight = '700';
+
+    status.textContent =
+      statusNames[order.status] ||
+      order.status;
+
+    const date =
+      document.createElement('div');
+
+    date.style.marginTop = '5px';
+    date.style.fontSize = '13px';
+    date.style.color = '#777';
+
+    date.textContent =
+      new Date(
+        order.created_at
+      ).toLocaleString('pl-PL');
+
+    const items =
+      document.createElement('div');
+
+    items.style.marginTop = '10px';
+    items.style.fontSize = '14px';
+
+    (order.items || []).forEach(item => {
+      const row =
+        document.createElement('div');
+
+      row.textContent =
+        `${item.quantity} × ${item.name}`;
+
+      items.appendChild(row);
+    });
+
+    card.appendChild(top);
+    card.appendChild(status);
+    card.appendChild(date);
+    card.appendChild(items);
+
+    list.appendChild(card);
+  });
+}
+
+
+window.addEventListener(
+  'customer-auth-changed',
+  refreshCustomerOrdersUI
+);
+
+
+document
+  .querySelectorAll(
+    '[data-page="profile"]'
+  )
+  .forEach(button => {
+    button.addEventListener(
+      'click',
+      refreshCustomerOrdersUI
+    );
+  });
+
+
+refreshCustomerOrdersUI();
