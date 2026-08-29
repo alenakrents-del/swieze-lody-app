@@ -742,7 +742,7 @@ await loadAccountFavourites();
                   font-weight:800;
                   margin-top:4px;
                 ">
-                  ${escapeHtml(flavour.base_label)}
+                  ${baseIcon} ${escapeHtml(flavour.base_label)}
                 </div>
               `
               : ''
