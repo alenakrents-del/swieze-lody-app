@@ -394,55 +394,90 @@
 
     <section id="page-profile" class="page">
 
-      <div class="section-head">
-        <h1 data-i18n="yourProfile">👤 Twój profil</h1>
+  <div class="section-head">
+    <h1 data-i18n="yourProfile">👤 Twój profil</h1>
+    <p>Konto klienta Świeże Lody.</p>
+  </div>
 
-        <p data-i18n="profileSubtitle">
-          Karta klienta i kod do skanowania.
-        </p>
+  <div id="authGuest" class="profile-card">
+
+    <div class="profile-avatar">🍦</div>
+
+    <h2>Witaj!</h2>
+
+    <p class="muted">
+      Zarejestruj się lub zaloguj.
+    </p>
+
+    <input
+      id="authName"
+      type="text"
+      placeholder="Imię lub nick"
+      autocomplete="nickname"
+    >
+
+    <input
+      id="authPhone"
+      type="tel"
+      placeholder="+48 501 234 567"
+      autocomplete="tel"
+    >
+
+    <input
+      id="authPassword"
+      type="password"
+      placeholder="Hasło"
+      autocomplete="current-password"
+    >
+
+    <button id="authRegister" class="locate">
+      Utwórz konto
+    </button>
+
+    <button id="authLogin" class="locate">
+      Zaloguj się
+    </button>
+
+    <p id="authMessage" class="muted"></p>
+
+  </div>
+
+
+  <div id="authProfile" class="profile-card" hidden>
+
+    <div class="profile-avatar">🍦</div>
+
+    <h2 id="customerProfileName">Klient</h2>
+
+    <p class="muted">
+      Kolekcjoner Świeże Lody
+    </p>
+
+    <div class="qr-realish">
+      <div>ŚL</div>
+      <small id="customerQrToken">---</small>
+    </div>
+
+    <p class="scan-help">
+      Pokaż ten kod przy zamówieniu.
+    </p>
+
+    <div class="stats">
+
+      <div>
+        <b id="customerPoints">0</b>
+        <span>punkty</span>
       </div>
 
-      <div class="profile-card">
+    </div>
 
-        <div class="profile-avatar">🍦</div>
+    <button id="authLogout" class="locate">
+      Wyloguj się
+    </button>
 
-        <h2>Test Klient</h2>
+  </div>
 
-        <p class="muted" data-i18n="collector">
-          Kolekcjoner Świeże Lody
-        </p>
-
-        <div class="qr-realish">
-          <div>ŚL</div>
-          <small>TEST-KLIENT</small>
-        </div>
-
-        <p class="scan-help" data-i18n="showAtOrder">
-          Pokaż ten kod przy zamówieniu.
-        </p>
-
-        <div class="stats">
-
-          <div>
-            <b>3</b>
-            <span data-i18n="flavours">smaki</span>
-          </div>
-
-          <div>
-            <b>1</b>
-            <span data-i18n="reward">nagroda</span>
-          </div>
-
-          <div>
-            <b>3/9</b>
-            <span>Milkshake</span>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
+</section>
 
   </main>
 
