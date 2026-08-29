@@ -344,8 +344,43 @@
       <div id="loginError"></div>
 
     </section>
+    
+<section
+  id="recoveryPanel"
+  class="panel hidden"
+>
 
+  <h2>Ustaw nowe hasło</h2>
 
+  <p class="muted">
+    Wpisz nowe hasło do panelu pracownika.
+  </p>
+
+  <input
+    id="newPassword"
+    type="password"
+    placeholder="Nowe hasło"
+    autocomplete="new-password"
+  >
+
+  <input
+    id="newPasswordRepeat"
+    type="password"
+    placeholder="Powtórz nowe hasło"
+    autocomplete="new-password"
+  >
+
+  <button
+    id="saveNewPasswordBtn"
+    class="primary"
+    type="button"
+  >
+    Zapisz nowe hasło
+  </button>
+
+  <div id="recoveryError"></div>
+
+</section>
     <section id="staffPanel" class="hidden">
 
       <div class="notice">
@@ -389,11 +424,18 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    const sb = window.supabase.createClient(
-      window.APP_CONFIG.supabaseUrl,
-      window.APP_CONFIG.supabaseAnonKey
-    );
-
+   const sb = window.supabase.createClient(
+  window.APP_CONFIG.supabaseUrl,
+  window.APP_CONFIG.supabaseAnonKey,
+  {
+    auth: {
+      storageKey: 'swieze-lody-staff-auth',
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
+);
     const loginPanel =
       document.getElementById('loginPanel');
 
@@ -404,6 +446,20 @@
       document.getElementById('loginBtn');
 const resetPasswordBtn =
   document.getElementById('resetPasswordBtn');
+    const recoveryPanel =
+  document.getElementById('recoveryPanel');
+
+const newPasswordInput =
+  document.getElementById('newPassword');
+
+const newPasswordRepeatInput =
+  document.getElementById('newPasswordRepeat');
+
+const saveNewPasswordBtn =
+  document.getElementById('saveNewPasswordBtn');
+
+const recoveryError =
+  document.getElementById('recoveryError');
     const logoutBtn =
       document.getElementById('logoutBtn');
 
@@ -609,7 +665,84 @@ const resetPasswordBtn =
     loginError.innerHTML =
       '<div class="notice">Sprawdź swoją skrzynkę email.</div>';
   }
+);saveNewPasswordBtn.addEventListener(
+  'click',
+  async () => {
+
+    recoveryError.innerHTML = '';
+
+    const password =
+      newPasswordInput.value;
+
+    const repeat =
+      newPasswordRepeatInput.value;
+
+    if (password.length < 8) {
+      recoveryError.innerHTML =
+        '<div class="error">Hasło musi mieć co najmniej 8 znaków.</div>';
+      return;
+    }
+
+    if (password !== repeat) {
+      recoveryError.innerHTML =
+        '<div class="error">Hasła nie są takie same.</div>';
+      return;
+    }
+
+    saveNewPasswordBtn.disabled = true;
+    saveNewPasswordBtn.textContent = 'Zapisywanie…';
+
+    const { error } =
+      await sb.auth.updateUser({
+        password
+      });
+
+    saveNewPasswordBtn.disabled = false;
+    saveNewPasswordBtn.textContent =
+      'Zapisz nowe hasło';
+
+    if (error) {
+      console.error(error);
+
+      recoveryError.innerHTML =
+        '<div class="error">Nie udało się zmienić hasła.</div>';
+      return;
+    }
+
+    recoveryError.innerHTML =
+      '<div class="notice">Hasło zostało zmienione.</div>';
+
+    await sb.auth.signOut();
+
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname
+    );
+
+    recoveryPanel.classList.add('hidden');
+    showLogin();
+  }
 );
+
+sb.auth.onAuthStateChange(
+  (event) => {
+
+    if (event !== 'PASSWORD_RECOVERY') {
+      return;
+    }
+
+    loginPanel.classList.add('hidden');
+    staffPanel.classList.add('hidden');
+    logoutBtn.classList.add('hidden');
+
+    recoveryPanel.classList.remove('hidden');
+
+    newPasswordInput.value = '';
+    newPasswordRepeatInput.value = '';
+    recoveryError.innerHTML = '';
+  }
+);    
     logoutBtn.addEventListener(    
       'click',
       async () => {
@@ -1046,7 +1179,13 @@ const category =
       15000
     );
 
-    checkStaff();
+    const recoveryFromUrl =
+  window.location.hash.includes('type=recovery') ||
+  window.location.search.includes('type=recovery');
+
+if (!recoveryFromUrl) {
+  checkStaff();
+}
   </script>
 <script src="staff-icecream.js"></script>
 </body>
