@@ -525,54 +525,34 @@ async function openIceCreamMenu() {
   };
 
   const w = words[currentLang] || words.pl;
+let favouriteIds = new Set();
 
-    menuItems
-    .querySelectorAll('.sl-ice-favourite')
-    .forEach(button => {
+async function loadAccountFavourites() {
+  favouriteIds = new Set();
 
-      button.onclick = async event => {
-        event.preventDefault();
-        event.stopPropagation();
+  const {
+    data: { session }
+  } = await sb.auth.getSession();
 
-        const id = String(button.dataset.id);
+  if (!session) return;
 
-        const session = await window.customerAuth?.getSession?.();
+  const { data, error } = await sb.rpc(
+    'get_my_ice_cream_favourites'
+  );
 
-        if (!session) {
-          alert('Zaloguj się, aby zapisać ulubione smaki.');
-          return;
-        }
+  if (error) {
+    console.error('Favourites load error:', error);
+    return;
+  }
 
-        button.disabled = true;
+  favouriteIds = new Set(
+    (data || []).map(item => String(item.flavour_id))
+  );
+}
 
-        const { data, error } = await sb.rpc(
-          'toggle_my_ice_cream_favourite',
-          {
-            p_flavour_id: id
-          }
-        );
-
-        button.disabled = false;
-
-        if (error) {
-          console.error('Favourite error:', error);
-          alert('Nie udało się zapisać ulubionego smaku.');
-          return;
-        }
-
-        const isNowFavourite = data === true;
-
-        button.textContent =
-          isNowFavourite ? w.favouriteOn : w.favourite;
-
-        button.style.background =
-          isNowFavourite ? '#fff0f4' : '#fff';
-
-        button.style.borderColor =
-          isNowFavourite ? '#e94b72' : '#ddd';
-      };
-    });
-
+function isFavourite(id) {
+  return favouriteIds.has(String(id));
+}
   menuTitle.textContent = '🍦 ' + tr('iceCream');
 
   menuItems.innerHTML = `
