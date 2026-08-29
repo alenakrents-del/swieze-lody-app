@@ -257,3 +257,118 @@ window.customerAuth = {
   getProfile: getMyCustomerProfile,
   normalizePhone: normalizeCustomerPhone
 };
+// ===============================
+// PROFILE UI
+// ===============================
+
+async function refreshCustomerProfileUI() {
+  const guest = document.getElementById('authGuest');
+  const profileBox = document.getElementById('authProfile');
+
+  if (!guest || !profileBox) return;
+
+  const session = await window.customerAuth.getSession();
+
+  if (!session) {
+    guest.hidden = false;
+    profileBox.hidden = true;
+    return;
+  }
+
+  const profile = await window.customerAuth.getProfile();
+
+  if (!profile) {
+    guest.hidden = false;
+    profileBox.hidden = true;
+    return;
+  }
+
+  guest.hidden = true;
+  profileBox.hidden = false;
+
+  document.getElementById('customerProfileName').textContent =
+    profile.name || 'Klient';
+
+  document.getElementById('customerQrToken').textContent =
+    String(profile.qr_token || '').slice(0, 8).toUpperCase();
+
+  document.getElementById('customerPoints').textContent =
+    Number(profile.points_balance || 0);
+}
+
+
+const registerBtn = document.getElementById('authRegister');
+const loginBtn = document.getElementById('authLogin');
+const logoutBtn = document.getElementById('authLogout');
+const authMessage = document.getElementById('authMessage');
+
+
+if (registerBtn) {
+  registerBtn.addEventListener('click', async () => {
+    const name = document.getElementById('authName').value;
+    const phone = document.getElementById('authPhone').value;
+    const password = document.getElementById('authPassword').value;
+
+    authMessage.textContent = 'Tworzenie konta...';
+
+    try {
+      await window.customerAuth.register(
+        name,
+        phone,
+        password
+      );
+
+      authMessage.textContent = '';
+      await refreshCustomerProfileUI();
+
+    } catch (error) {
+      authMessage.textContent =
+        error?.message || 'Nie udało się utworzyć konta.';
+    }
+  });
+}
+
+
+if (loginBtn) {
+  loginBtn.addEventListener('click', async () => {
+    const phone = document.getElementById('authPhone').value;
+    const password = document.getElementById('authPassword').value;
+
+    authMessage.textContent = 'Logowanie...';
+
+    try {
+      await window.customerAuth.login(
+        phone,
+        password
+      );
+
+      authMessage.textContent = '';
+      await refreshCustomerProfileUI();
+
+    } catch (error) {
+      authMessage.textContent =
+        error?.message || 'Nie udało się zalogować.';
+    }
+  });
+}
+
+
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await window.customerAuth.logout();
+      await refreshCustomerProfileUI();
+    } catch (error) {
+      console.error(error);
+    }
+  });
+}
+
+
+window.addEventListener(
+  'customer-auth-changed',
+  refreshCustomerProfileUI
+);
+
+
+refreshCustomerProfileUI();
