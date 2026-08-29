@@ -388,11 +388,45 @@ const IMAGE_MAP = {
   }
 };
 
-const UNLOCKED_DEMO = {
-  MILKSHAKE: new Set(['MANGO', 'LOTUS', 'OREO']),
-  LEMONADE: new Set(['LEMON_MINT']),
-  VACATION: new Set(['ICE_CREAM'])
+const UNLOCKED_ACCOUNT = {
+  MILKSHAKE: new Set(),
+  LEMONADE: new Set(),
+  VACATION: new Set()
 };
+
+async function loadMyCollectionItems() {
+  UNLOCKED_ACCOUNT.MILKSHAKE.clear();
+  UNLOCKED_ACCOUNT.LEMONADE.clear();
+  UNLOCKED_ACCOUNT.VACATION.clear();
+
+  const {
+    data: { session }
+  } = await sb.auth.getSession();
+
+  if (!session) {
+    return;
+  }
+
+  const { data, error } =
+    await sb.rpc('get_my_collection_items');
+
+  if (error) {
+    console.error(
+      'Collection account load error:',
+      error
+    );
+    return;
+  }
+
+  (data || []).forEach(row => {
+    const collection =
+      UNLOCKED_ACCOUNT[row.collection_code];
+
+    if (collection) {
+      collection.add(row.item_code);
+    }
+  });
+}
 
 function tr(key) {
   return T[currentLang]?.[key] || T.pl[key] || key;
@@ -467,7 +501,14 @@ document.querySelectorAll('[data-lang]').forEach(btn => {
 /* =========================================================
    LOAD CATALOG
 ========================================================= */
-
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
 async function openIceCreamMenu() {
   const menuTitle = document.querySelector('#menuTitle');
   const menuItems = document.querySelector('#menuItems');
