@@ -693,7 +693,7 @@ await loadAccountFavourites();
     return `
       <article
         class="food sl-ice-client"
-        data-flavour-id="${flavour.id}"
+        data-flavour-id="${escapeHtml(flavour.name)}"
         style="
           position:relative;
           align-items:flex-start;
