@@ -424,7 +424,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-   const sb = window.supabase.createClient(
+    const recoveryFromUrl =
+  window.location.hash.includes('type=recovery') ||
+  window.location.search.includes('type=recovery');
+    const sb = window.supabase.createClient(
   window.APP_CONFIG.supabaseUrl,
   window.APP_CONFIG.supabaseAnonKey,
   {
@@ -1179,11 +1182,12 @@ const category =
       15000
     );
 
-    const recoveryFromUrl =
-  window.location.hash.includes('type=recovery') ||
-  window.location.search.includes('type=recovery');
-
-if (!recoveryFromUrl) {
+    if (recoveryFromUrl) {
+  loginPanel.classList.add('hidden');
+  staffPanel.classList.add('hidden');
+  logoutBtn.classList.add('hidden');
+  recoveryPanel.classList.remove('hidden');
+} else {
   checkStaff();
 }
   </script>
