@@ -728,7 +728,7 @@ await loadAccountFavourites();
                   font-weight:900;
                   margin:5px 0;
                 ">
-                  ${flavour.badge}
+                  ${escapeHtml(flavour.badge)}
                 </div>
               `
               : ''
@@ -742,7 +742,7 @@ await loadAccountFavourites();
                   font-weight:800;
                   margin-top:4px;
                 ">
-                  ${baseIcon} ${flavour.base_label}
+                  ${escapeHtml(flavour.base_label)}
                 </div>
               `
               : ''
@@ -757,7 +757,7 @@ await loadAccountFavourites();
                   line-height:1.35;
                   margin-top:5px;
                 ">
-                  ${flavour.description}
+                  ${escapeHtml(flavour.description)}
                 </div>
               `
               : ''
