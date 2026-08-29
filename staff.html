@@ -333,7 +333,7 @@
       >
         Zaloguj
       </button>
-      <<button
+      <button
   id="resetPasswordBtn"
   class="secondary"
   type="button"
@@ -573,7 +573,6 @@ const resetPasswordBtn =
         await checkStaff();
       }
     );
-   logoutBtn.addEventListener(
      resetPasswordBtn.addEventListener(
   'click',
   async () => {
@@ -611,7 +610,8 @@ const resetPasswordBtn =
       '<div class="notice">Sprawdź swoją skrzynkę email.</div>';
   }
 );
-    'click',
+    logoutBtn.addEventListener(    
+      'click',
       async () => {
 
         await sb.auth.signOut();
