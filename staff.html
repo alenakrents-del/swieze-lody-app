@@ -333,7 +333,14 @@
       >
         Zaloguj
       </button>
-
+      <<button
+  id="resetPasswordBtn"
+  class="secondary"
+  type="button"
+  style="width:100%; margin-top:10px;"
+>
+  Nie pamiętam hasła
+</button>
       <div id="loginError"></div>
 
     </section>
@@ -395,7 +402,8 @@
 
     const loginBtn =
       document.getElementById('loginBtn');
-
+const resetPasswordBtn =
+  document.getElementById('resetPasswordBtn');
     const logoutBtn =
       document.getElementById('logoutBtn');
 
@@ -565,9 +573,45 @@
         await checkStaff();
       }
     );
+   logoutBtn.addEventListener(
+     resetPasswordBtn.addEventListener(
+  'click',
+  async () => {
 
-    logoutBtn.addEventListener(
-      'click',
+    loginError.innerHTML = '';
+
+    const email =
+      document
+        .getElementById('email')
+        .value
+        .trim();
+
+    if (!email) {
+      loginError.innerHTML =
+        '<div class="error">Wpisz email.</div>';
+      return;
+    }
+
+    const { error } =
+      await sb.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo:
+            'https://swiezelodykolekcjepwav3.vercel.app/staff.html'
+        }
+      );
+
+    if (error) {
+      loginError.innerHTML =
+        '<div class="error">Nie udało się wysłać wiadomości.</div>';
+      return;
+    }
+
+    loginError.innerHTML =
+      '<div class="notice">Sprawdź swoją skrzynkę email.</div>';
+  }
+);
+    'click',
       async () => {
 
         await sb.auth.signOut();
