@@ -509,9 +509,6 @@ function escapeHtml(value) {
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 }
-async function openIceCreamMenu() {
-  const menuTitle = document.querySelector('#menuTitle');
-  const menuItems = document.querySelector('#menuItems');
 function safeImageUrl(value) {
   try {
     const url = new URL(String(value || ''), window.location.origin);
@@ -519,8 +516,10 @@ function safeImageUrl(value) {
   } catch {
     return '';
   }
-}  if (!menuTitle || !menuItems) return;
-
+}
+async function openIceCreamMenu() {
+  const menuTitle = document.querySelector('#menuTitle');
+  const menuItems = document.querySelector('#menuItems');
   const words = {
     pl: {
       loading: 'Ładowanie smaków…',
