@@ -512,8 +512,14 @@ function escapeHtml(value) {
 async function openIceCreamMenu() {
   const menuTitle = document.querySelector('#menuTitle');
   const menuItems = document.querySelector('#menuItems');
-
-  if (!menuTitle || !menuItems) return;
+function safeImageUrl(value) {
+  try {
+    const url = new URL(String(value || ''), window.location.origin);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch {
+    return '';
+  }
+}  if (!menuTitle || !menuItems) return;
 
   const words = {
     pl: {
