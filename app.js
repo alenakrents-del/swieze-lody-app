@@ -810,7 +810,7 @@ await loadAccountFavourites();
             <button
               type="button"
               class="sl-ice-add"
-              data-id="${flavour.id}"
+              data-id="${escapeHtml(flavour.id)}"
               style="
                 min-height:46px;
                 border:0;
