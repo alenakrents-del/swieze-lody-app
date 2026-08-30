@@ -668,7 +668,7 @@ await loadAccountFavourites();
     const picture = flavour.image_url
       ? `
         <img
-          src="${escapeHtml(flavour.image_url)}"
+          src="${escapeHtml(safeImageUrl(flavour.image_url))}"
          alt="${escapeHtml(flavour.name)}"
         >
       `
