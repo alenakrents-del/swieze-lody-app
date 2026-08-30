@@ -520,6 +520,7 @@ function safeImageUrl(value) {
 async function openIceCreamMenu() {
   const menuTitle = document.querySelector('#menuTitle');
   const menuItems = document.querySelector('#menuItems');
+  if (!menuTitle || !menuItems) return;
   const words = {
     pl: {
       loading: 'Ładowanie smaków…',
