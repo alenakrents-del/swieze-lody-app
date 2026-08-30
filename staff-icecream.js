@@ -162,6 +162,61 @@
       resize:vertical;
     }
 
+    .sl-ice-image-picker{
+      display:grid;
+      gap:10px;
+      padding:12px;
+      border:1px solid #e1d49f;
+      border-radius:12px;
+      background:#fff;
+    }
+
+    .sl-ice-file-input{
+      position:absolute;
+      width:1px !important;
+      height:1px;
+      padding:0 !important;
+      margin:-1px !important;
+      overflow:hidden;
+      clip:rect(0, 0, 0, 0);
+      white-space:nowrap;
+      border:0 !important;
+    }
+
+    .sl-ice-image-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .sl-ice-image-choose,
+    .sl-ice-image-remove{
+      border:1px solid #ddd;
+      border-radius:11px;
+      background:#fff;
+      padding:10px 12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .sl-ice-image-remove{
+      color:#8f0000;
+    }
+
+    .sl-ice-image-preview{
+      width:100%;
+      max-height:320px;
+      object-fit:cover;
+      border-radius:12px;
+      background:#f2f2f2;
+    }
+
+    .sl-ice-image-help{
+      color:#777;
+      font-size:13px;
+      line-height:1.4;
+    }
+
     .sl-ice-form-actions{
       display:flex;
       gap:8px;
@@ -196,6 +251,17 @@
   `;
 
   document.head.appendChild(style);
+
+  let activePreviewUrl = null;
+  let formSaveInProgress = false;
+
+
+  function releasePreviewUrl(){
+    if (!activePreviewUrl) return;
+
+    URL.revokeObjectURL(activePreviewUrl);
+    activePreviewUrl = null;
+  }
 
 
   function esc(value){
@@ -478,10 +544,21 @@
 
 
   function renderForm(flavour = null){
+    if (formSaveInProgress){
+      alert('Trwa zapisywanie smaku. Poczekaj na zakończenie.');
+      return;
+    }
+
     const box =
       document.getElementById('slIceFormBox');
 
     if (!box) return;
+
+    releasePreviewUrl();
+
+    let selectedImage = null;
+    let savedImageUrl =
+      flavour?.image_url || null;
 
     box.innerHTML = `
       <div class="sl-ice-form">
@@ -524,12 +601,45 @@
           placeholder="Piękny krótki opis smaku"
         >${esc(flavour?.description || '')}</textarea>
 
-        <input
-          id="slIceImage"
-          type="text"
-          placeholder="Adres zdjęcia — opcjonalnie"
-          value="${esc(flavour?.image_url || '')}"
-        >
+        <div class="sl-ice-image-picker">
+
+          <input
+            id="slIceImageFile"
+            class="sl-ice-file-input"
+            type="file"
+            accept="image/*"
+          >
+
+          <div class="sl-ice-image-actions">
+            <button
+              type="button"
+              class="sl-ice-image-choose"
+              id="slIceChooseImage"
+            >
+              Wybierz zdjęcie
+            </button>
+
+            <button
+              type="button"
+              class="sl-ice-image-remove hidden"
+              id="slIceRemoveImage"
+            >
+              Usuń zdjęcie
+            </button>
+          </div>
+
+          <img
+            id="slIceImagePreview"
+            class="sl-ice-image-preview hidden"
+            alt="Podgląd zdjęcia smaku"
+          >
+
+          <div class="sl-ice-image-help">
+            Maksymalnie 15 MB. Zdjęcie zostanie automatycznie
+            zmniejszone i zapisane jako JPEG.
+          </div>
+
+        </div>
 
         <div class="sl-ice-form-actions">
 
@@ -555,9 +665,85 @@
     `;
 
 
+    const fileInput =
+      document.getElementById('slIceImageFile');
+
+    const chooseImageButton =
+      document.getElementById('slIceChooseImage');
+
+    const removeImageButton =
+      document.getElementById('slIceRemoveImage');
+
+    const imagePreview =
+      document.getElementById('slIceImagePreview');
+
+
+    function showImagePreview(url, isNewSelection = false){
+      if (!url){
+        imagePreview.removeAttribute('src');
+        imagePreview.classList.add('hidden');
+        removeImageButton.classList.add('hidden');
+        return;
+      }
+
+      imagePreview.src = url;
+      imagePreview.classList.remove('hidden');
+      removeImageButton.classList.remove('hidden');
+      removeImageButton.textContent =
+        isNewSelection
+          ? 'Usuń wybrane zdjęcie'
+          : 'Usuń zdjęcie';
+    }
+
+
+    showImagePreview(savedImageUrl);
+
+
+    chooseImageButton.onclick = () => {
+      fileInput.click();
+    };
+
+
+    fileInput.onchange = () => {
+      const file = fileInput.files?.[0];
+
+      if (!file) return;
+
+      try {
+        window.ImageUpload.validateFile(file);
+      } catch (error) {
+        fileInput.value = '';
+        alert(error.message);
+        return;
+      }
+
+      releasePreviewUrl();
+      selectedImage = file;
+      activePreviewUrl = URL.createObjectURL(file);
+      showImagePreview(activePreviewUrl, true);
+    };
+
+
+    removeImageButton.onclick = () => {
+      if (selectedImage){
+        selectedImage = null;
+        fileInput.value = '';
+        releasePreviewUrl();
+        showImagePreview(savedImageUrl);
+        return;
+      }
+
+      savedImageUrl = null;
+      showImagePreview(null);
+    };
+
+
     document
       .getElementById('slIceCancel')
       .onclick = () => {
+        if (formSaveInProgress) return;
+
+        releasePreviewUrl();
         box.innerHTML = '';
       };
 
@@ -565,6 +751,16 @@
     document
       .getElementById('slIceSave')
       .onclick = async () => {
+
+        if (formSaveInProgress) return;
+
+        const saveButton =
+          document.getElementById('slIceSave');
+
+        const form =
+          saveButton?.closest('.sl-ice-form');
+
+        if (!saveButton || !form) return;
 
         const name =
           document
@@ -602,64 +798,152 @@
             .value
             .trim();
 
-        const image =
-          document
-            .getElementById('slIceImage')
-            .value
-            .trim();
+        let uploadedImage = null;
+        let saveCompleted = false;
+        let cleanupError = null;
 
+        const controlsToLock = [
+          ...form.querySelectorAll(
+            'input, textarea, button'
+          ),
+          document.getElementById('slIceAdd'),
+          document.getElementById('logoutBtn'),
+          ...document.querySelectorAll('#slIceList button')
+        ].filter(Boolean);
 
-        const {
-          error
-        } = await sb.rpc(
-          'staff_save_ice_cream_flavour',
-          {
-            p_id:
-              flavour?.id || null,
-
-            p_name:
-              name,
-
-            p_price:
-              price,
-
-            p_image_url:
-              image || null,
-
-            p_available_today:
-              flavour?.available_today || false,
-
-            p_sort_order:
-              flavour?.sort_order || 100,
-
-            p_base_label:
-              base || null,
-
-            p_description:
-              description || null,
-
-            p_badge:
-              badge || null,
-
-            p_graphic_type:
-              flavour?.graphic_type || 'app'
-          }
-        );
-
-
-        if (error){
-          console.error(error);
-
-          alert(
-            'Nie udało się zapisać smaku.'
+        const controlStates =
+          controlsToLock.map(
+            control => ({
+              control,
+              disabled: control.disabled
+            })
           );
 
-          return;
+        formSaveInProgress = true;
+
+        controlsToLock.forEach(control => {
+          control.disabled = true;
+        });
+
+        saveButton.textContent =
+          selectedImage
+            ? 'Przetwarzanie zdjęcia…'
+            : 'Zapisywanie…';
+
+        try {
+          if (selectedImage){
+            uploadedImage =
+              await window.ImageUpload.uploadImage(
+                sb,
+                selectedImage
+              );
+          }
+
+          const imageUrl =
+            uploadedImage?.publicUrl ||
+            savedImageUrl ||
+            null;
+
+          const {
+            error
+          } = await sb.rpc(
+            'staff_save_ice_cream_flavour',
+            {
+              p_id:
+                flavour?.id || null,
+
+              p_name:
+                name,
+
+              p_price:
+                price,
+
+              p_image_url:
+                imageUrl,
+
+              p_available_today:
+                flavour?.available_today ?? false,
+
+              p_sort_order:
+                flavour?.sort_order ?? 100,
+
+              p_base_label:
+                base || null,
+
+              p_description:
+                description || null,
+
+              p_badge:
+                badge || null,
+
+              p_graphic_type:
+                flavour?.graphic_type || 'app'
+            }
+          );
+
+          if (error){
+            throw error;
+          }
+
+          saveCompleted = true;
+          releasePreviewUrl();
+          box.innerHTML = '';
+
+          await loadFlavours();
+        } catch (error) {
+          console.error(error);
+
+          if (
+            uploadedImage?.path &&
+            !saveCompleted
+          ){
+            try {
+              await window.ImageUpload.removeUploadedImage(
+                sb,
+                uploadedImage.path
+              );
+            } catch (cleanupFailure) {
+              cleanupError = cleanupFailure;
+
+              console.error(
+                'Nie udało się usunąć przesłanego zdjęcia.',
+                cleanupFailure
+              );
+            }
+          }
+
+          const saveErrorMessage =
+            error?.message ||
+            'Nie udało się zapisać smaku.';
+
+          if (cleanupError){
+            alert(
+              `Nie udało się zapisać smaku.\n` +
+              `Błąd zapisu: ${saveErrorMessage}\n\n` +
+              `Nie udało się też usunąć przesłanego zdjęcia.\n` +
+              `Błąd usuwania: ${
+                cleanupError?.message ||
+                'Nieznany błąd.'
+              }`
+            );
+          } else {
+            alert(saveErrorMessage);
+          }
+        } finally {
+          formSaveInProgress = false;
+
+          controlStates.forEach(
+            ({ control, disabled }) => {
+              if (document.body.contains(control)){
+                control.disabled = disabled;
+              }
+            }
+          );
+
+          if (document.body.contains(saveButton)){
+            saveButton.textContent = 'Zapisz';
+          }
         }
-
-        box.innerHTML = '';
-
-        await loadFlavours();
       };
   }
 
