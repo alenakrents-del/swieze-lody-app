@@ -794,7 +794,7 @@ await loadAccountFavourites();
             <button
               type="button"
               class="sl-ice-favourite"
-              data-id="${flavour.id}"
+              data-id="${escapeHtml(flavour.id)}"
               style="
                 min-height:46px;
                 border:2px solid ${favourite ? '#e94b72' : '#ddd'};
