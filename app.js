@@ -651,6 +651,9 @@ function applyTranslations() {
   renderToppings();
   renderRewards();
 
+  renderPublicMenuCategories();
+  if (activeMenuCategoryId) renderPublicMenuDialog(activeMenuCategoryId);
+
   if (DATA[currentCollection]) renderCollection(currentCollection);
 }
 
@@ -1312,80 +1315,237 @@ if (confirmTopping) {
    MENU
 ========================================================= */
 
-const MENU = {
-  milkshake: [
-    { name: { pl: 'Mango', de: 'Mango', en: 'Mango', cs: 'Mango' }, image: 'mango_real.jpg', price: '25 zł' },
-    { name: { pl: 'Lotus', de: 'Lotus', en: 'Lotus', cs: 'Lotus' }, image: 'lotus_real.jpg', price: '25 zł' },
-    { name: { pl: 'Oreo', de: 'Oreo', en: 'Oreo', cs: 'Oreo' }, image: 'oreo_real.jpg', price: '25 zł' },
-    { name: { pl: 'Raffaello', de: 'Raffaello', en: 'Raffaello', cs: 'Raffaello' }, image: 'raffaello_real.jpg', price: '25 zł' },
-    { name: { pl: 'Kinder Bueno', de: 'Kinder Bueno', en: 'Kinder Bueno', cs: 'Kinder Bueno' }, image: 'kinder_real.jpg', price: '25 zł' },
-    { name: { pl: 'Banan', de: 'Banane', en: 'Banana', cs: 'Banán' }, image: 'banana_real.jpg', price: '25 zł' },
-    { name: { pl: 'Truskawka', de: 'Erdbeere', en: 'Strawberry', cs: 'Jahoda' }, image: 'strawberry_real.jpg', price: '25 zł' },
-    { name: { pl: 'Czekolada', de: 'Schokolade', en: 'Chocolate', cs: 'Čokoláda' }, image: 'chocolate.jpg', price: '25 zł' },
-    { name: { pl: 'Ice Coffee', de: 'Eiskaffee', en: 'Ice Coffee', cs: 'Ledová káva' }, image: 'ice_coffee_real.jpg', price: '25 zł' }
-  ],
-
-  lemonade: [
-    { name: { pl: 'Blue Lagoon', de: 'Blue Lagoon', en: 'Blue Lagoon', cs: 'Blue Lagoon' }, image: 'lemonade_blue.jpg', price: '18 zł' },
-    { name: { pl: 'Truskawka', de: 'Erdbeere', en: 'Strawberry', cs: 'Jahoda' }, image: 'lemonade_strawberry.jpg', price: '18 zł' },
-    { name: { pl: 'Cytryna + mięta', de: 'Zitrone + Minze', en: 'Lemon + mint', cs: 'Citron + máta' }, image: 'lemonade_lemon_mint.jpg', price: '18 zł' },
-    { name: { pl: 'Mango + marakuja', de: 'Mango + Passionsfrucht', en: 'Mango + passion fruit', cs: 'Mango + marakuja' }, image: 'lemonade_mango.jpg', price: '18 zł' }
-  ],
-
-  waffle: [
-    { name: { pl: 'Klasyczny', de: 'Klassisch', en: 'Classic', cs: 'Klasický' }, image:'waffle_classic.jpg', price: '10 zł' },
-    { name: { pl: 'Z cukrem pudrem', de: 'Mit Puderzucker', en: 'With powdered sugar', cs: 'S moučkovým cukrem' }, image:'waffle_powdered.jpg', price: '12 zł' },
-    { name: { pl: 'Z sosem', de: 'Mit Soße', en: 'With sauce', cs: 'S omáčkou' }, image: 'waffle_sauce.jpg', price: '15 zł' },
-    { name: { pl: 'Z frużeliną', de: 'Mit Fruchttopping', en: 'With fruit topping', cs: 'S ovocnou polevou' }, image: 'waffle_cherry.jpg', price: '17 zł' },
-    { name: { pl: 'Z bitą śmietaną', de: 'Mit Schlagsahne', en: 'With whipped cream', cs: 'Se šlehačkou' }, image: 'waffle_cream.jpg', price: '17 zł' },
-    { name: { pl: 'Z Nutellą', de: 'Mit Nutella', en: 'With Nutella', cs: 'S Nutellou' }, image:'waffle_nutella.jpg', price: '17 zł' },
-    { name: { pl: 'Z owocami', de: 'Mit Früchten', en: 'With fruit', cs: 'S ovocem' }, image: 'waffle_fruit.jpg', price: '17 zł' },
-    { name: { pl: 'Z dżemem', de: 'Mit Marmelade', en: 'With jam', cs: 'S džemem' }, image: 'waffle_jam.jpg', price: '17 zł' },
-    { name: { pl: 'Bita śmietana + sos', de: 'Schlagsahne + Soße', en: 'Whipped cream + sauce', cs: 'Šlehačka + omáčka' }, image: 'waffle_cream_sauce.jpg', price: '20 zł' },
-    { name: { pl: 'Bita śmietana + posypka', de: 'Schlagsahne + Streusel', en: 'Whipped cream + sprinkles', cs: 'Šlehačka + posypka' }, image: 'waffle_candy.jpg', price: '20 zł' },
-    { name: { pl: 'Nutella + owoce', de: 'Nutella + Früchte', en: 'Nutella + fruit', cs: 'Nutella + ovoce' }, image: 'waffle_fruit_nutella.jpg', price: '25 zł' },
-    { name: { pl: 'Bita śmietana + owoce', de: 'Schlagsahne + Früchte', en: 'Whipped cream + fruit', cs: 'Šlehačka + ovoce' }, image: 'waffle_fruit_cream.jpg', price: '25 zł' },
-    { name: { pl: 'Bita śmietana + frużelina', de: 'Schlagsahne + Fruchttopping', en: 'Whipped cream + fruit topping', cs: 'Šlehačka + ovocná poleva' }, image: 'waffle_berries_cream.jpg', price: '25 zł' },
-    { name: { pl: '1 porcja lodów + bita śmietana + owoce + sos', de: '1 Portion Eis + Schlagsahne + Früchte + Soße', en: '1 serving of ice cream + whipped cream + fruit + sauce', cs: '1 porce zmrzliny + šlehačka + ovoce + omáčka' }, image: 'waffle_icecream.jpg', price: '34 zł' }
-  ]
+const MENU_UI = {
+  pl: { loading: 'Ładowanie menu…', unavailable: 'Menu jest teraz niedostępne.', products: 'produktów', from: 'od', add: 'Dodaj' },
+  de: { loading: 'Menü wird geladen…', unavailable: 'Das Menü ist derzeit nicht verfügbar.', products: 'Produkte', from: 'ab', add: 'Hinzufügen' },
+  en: { loading: 'Loading menu…', unavailable: 'The menu is currently unavailable.', products: 'products', from: 'from', add: 'Add' },
+  cs: { loading: 'Načítání menu…', unavailable: 'Menu momentálně není dostupné.', products: 'produktů', from: 'od', add: 'Přidat' }
 };
 
-function menuProductName(product) {
-  return product.name?.[currentLang] || product.name?.pl || '';
+let publicMenuCategories = [];
+let activeMenuCategoryId = null;
+let publicMenuStatus = 'loading';
+
+function menuUi(key) {
+  return MENU_UI[currentLang]?.[key] || MENU_UI.pl[key] || key;
 }
 
-function openMenu(k, title) {
+function isAvailableNow(startsAt, endsAt, now = Date.now()) {
+  const starts = startsAt ? Date.parse(startsAt) : null;
+  const ends = endsAt ? Date.parse(endsAt) : null;
+  return (!starts || starts <= now) && (!ends || now < ends);
+}
+
+function effectiveMenuPrice(product, now = Date.now()) {
+  const promoActive = product.promo_price != null &&
+    isAvailableNow(product.promo_starts_at, product.promo_ends_at, now);
+  return Number(promoActive ? product.promo_price : product.regular_price);
+}
+
+function formatMenuPrice(value) {
+  const amount = Number(value);
+  return `${amount.toFixed(2).replace(/\.00$/, '').replace('.', ',')} zł`;
+}
+
+function localizedMenuValue(translations, field) {
+  return translations?.[currentLang]?.[field] || translations?.pl?.[field] || '';
+}
+
+function groupTranslations(rows, ownerField) {
+  return (rows || []).reduce((catalog, row) => {
+    const ownerId = row[ownerField];
+    if (!catalog[ownerId]) catalog[ownerId] = {};
+    catalog[ownerId][row.locale] = row;
+    return catalog;
+  }, {});
+}
+
+function renderPublicMenuCategories(message = '') {
+  const container = document.querySelector('#dynamicMenuCategories');
+  if (!container) return;
+
+  container.replaceChildren();
+  if (message || publicMenuStatus !== 'ready' || !publicMenuCategories.length) {
+    const status = document.createElement('p');
+    status.className = 'menu-catalog-status';
+    status.textContent = message || menuUi(
+      publicMenuStatus === 'unavailable' ? 'unavailable' : 'loading'
+    );
+    container.appendChild(status);
+    return;
+  }
+
+  publicMenuCategories.forEach(category => {
+    const button = document.createElement('button');
+    button.type = 'button';
+
+    const icon = document.createElement('div');
+    icon.textContent = category.icon || '🍦';
+
+    const name = document.createElement('b');
+    name.textContent = localizedMenuValue(category.translations, 'name');
+
+    const prices = category.products.map(product => product.price);
+    const summary = document.createElement('span');
+    summary.textContent = `${category.products.length} ${menuUi('products')} • ${menuUi('from')} ${formatMenuPrice(Math.min(...prices))}`;
+
+    button.append(icon, name, summary);
+    button.onclick = () => openMenu(category.id);
+    container.appendChild(button);
+  });
+}
+
+function renderPublicMenuDialog(categoryId) {
+  const category = publicMenuCategories.find(item => item.id === categoryId);
   const menuTitle = document.querySelector('#menuTitle');
   const menuItems = document.querySelector('#menuItems');
-  if (!menuTitle || !menuItems) return;
+  if (!category || !menuTitle || !menuItems) return;
 
-  menuTitle.textContent = title;
+  menuTitle.textContent = `${category.icon || ''} ${localizedMenuValue(category.translations, 'name')}`.trim();
+  menuItems.replaceChildren();
 
-  menuItems.innerHTML = (MENU[k] || [])
-    .map(product => {
-      const name = menuProductName(product);
-      const picture = product.image
-        ? `<img src="${product.image}" alt="${name}">`
-        : `<div style="min-width:90px;width:90px;height:90px;display:flex;align-items:center;justify-content:center;font-size:42px;border-radius:14px;background:#fff7d6;">🧇</div>`;
+  category.products.forEach(product => {
+    const article = document.createElement('article');
+    article.className = 'food menu-product';
 
-      return `
-        <article class="food">
-          ${picture}
-          <div>
-            <b>${name}</b>
-            <span>${product.price}</span>
-          </div>
-        </article>
-      `;
-    })
-    .join('');
+    const productName = localizedMenuValue(product.translations, 'name');
+    const imageUrl = safeImageUrl(product.imageUrl);
+    if (imageUrl) {
+      const image = document.createElement('img');
+      image.src = imageUrl;
+      image.alt = productName;
+      article.appendChild(image);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'food-placeholder';
+      placeholder.textContent = category.icon || '🍦';
+      article.appendChild(placeholder);
+    }
+
+    const copy = document.createElement('div');
+    copy.className = 'food-copy';
+    const name = document.createElement('b');
+    name.textContent = productName;
+    const price = document.createElement('span');
+    price.textContent = formatMenuPrice(product.price);
+    copy.append(name, price);
+
+    const descriptionText = localizedMenuValue(product.translations, 'description');
+    if (descriptionText) {
+      const description = document.createElement('span');
+      description.className = 'food-description';
+      description.textContent = descriptionText;
+      copy.appendChild(description);
+    }
+    if (product.badge) {
+      const badge = document.createElement('span');
+      badge.className = 'food-badge';
+      badge.textContent = product.badge;
+      copy.appendChild(badge);
+    }
+
+    const add = document.createElement('button');
+    add.className = 'sl-add-btn';
+    add.type = 'button';
+    add.textContent = window.getCartText?.('add') || menuUi('add');
+    add.onclick = () => window.addMenuProductToCart?.({
+      legacyKey: product.legacyKey,
+      categorySlug: category.slug,
+      name: Object.fromEntries(Object.entries(product.translations).map(([locale, translation]) => [locale, translation.name])),
+      price: formatMenuPrice(product.price),
+      image: product.imageUrl
+    });
+
+    article.append(copy, add);
+    menuItems.appendChild(article);
+  });
+}
+
+function openMenu(categoryId) {
+  activeMenuCategoryId = categoryId;
+  renderPublicMenuDialog(categoryId);
 
   document.querySelector('#menuDlg')?.showModal();
 }
 
-document.querySelectorAll('[data-menu]').forEach(b => {
-  b.onclick = () => openMenu(b.dataset.menu, tr(b.dataset.titleKey));
-});
+async function loadPublicMenu() {
+  publicMenuStatus = 'loading';
+  renderPublicMenuCategories(menuUi('loading'));
+
+  const [categoriesResult, categoryTranslationsResult, productsResult, productTranslationsResult] = await Promise.all([
+    sb.from('menu_categories')
+      .select('id,slug,icon,sort_order,is_active,visibility,available_starts_at,available_ends_at,required_reward_id')
+      .eq('is_active', true)
+      .eq('visibility', 'public')
+      .is('required_reward_id', null)
+      .order('sort_order')
+      .order('slug'),
+    sb.from('menu_category_translations')
+      .select('category_id,locale,name,description'),
+    sb.from('menu_products')
+      .select('id,category_id,slug,legacy_key,image_url,regular_price,promo_price,promo_starts_at,promo_ends_at,badge,sort_order,is_active,is_available,is_orderable,product_type,visibility,available_starts_at,available_ends_at,required_reward_id')
+      .eq('is_active', true)
+      .eq('is_available', true)
+      .eq('is_orderable', true)
+      .eq('visibility', 'public')
+      .eq('product_type', 'standard')
+      .is('required_reward_id', null)
+      .not('legacy_key', 'is', null)
+      .order('sort_order')
+      .order('slug'),
+    sb.from('menu_product_translations')
+      .select('product_id,locale,name,description')
+  ]);
+
+  const failed = [categoriesResult, categoryTranslationsResult, productsResult, productTranslationsResult]
+    .find(result => result.error);
+  if (failed) throw failed.error;
+
+  const now = Date.now();
+  const categoryTranslations = groupTranslations(categoryTranslationsResult.data, 'category_id');
+  const productTranslations = groupTranslations(productTranslationsResult.data, 'product_id');
+  const productsByCategory = new Map();
+
+  (productsResult.data || [])
+    .filter(product => product.is_active && product.is_available && product.is_orderable)
+    .filter(product => product.product_type === 'standard' && product.visibility === 'public')
+    .filter(product => product.required_reward_id == null)
+    .filter(product => isAvailableNow(product.available_starts_at, product.available_ends_at, now))
+    .filter(product => String(product.legacy_key || '').trim())
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.slug.localeCompare(b.slug))
+    .forEach(product => {
+      const list = productsByCategory.get(product.category_id) || [];
+      list.push({
+        id: product.id,
+        slug: product.slug,
+        legacyKey: product.legacy_key,
+        imageUrl: product.image_url,
+        badge: product.badge,
+        sortOrder: product.sort_order,
+        price: effectiveMenuPrice(product, now),
+        translations: productTranslations[product.id] || {}
+      });
+      productsByCategory.set(product.category_id, list);
+    });
+
+  publicMenuCategories = (categoriesResult.data || [])
+    .filter(category => category.is_active && category.visibility === 'public')
+    .filter(category => category.required_reward_id == null)
+    .filter(category => isAvailableNow(category.available_starts_at, category.available_ends_at, now))
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.slug.localeCompare(b.slug))
+    .map(category => ({
+      id: category.id,
+      slug: category.slug,
+      icon: category.icon,
+      sortOrder: category.sort_order,
+      translations: categoryTranslations[category.id] || {},
+      products: productsByCategory.get(category.id) || []
+    }))
+    .filter(category => category.products.length);
+
+  publicMenuStatus = publicMenuCategories.length ? 'ready' : 'unavailable';
+  renderPublicMenuCategories(publicMenuCategories.length ? '' : menuUi('unavailable'));
+}
 
 const menuX = document.querySelector('#menuX');
 if (menuX) {
@@ -1502,6 +1662,12 @@ if (locateBtn) {
 
 renderToppings();
 applyTranslations();
+
+loadPublicMenu().catch(error => {
+  console.error('MENU CATALOG ERROR:', error);
+  publicMenuStatus = 'unavailable';
+  renderPublicMenuCategories(menuUi('unavailable'));
+});
 
 window.addEventListener(
   'customer-auth-changed',

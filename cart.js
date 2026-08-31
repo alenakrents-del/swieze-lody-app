@@ -129,6 +129,15 @@
     );
   }
 
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
   function saveCart() {
     localStorage.setItem(
       'swiezeCart',
@@ -356,36 +365,42 @@
       `🛒 ${text('cart')} <span>${count}</span>`;
   }
 
-  function addToCart(category, product, index) {
-  const key = `${category}:${index}`;
+  function addToCart(product) {
+    const key = String(product?.legacyKey || '').trim();
+    if (!key) return;
 
-  const existing =
-    cart.find(item => item.key === key);
+    const existing =
+      cart.find(item => item.key === key);
 
-  if (existing) {
-    existing.qty += 1;
-  } else {
-    cart.push({
-      key,
-      category,
-      index,
-      name: product.name,
-      price: product.price,
-      image: product.image || null,
-      qty: 1
-    });
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({
+        key,
+        category: product.categorySlug || null,
+        name: product.name,
+        price: product.price,
+        image: product.image || null,
+        qty: 1
+      });
+    }
+
+    saveCart();
+    showToast(text('added'));
   }
 
-  saveCart();
-  showToast(text('added'));
-}
+  window.addMenuProductToCart = function(product) {
+    addToCart(product);
+  };
 
-window.addIceCreamToCart = function(flavour) {
-  if (!flavour || !flavour.id) return;
+  window.getCartText = text;
 
-  addToCart(
-    'icecream',
-    {
+  window.addIceCreamToCart = function(flavour) {
+    if (!flavour || !flavour.id) return;
+
+    addToCart({
+      legacyKey: `icecream:${flavour.id}`,
+      categorySlug: 'icecream',
       name: {
         pl: flavour.name,
         de: flavour.name,
@@ -394,10 +409,8 @@ window.addIceCreamToCart = function(flavour) {
       },
       price: `${Number(flavour.price || 10)} zł`,
       image: flavour.image_url || null
-    },
-    flavour.id
-  );
-};
+    });
+  };
   function showToast(message) {
     const old =
       document.querySelector('.sl-toast');
@@ -473,17 +486,17 @@ window.addIceCreamToCart = function(flavour) {
 
           <div
             class="sl-cart-item"
-            data-key="${item.key}"
+            data-key="${escapeHtml(item.key)}"
           >
 
             <div>
 
               <b>
-                ${productName(item)}
+                ${escapeHtml(productName(item))}
               </b>
 
               <span>
-                ${item.price}
+                ${escapeHtml(item.price)}
               </span>
 
               <div class="sl-qty">
@@ -496,7 +509,7 @@ window.addIceCreamToCart = function(flavour) {
                 </button>
 
                 <strong>
-                  ${item.qty}
+                  ${escapeHtml(item.qty)}
                 </strong>
 
                 <button
@@ -777,70 +790,6 @@ window.addIceCreamToCart = function(flavour) {
     renderCart();
     dialog.showModal();
   };
-
-  if (typeof openMenu === 'function') {
-    const originalOpenMenu =
-      openMenu;
-
-    openMenu = function(k, title) {
-
-      originalOpenMenu(k, title);
-
-      const products =
-        typeof MENU !== 'undefined' &&
-        MENU[k]
-          ? MENU[k]
-          : [];
-
-      const rows =
-        document.querySelectorAll(
-          '#menuItems .food'
-        );
-
-      rows.forEach(
-        (row, index) => {
-
-          const product =
-            products[index];
-
-          if (
-            !product ||
-            row.querySelector('.sl-add-btn')
-          ) {
-            return;
-          }
-
-          const button =
-            document.createElement(
-              'button'
-            );
-
-          button.className =
-            'sl-add-btn';
-
-          button.type =
-            'button';
-
-          button.textContent =
-            text('add');
-
-          button.onclick = event => {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            addToCart(
-              k,
-              product,
-              index
-            );
-          };
-
-          row.appendChild(button);
-        }
-      );
-    };
-  }
 
   document
     .querySelectorAll('[data-lang]')

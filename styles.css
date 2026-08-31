@@ -515,6 +515,19 @@ h1{
   gap:12px;
 }
 
+.menu-dynamic-categories{
+  display:contents;
+}
+
+.menu-catalog-status{
+  grid-column:1 / -1;
+  margin:0;
+  padding:18px;
+  border-radius:16px;
+  background:#fff;
+  color:#777;
+}
+
 .menu-grid article{
   background:#fff;
   border-radius:20px;
@@ -886,10 +899,23 @@ dialog h3{
   overflow:hidden;
 }
 
+.food.menu-product{
+  grid-template-columns:90px 1fr auto;
+}
+
 .food img{
   width:90px;
   height:90px;
   object-fit:cover;
+}
+
+.food-placeholder{
+  display:grid;
+  place-items:center;
+  width:90px;
+  height:90px;
+  background:#fff7d6;
+  font-size:42px;
 }
 
 .food b,
@@ -905,6 +931,31 @@ dialog h3{
 .food span{
   color:#777;
   margin-top:5px;
+}
+
+.food-copy{
+  min-width:0;
+  padding:10px 0;
+}
+
+.food-description{
+  font-size:14px;
+  line-height:1.25;
+}
+
+.food-badge{
+  display:inline-block !important;
+  width:max-content;
+  padding:3px 7px;
+  border-radius:999px;
+  background:#ffc728;
+  color:#171717 !important;
+  font-size:11px;
+  font-weight:900;
+}
+
+.food .sl-add-btn{
+  margin-right:10px;
 }
 
 
