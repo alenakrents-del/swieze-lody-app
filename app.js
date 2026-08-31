@@ -27,6 +27,11 @@ const T = {
     yourRewards: '🎁 Twoje nagrody',
     rewardSubtitle: 'Aktywne nagrody i odblokowane bonusy.',
     available: 'DOSTĘPNA',
+    redeemed: 'WYKORZYSTANA',
+    expired: 'WYGASŁA',
+    rewardsLoading: 'Ładowanie nagród…',
+    rewardsSignIn: 'Zaloguj się, aby zobaczyć swoje nagrody.',
+    rewardsEmpty: 'Nie masz jeszcze odblokowanych nagród.',
     reward3: 'Odblokowane za 3 różne milkshake’i.',
     stillLocked: 'JESZCZE ZABLOKOWANE',
     secretDessert: 'Sekretny Deser',
@@ -105,6 +110,11 @@ const T = {
     yourRewards: '🎁 Deine Belohnungen',
     rewardSubtitle: 'Aktive Belohnungen und freigeschaltete Boni.',
     available: 'VERFÜGBAR',
+    redeemed: 'EINGELÖST',
+    expired: 'ABGELAUFEN',
+    rewardsLoading: 'Belohnungen werden geladen…',
+    rewardsSignIn: 'Melde dich an, um deine Belohnungen zu sehen.',
+    rewardsEmpty: 'Du hast noch keine Belohnungen freigeschaltet.',
     reward3: 'Freigeschaltet nach 3 verschiedenen Milkshakes.',
     stillLocked: 'NOCH GESPERRT',
     secretDessert: 'Geheimes Dessert',
@@ -183,6 +193,11 @@ const T = {
     yourRewards: '🎁 Your rewards',
     rewardSubtitle: 'Active rewards and unlocked bonuses.',
     available: 'AVAILABLE',
+    redeemed: 'REDEEMED',
+    expired: 'EXPIRED',
+    rewardsLoading: 'Loading rewards…',
+    rewardsSignIn: 'Sign in to see your rewards.',
+    rewardsEmpty: 'You have not unlocked any rewards yet.',
     reward3: 'Unlocked after 3 different milkshakes.',
     stillLocked: 'STILL LOCKED',
     secretDessert: 'Secret Dessert',
@@ -261,6 +276,11 @@ const T = {
     yourRewards: '🎁 Tvoje odměny',
     rewardSubtitle: 'Aktivní odměny a odemčené bonusy.',
     available: 'DOSTUPNÁ',
+    redeemed: 'UPLATNĚNA',
+    expired: 'VYPRŠELA',
+    rewardsLoading: 'Načítání odměn…',
+    rewardsSignIn: 'Přihlas se a zobraz své odměny.',
+    rewardsEmpty: 'Zatím nemáš odemčené žádné odměny.',
     reward3: 'Odemčeno za 3 různé milkshaky.',
     stillLocked: 'STÁLE ZAMČENO',
     secretDessert: 'Tajný dezert',
@@ -394,14 +414,28 @@ const UNLOCKED_ACCOUNT = {
   VACATION: new Set()
 };
 
-async function loadMyCollectionItems() {
+let ACCOUNT_REWARDS = [];
+let accountSessionActive = false;
+let accountStateReady = false;
+let accountRefreshQueue = Promise.resolve();
+
+function clearAccountCollectionItems() {
   UNLOCKED_ACCOUNT.MILKSHAKE.clear();
   UNLOCKED_ACCOUNT.LEMONADE.clear();
   UNLOCKED_ACCOUNT.VACATION.clear();
+}
 
-  const {
-    data: { session }
-  } = await sb.auth.getSession();
+function syncCatalogUnlocks() {
+  Object.values(DATA).forEach(collection => {
+    collection.items.forEach(item => {
+      item.unlocked =
+        UNLOCKED_ACCOUNT[collection.code]?.has(item.code) || false;
+    });
+  });
+}
+
+async function loadMyCollectionItems(session) {
+  clearAccountCollectionItems();
 
   if (!session) {
     return;
@@ -426,6 +460,29 @@ async function loadMyCollectionItems() {
       collection.add(row.item_code);
     }
   });
+}
+
+async function loadMyRewards(session) {
+  ACCOUNT_REWARDS = [];
+
+  if (!session) {
+    return;
+  }
+
+  const { data, error } = await sb.rpc('get_my_rewards');
+
+  if (error) {
+    console.error('Customer rewards load error:', error);
+    return;
+  }
+
+  ACCOUNT_REWARDS = Array.isArray(data) ? data : [];
+}
+
+function getAccountReward(rewardCode) {
+  return ACCOUNT_REWARDS.find(
+    reward => reward.reward_code === rewardCode
+  ) || null;
 }
 
 function tr(key) {
@@ -462,6 +519,112 @@ function updateSecretText() {
   }
 }
 
+function rewardName(reward) {
+  if (reward.reward_code === 'MILKSHAKE_3') {
+    return tr('freeTopping');
+  }
+
+  if (reward.reward_code === 'SECRET_DESSERT') {
+    return tr('secretDessert');
+  }
+
+  if (reward.reward_code === 'SECRET_MILKSHAKE') {
+    return 'Secret Milkshake';
+  }
+
+  return reward.reward_name || reward.reward_code;
+}
+
+function rewardDescription(reward) {
+  if (reward.reward_code === 'MILKSHAKE_3') {
+    return tr('reward3');
+  }
+
+  if (reward.reward_code === 'SECRET_DESSERT') {
+    return tr('discover6');
+  }
+
+  if (reward.reward_code === 'SECRET_MILKSHAKE') {
+    return tr('collectAll');
+  }
+
+  return reward.reward_description || '';
+}
+
+function rewardStatus(reward) {
+  if (reward.status === 'AVAILABLE') return tr('available');
+  if (reward.status === 'REDEEMED') return tr('redeemed');
+  if (reward.status === 'EXPIRED') return tr('expired');
+  return reward.status || '';
+}
+
+function renderRewards() {
+  const list = document.querySelector('#rewardList');
+  if (!list) return;
+
+  list.replaceChildren();
+
+  if (!accountStateReady || !accountSessionActive || !ACCOUNT_REWARDS.length) {
+    const card = document.createElement('article');
+    card.className = 'big-reward locked';
+
+    const icon = document.createElement('div');
+    icon.className = 'r-emoji';
+    icon.textContent = accountStateReady && !accountSessionActive ? '🔐' : '🎁';
+
+    const content = document.createElement('div');
+    const message = document.createElement('p');
+    message.textContent = !accountStateReady
+      ? tr('rewardsLoading')
+      : accountSessionActive
+        ? tr('rewardsEmpty')
+        : tr('rewardsSignIn');
+
+    content.appendChild(message);
+    card.append(icon, content);
+    list.appendChild(card);
+    return;
+  }
+
+  ACCOUNT_REWARDS.forEach(reward => {
+    const available = reward.status === 'AVAILABLE';
+    const card = document.createElement('article');
+    card.className = `big-reward ${available ? 'available' : 'locked'}`;
+
+    const icon = document.createElement('div');
+    icon.className = 'r-emoji';
+    icon.textContent = available
+      ? '✨'
+      : reward.status === 'REDEEMED'
+        ? '✓'
+        : '⌛';
+
+    const content = document.createElement('div');
+    const status = document.createElement('small');
+    const title = document.createElement('h2');
+    const description = document.createElement('p');
+
+    status.textContent = rewardStatus(reward);
+    title.textContent = rewardName(reward);
+    description.textContent = rewardDescription(reward);
+
+    content.append(status, title);
+    if (description.textContent) content.appendChild(description);
+
+    card.append(icon, content);
+
+    if (available && reward.reward_code === 'MILKSHAKE_3') {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = tr('showCodeSimple');
+      button.onclick = () => topDlg?.showModal();
+      card.appendChild(button);
+    }
+
+    list.appendChild(card);
+  });
+}
+
 function applyTranslations() {
   document.documentElement.lang = currentLang === 'cs' ? 'cs' : currentLang;
 
@@ -486,6 +649,7 @@ function applyTranslations() {
   if (rewardDesc) rewardDesc.textContent = tr('freeToppingDesc');
 
   renderToppings();
+  renderRewards();
 
   if (DATA[currentCollection]) renderCollection(currentCollection);
 }
@@ -902,51 +1066,84 @@ await loadAccountFavourites();
     });
 }
 
-async function loadCatalog() 
-{  
-  const { data: collections, error: collectionsError } = await sb
-    .from('collections')
-    .select('id,code,name,icon,sort_order')
-    .eq('active', true)
-    .order('sort_order');
+async function loadCatalog() {
+  const { data, error } = await sb.rpc('get_collection_catalog');
 
-  if (collectionsError) {
-    console.error('Collections load error:', collectionsError);
+  if (error) {
+    console.error('Collections load error:', error);
     return;
   }
 
-  const { data: items, error: itemsError } = await sb
-    .from('collection_items')
-    .select('id,collection_id,code,name,icon,sort_order')
-    .eq('active', true)
-    .order('sort_order');
+  const nextData = {};
 
-  if (itemsError) {
-    console.error('Items load error:', itemsError);
-    return;
-  }
+  (data || []).forEach(row => {
+    if (!nextData[row.collection_code]) {
+      nextData[row.collection_code] = {
+        id: row.collection_id,
+        code: row.collection_code,
+        icon: row.collection_icon,
+        items: []
+      };
+    }
 
-  DATA = {};
-
-  collections.forEach(collection => {
-    DATA[collection.code] = {
-      id: collection.id,
-      code: collection.code,
-      icon: collection.icon,
-      items: items
-        .filter(item => item.collection_id === collection.id)
-        .map(item => ({
-          code: item.code,
-          name: item.name,
-          icon: item.icon,
-          image: IMAGE_MAP[collection.code]?.[item.code] || null,
-          unlocked: UNLOCKED_DEMO[collection.code]?.has(item.code) || false
-        }))
-    };
+    nextData[row.collection_code].items.push({
+      code: row.item_code,
+      name: row.item_name,
+      icon: row.item_icon,
+      image: IMAGE_MAP[row.collection_code]?.[row.item_code] || null,
+      unlocked:
+        UNLOCKED_ACCOUNT[row.collection_code]?.has(row.item_code) || false
+    });
   });
 
-  renderCollection('MILKSHAKE');
+  DATA = nextData;
   applyTranslations();
+}
+
+async function refreshCustomerCollectionState() {
+  accountStateReady = false;
+  renderRewards();
+
+  const {
+    data: { session },
+    error
+  } = await sb.auth.getSession();
+
+  if (error) {
+    console.error('Customer session load error:', error);
+  }
+
+  const activeSession = error ? null : session;
+  accountSessionActive = Boolean(activeSession);
+
+  await Promise.all([
+    loadMyCollectionItems(activeSession),
+    loadMyRewards(activeSession)
+  ]);
+
+  syncCatalogUnlocks();
+  await loadCatalog();
+  accountStateReady = true;
+  renderRewards();
+}
+
+function queueCustomerCollectionRefresh() {
+  accountRefreshQueue = accountRefreshQueue
+    .catch(error => {
+      console.error('Previous collection refresh error:', error);
+    })
+    .then(refreshCustomerCollectionState)
+    .catch(error => {
+      accountSessionActive = false;
+      ACCOUNT_REWARDS = [];
+      clearAccountCollectionItems();
+      syncCatalogUnlocks();
+      accountStateReady = true;
+      applyTranslations();
+      console.error('Collection refresh error:', error);
+    });
+
+  return accountRefreshQueue;
 }
 
 function renderCollection(code) {
@@ -1005,7 +1202,11 @@ function renderCollection(code) {
   if (bar) bar.style.width = total ? `${(n / total) * 100}%` : '0%';
 
   if (rewardCard) {
-    rewardCard.classList.toggle('hidden', code !== 'MILKSHAKE' || n < 3);
+    const toppingReward = getAccountReward('MILKSHAKE_3');
+    rewardCard.classList.toggle(
+      'hidden',
+      code !== 'MILKSHAKE' || toppingReward?.status !== 'AVAILABLE'
+    );
   }
 
   if (code === 'MILKSHAKE' && secret) {
@@ -1057,9 +1258,6 @@ const topDlg = document.querySelector('#toppingDlg');
 
 const codeBtn = document.querySelector('#code');
 if (codeBtn) codeBtn.onclick = () => topDlg?.showModal();
-
-const rewardShowCode = document.querySelector('#rewardShowCode');
-if (rewardShowCode) rewardShowCode.onclick = () => topDlg?.showModal();
 
 const xBtn = document.querySelector('#x');
 if (xBtn) xBtn.onclick = () => dlg?.close();
@@ -1304,7 +1502,13 @@ if (locateBtn) {
 
 renderToppings();
 applyTranslations();
-loadCatalog();
+
+window.addEventListener(
+  'customer-auth-changed',
+  queueCustomerCollectionRefresh
+);
+
+queueCustomerCollectionRefresh();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
