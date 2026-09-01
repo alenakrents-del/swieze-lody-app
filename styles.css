@@ -528,6 +528,49 @@ h1{
   color:#777;
 }
 
+.public-announcements{
+  display:grid;
+  gap:10px;
+  margin:0 0 14px;
+}
+
+.public-announcements[hidden]{
+  display:none;
+}
+
+.announcement-card,
+.announcement-status{
+  margin:0;
+  padding:14px 16px;
+  border-radius:16px;
+  background:#fff2bd;
+  box-shadow:0 5px 15px #0001;
+}
+
+.announcement-card strong{
+  display:block;
+  font-size:17px;
+}
+
+.announcement-card p{
+  margin:5px 0 0;
+  color:#5d4b12;
+  line-height:1.35;
+}
+
+.announcement-promotion{
+  background:#ffe0df;
+}
+
+.announcement-new_product{
+  background:#e5f7e9;
+}
+
+.announcement-status{
+  background:#fff;
+  color:#777;
+}
+
 .menu-grid article{
   background:#fff;
   border-radius:20px;
@@ -923,6 +966,22 @@ dialog h3{
   display:block;
 }
 
+.food-price-row{
+  display:flex !important;
+  align-items:baseline;
+  gap:8px;
+}
+
+.food-old-price{
+  color:#8a8a8a;
+  font-size:13px;
+}
+
+.food-current-price{
+  color:#171717;
+  font-size:17px;
+}
+
 .food b{
   font-size:22px;
   line-height:1;
@@ -952,6 +1011,27 @@ dialog h3{
   color:#171717 !important;
   font-size:11px;
   font-weight:900;
+}
+
+.food-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:7px;
+}
+
+.food-badges .food-badge{
+  margin-top:0;
+}
+
+.food-badge.is-promo{
+  background:#e33b32;
+  color:#fff !important;
+}
+
+.food-badge.is-new{
+  background:#2d9b53;
+  color:#fff !important;
 }
 
 .food .sl-add-btn{

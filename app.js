@@ -653,6 +653,7 @@ function applyTranslations() {
 
   renderPublicMenuCategories();
   if (activeMenuCategoryId) renderPublicMenuDialog(activeMenuCategoryId);
+  renderPublicAnnouncements();
 
   if (DATA[currentCollection]) renderCollection(currentCollection);
 }
@@ -662,6 +663,7 @@ document.querySelectorAll('[data-lang]').forEach(btn => {
     currentLang = btn.dataset.lang;
     localStorage.setItem('swiezeLanguage', currentLang);
     applyTranslations();
+    loadPublicAnnouncements();
   };
 });
 
@@ -1316,15 +1318,20 @@ if (confirmTopping) {
 ========================================================= */
 
 const MENU_UI = {
-  pl: { loading: 'Ładowanie menu…', unavailable: 'Menu jest teraz niedostępne.', products: 'produktów', from: 'od', add: 'Dodaj' },
-  de: { loading: 'Menü wird geladen…', unavailable: 'Das Menü ist derzeit nicht verfügbar.', products: 'Produkte', from: 'ab', add: 'Hinzufügen' },
-  en: { loading: 'Loading menu…', unavailable: 'The menu is currently unavailable.', products: 'products', from: 'from', add: 'Add' },
-  cs: { loading: 'Načítání menu…', unavailable: 'Menu momentálně není dostupné.', products: 'produktů', from: 'od', add: 'Přidat' }
+  pl: { loading: 'Ładowanie menu…', unavailable: 'Menu jest teraz niedostępne.', announcementsUnavailable: 'Ogłoszenia są teraz niedostępne.', products: 'produktów', from: 'od', add: 'Dodaj', promotion: 'PROMOCJA', newProduct: 'NOWOŚĆ' },
+  de: { loading: 'Menü wird geladen…', unavailable: 'Das Menü ist derzeit nicht verfügbar.', announcementsUnavailable: 'Ankündigungen sind derzeit nicht verfügbar.', products: 'Produkte', from: 'ab', add: 'Hinzufügen', promotion: 'ANGEBOT', newProduct: 'NEU' },
+  en: { loading: 'Loading menu…', unavailable: 'The menu is currently unavailable.', announcementsUnavailable: 'Announcements are currently unavailable.', products: 'products', from: 'from', add: 'Add', promotion: 'PROMOTION', newProduct: 'NEW' },
+  cs: { loading: 'Načítání menu…', unavailable: 'Menu momentálně není dostupné.', announcementsUnavailable: 'Oznámení momentálně nejsou dostupná.', products: 'produktů', from: 'od', add: 'Přidat', promotion: 'AKCE', newProduct: 'NOVINKA' }
 };
 
 let publicMenuCategories = [];
 let activeMenuCategoryId = null;
 let publicMenuStatus = 'loading';
+let publicAnnouncements = [];
+let publicAnnouncementsStatus = 'loading';
+let publicAnnouncementsRequest = 0;
+let publicMenuBoundaryTimer = null;
+let publicAnnouncementsTimer = null;
 
 function menuUi(key) {
   return MENU_UI[currentLang]?.[key] || MENU_UI.pl[key] || key;
@@ -1336,10 +1343,44 @@ function isAvailableNow(startsAt, endsAt, now = Date.now()) {
   return (!starts || starts <= now) && (!ends || now < ends);
 }
 
-function effectiveMenuPrice(product, now = Date.now()) {
-  const promoActive = product.promo_price != null &&
-    isAvailableNow(product.promo_starts_at, product.promo_ends_at, now);
-  return Number(promoActive ? product.promo_price : product.regular_price);
+function isReservedMenuBadge(value) {
+  const normalized = String(value || '').trim().toLocaleUpperCase('pl');
+  return new Set([
+    'PROMOCJA', 'PROMOTION', 'ANGEBOT', 'AKCE',
+    'NOWOŚĆ', 'NOWOSC', 'NEW', 'NEU', 'NOVINKA'
+  ]).has(normalized);
+}
+
+function currentMenuProductState(product, now = Date.now()) {
+  const promoActive = product.promoPrice != null &&
+    isAvailableNow(product.promoStartsAt, product.promoEndsAt, now);
+  return {
+    promoActive,
+    newActive: product.isNew === true &&
+      (!product.newUntil || now < Date.parse(product.newUntil)),
+    price: Number(promoActive ? product.promoPrice : product.regularPrice)
+  };
+}
+
+function schedulePublicMenuBoundaryRefresh() {
+  if (publicMenuBoundaryTimer) clearTimeout(publicMenuBoundaryTimer);
+  const now = Date.now();
+  const boundaries = publicMenuCategories.flatMap(category =>
+    category.products.flatMap(product => [
+      product.promoStartsAt,
+      product.promoEndsAt,
+      product.newUntil
+    ])
+  )
+    .map(value => value ? Date.parse(value) : NaN)
+    .filter(value => Number.isFinite(value) && value > now);
+  if (!boundaries.length) return;
+  const delay = Math.min(Math.min(...boundaries) - now + 25, 2147483647);
+  publicMenuBoundaryTimer = setTimeout(() => {
+    renderPublicMenuCategories();
+    if (activeMenuCategoryId) renderPublicMenuDialog(activeMenuCategoryId);
+    schedulePublicMenuBoundaryRefresh();
+  }, delay);
 }
 
 function formatMenuPrice(value) {
@@ -1385,7 +1426,7 @@ function renderPublicMenuCategories(message = '') {
     const name = document.createElement('b');
     name.textContent = localizedMenuValue(category.translations, 'name');
 
-    const prices = category.products.map(product => product.price);
+    const prices = category.products.map(product => currentMenuProductState(product).price);
     const summary = document.createElement('span');
     summary.textContent = `${category.products.length} ${menuUi('products')} • ${menuUi('from')} ${formatMenuPrice(Math.min(...prices))}`;
 
@@ -1405,6 +1446,7 @@ function renderPublicMenuDialog(categoryId) {
   menuItems.replaceChildren();
 
   category.products.forEach(product => {
+    const productState = currentMenuProductState(product);
     const article = document.createElement('article');
     article.className = 'food menu-product';
 
@@ -1426,9 +1468,23 @@ function renderPublicMenuDialog(categoryId) {
     copy.className = 'food-copy';
     const name = document.createElement('b');
     name.textContent = productName;
-    const price = document.createElement('span');
-    price.textContent = formatMenuPrice(product.price);
-    copy.append(name, price);
+    const priceRow = document.createElement('span');
+    priceRow.className = 'food-price-row';
+    if (productState.promoActive) {
+      const oldPrice = document.createElement('del');
+      oldPrice.className = 'food-old-price';
+      oldPrice.textContent = formatMenuPrice(product.regularPrice);
+      const promoPrice = document.createElement('strong');
+      promoPrice.className = 'food-current-price';
+      promoPrice.textContent = formatMenuPrice(productState.price);
+      priceRow.append(oldPrice, promoPrice);
+    } else {
+      const currentPrice = document.createElement('strong');
+      currentPrice.className = 'food-current-price';
+      currentPrice.textContent = formatMenuPrice(productState.price);
+      priceRow.appendChild(currentPrice);
+    }
+    copy.append(name, priceRow);
 
     const descriptionText = localizedMenuValue(product.translations, 'description');
     if (descriptionText) {
@@ -1437,11 +1493,22 @@ function renderPublicMenuDialog(categoryId) {
       description.textContent = descriptionText;
       copy.appendChild(description);
     }
-    if (product.badge) {
+    const badges = document.createElement('div');
+    badges.className = 'food-badges';
+    const badgeValues = [];
+    if (productState.promoActive) badgeValues.push(['is-promo', menuUi('promotion')]);
+    if (productState.newActive) badgeValues.push(['is-new', menuUi('newProduct')]);
+    if (product.badge && !isReservedMenuBadge(product.badge)) {
+      badgeValues.push(['', product.badge]);
+    }
+    badgeValues.forEach(([className, text]) => {
       const badge = document.createElement('span');
-      badge.className = 'food-badge';
-      badge.textContent = product.badge;
-      copy.appendChild(badge);
+      badge.className = `food-badge${className ? ` ${className}` : ''}`;
+      badge.textContent = text;
+      badges.appendChild(badge);
+    });
+    if (badges.childElementCount) {
+      copy.appendChild(badges);
     }
 
     const add = document.createElement('button');
@@ -1452,7 +1519,7 @@ function renderPublicMenuDialog(categoryId) {
       legacyKey: product.legacyKey,
       categorySlug: category.slug,
       name: Object.fromEntries(Object.entries(product.translations).map(([locale, translation]) => [locale, translation.name])),
-      price: formatMenuPrice(product.price),
+      price: formatMenuPrice(productState.price),
       image: product.imageUrl
     });
 
@@ -1483,7 +1550,7 @@ async function loadPublicMenu() {
     sb.from('menu_category_translations')
       .select('category_id,locale,name,description'),
     sb.from('menu_products')
-      .select('id,category_id,slug,legacy_key,image_url,regular_price,promo_price,promo_starts_at,promo_ends_at,badge,sort_order,is_active,is_available,is_orderable,product_type,visibility,available_starts_at,available_ends_at,required_reward_id')
+      .select('id,category_id,slug,legacy_key,image_url,regular_price,promo_price,promo_starts_at,promo_ends_at,badge,is_new,new_until,sort_order,is_active,is_available,is_orderable,product_type,visibility,available_starts_at,available_ends_at,required_reward_id')
       .eq('is_active', true)
       .eq('is_available', true)
       .eq('is_orderable', true)
@@ -1521,8 +1588,13 @@ async function loadPublicMenu() {
         legacyKey: product.legacy_key,
         imageUrl: product.image_url,
         badge: product.badge,
+        regularPrice: Number(product.regular_price),
+        promoPrice: product.promo_price == null ? null : Number(product.promo_price),
+        promoStartsAt: product.promo_starts_at,
+        promoEndsAt: product.promo_ends_at,
+        isNew: product.is_new,
+        newUntil: product.new_until,
         sortOrder: product.sort_order,
-        price: effectiveMenuPrice(product, now),
         translations: productTranslations[product.id] || {}
       });
       productsByCategory.set(product.category_id, list);
@@ -1545,6 +1617,84 @@ async function loadPublicMenu() {
 
   publicMenuStatus = publicMenuCategories.length ? 'ready' : 'unavailable';
   renderPublicMenuCategories(publicMenuCategories.length ? '' : menuUi('unavailable'));
+  schedulePublicMenuBoundaryRefresh();
+}
+
+function renderPublicAnnouncements() {
+  const container = document.querySelector('#publicAnnouncements');
+  if (!container) return;
+  container.replaceChildren();
+
+  if (publicAnnouncementsStatus === 'loading') {
+    container.hidden = true;
+    return;
+  }
+  if (publicAnnouncementsStatus === 'unavailable') {
+    const status = document.createElement('p');
+    status.className = 'announcement-status';
+    status.textContent = menuUi('announcementsUnavailable');
+    container.appendChild(status);
+    container.hidden = false;
+    return;
+  }
+  if (!publicAnnouncements.length) {
+    container.hidden = true;
+    return;
+  }
+
+  publicAnnouncements.forEach(announcement => {
+    const article = document.createElement('article');
+    article.className = `announcement-card announcement-${announcement.kind || 'general'}`;
+    const title = document.createElement('strong');
+    title.textContent = announcement.title || '';
+    article.appendChild(title);
+    if (announcement.body) {
+      const body = document.createElement('p');
+      body.textContent = announcement.body;
+      article.appendChild(body);
+    }
+    container.appendChild(article);
+  });
+  container.hidden = false;
+}
+
+async function loadPublicAnnouncements() {
+  const request = ++publicAnnouncementsRequest;
+  const locale = currentLang;
+  publicAnnouncementsStatus = 'loading';
+  renderPublicAnnouncements();
+  try {
+    const { data, error } = await sb.rpc('get_public_in_app_announcements', {
+      p_locale: locale
+    });
+    if (error) throw error;
+    if (request !== publicAnnouncementsRequest || locale !== currentLang) return;
+    if (!Array.isArray(data)) throw new Error('Invalid announcements response.');
+    publicAnnouncements = data;
+    publicAnnouncementsStatus = 'ready';
+  } catch (error) {
+    if (request !== publicAnnouncementsRequest || locale !== currentLang) return;
+    console.error('PUBLIC ANNOUNCEMENTS ERROR:', error);
+    publicAnnouncements = [];
+    publicAnnouncementsStatus = 'unavailable';
+  }
+  renderPublicAnnouncements();
+  schedulePublicAnnouncementsRefresh();
+}
+
+function schedulePublicAnnouncementsRefresh() {
+  if (publicAnnouncementsTimer) clearTimeout(publicAnnouncementsTimer);
+  if (publicAnnouncementsStatus !== 'ready') return;
+  const now = Date.now();
+  const nextEnd = publicAnnouncements
+    .map(item => item.ends_at ? Date.parse(item.ends_at) : NaN)
+    .filter(value => Number.isFinite(value) && value > now)
+    .sort((a, b) => a - b)[0];
+  const delay = Math.min(
+    60000,
+    nextEnd ? Math.max(25, nextEnd - now + 25) : 60000
+  );
+  publicAnnouncementsTimer = setTimeout(loadPublicAnnouncements, delay);
 }
 
 const menuX = document.querySelector('#menuX');
@@ -1668,6 +1818,8 @@ loadPublicMenu().catch(error => {
   publicMenuStatus = 'unavailable';
   renderPublicMenuCategories(menuUi('unavailable'));
 });
+
+loadPublicAnnouncements();
 
 window.addEventListener(
   'customer-auth-changed',

@@ -49,6 +49,7 @@
   let categoryList;
   let productTitle;
   let productList;
+  let announcementList;
 
   function node(tag, className, text) {
     const element = document.createElement(tag);
@@ -148,6 +149,14 @@
     );
   }
 
+  function announcementTranslations(id) {
+    return Object.fromEntries(
+      (state.catalog?.announcement_translations || [])
+        .filter(item => item.announcement_id === id)
+        .map(item => [item.locale, item])
+    );
+  }
+
   function localizedName(kind, item) {
     const translations = translationsFor(kind, item.id);
     return translations.pl?.name || translations.en?.name || item.slug;
@@ -222,7 +231,15 @@
     try {
       const { data, error } = await sb.rpc('staff_get_menu_catalog');
       if (error) throw error;
-      const required = ['categories', 'category_translations', 'products', 'product_translations', 'rewards'];
+      const required = [
+        'categories',
+        'category_translations',
+        'products',
+        'product_translations',
+        'rewards',
+        'announcements',
+        'announcement_translations'
+      ];
       if (!data || required.some(key => !Array.isArray(data[key]))) {
         throw new Error('Serwer zwrócił niepełny katalog.');
       }
@@ -245,6 +262,7 @@
   function renderCatalog() {
     renderCategories();
     renderProducts();
+    renderAnnouncements();
   }
 
   function renderCategories() {
@@ -323,6 +341,162 @@
       card.appendChild(copy);
       productList.appendChild(card);
     });
+  }
+
+  function announcementProductName(productId) {
+    if (!productId) return 'Ogólne — bez produktu';
+    const product = (state.catalog?.products || []).find(item => item.id === productId);
+    return product ? localizedName('product', product) : 'Nieznany produkt';
+  }
+
+  function announcementProductOptions(selected) {
+    const options = [['', 'Ogólne — bez produktu']];
+    (state.catalog?.products || [])
+      .filter(product => product.product_type === 'standard' && !product.ice_cream_flavour_id)
+      .sort((a, b) => localizedName('product', a).localeCompare(localizedName('product', b), 'pl'))
+      .forEach(product => options.push([product.id, `${localizedName('product', product)} · ${product.legacy_key}`]));
+    if (selected && !options.some(([id]) => id === selected)) {
+      options.push([selected, `Nieznany produkt (${selected})`]);
+    }
+    return options;
+  }
+
+  function renderAnnouncements() {
+    if (!announcementList) return;
+    announcementList.replaceChildren();
+    const announcements = [...(state.catalog?.announcements || [])]
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.id.localeCompare(b.id));
+    if (!announcements.length) {
+      announcementList.append(node('div', 'sl-cat-empty', 'Brak ogłoszeń.'));
+      return;
+    }
+    announcements.forEach(announcement => {
+      const translations = announcementTranslations(announcement.id);
+      const card = node('article', 'sl-cat-announcement');
+      const copy = node('div', 'sl-cat-announcement-copy');
+      copy.append(
+        node('strong', '', translations.pl?.title || 'Bez tytułu PL'),
+        node('span', '', `${announcement.kind} · ${announcementProductName(announcement.product_id)}`),
+        node('span', '', `Kolejność ${announcement.sort_order} · ${announcement.starts_at ? localDateTime(announcement.starts_at) : 'bez początku'} → ${announcement.ends_at ? localDateTime(announcement.ends_at) : 'bez końca'}`)
+      );
+      const flags = node('div', 'sl-cat-flags');
+      flags.append(node(
+        'span',
+        announcement.show_to_customers ? 'is-on' : 'is-off',
+        announcement.show_to_customers ? 'Pokazywane klientom' : 'Wyłączone'
+      ));
+      copy.append(flags);
+      card.append(copy, button('Edytuj', 'sl-cat-secondary', () => openAnnouncementForm(announcement)));
+      announcementList.appendChild(card);
+    });
+  }
+
+  function addAnnouncementTranslationFields(container, translations) {
+    const heading = node('h3', 'sl-cat-subtitle', 'Tłumaczenia ogłoszenia');
+    const grid = node('div', 'sl-cat-translations');
+    LOCALES.forEach(([locale, label]) => {
+      const box = node('fieldset', 'sl-cat-locale');
+      const legend = node('legend', '', `${label} (${locale.toUpperCase()})`);
+      const title = textInput(`announcement_title_${locale}`, translations[locale]?.title || '', {
+        required: true,
+        maxLength: 200
+      });
+      const body = document.createElement('textarea');
+      body.name = `announcement_body_${locale}`;
+      body.maxLength = 2000;
+      body.rows = 3;
+      body.value = translations[locale]?.body || '';
+      box.append(legend, field('Tytuł', title, true), field('Treść', body, true));
+      grid.appendChild(box);
+    });
+    container.append(heading, grid);
+  }
+
+  function readAnnouncementTranslations(form) {
+    return Object.fromEntries(LOCALES.map(([locale]) => {
+      const title = form.elements.namedItem(`announcement_title_${locale}`).value.trim();
+      if (!title) throw new Error(`Tytuł ${locale.toUpperCase()} jest wymagany.`);
+      return [locale, {
+        title,
+        body: form.elements.namedItem(`announcement_body_${locale}`).value.trim() || null
+      }];
+    }));
+  }
+
+  function openAnnouncementForm(announcement = null) {
+    if (!closeForm()) return;
+    const translations = announcement ? announcementTranslations(announcement.id) : {};
+    const form = node('form', 'sl-cat-form');
+    form.noValidate = true;
+    const title = node('h3', 'sl-cat-form-title', announcement ? 'Edytuj ogłoszenie' : 'Nowe ogłoszenie');
+    const errorBox = node('div', 'sl-cat-form-error');
+    errorBox.hidden = true;
+    const grid = node('div', 'sl-cat-form-grid');
+    grid.append(
+      field('Rodzaj', selectInput('announcement_kind', [
+        ['general', 'Ogólne'],
+        ['new_product', 'Nowy produkt'],
+        ['promotion', 'Promocja']
+      ], announcement?.kind || 'general')),
+      field('Produkt (opcjonalnie dla ogólnego)', selectInput(
+        'announcement_product_id',
+        announcementProductOptions(announcement?.product_id),
+        announcement?.product_id
+      ), true),
+      field('Pokaż klientom', checkInput('announcement_show', announcement?.show_to_customers ?? false)),
+      field('Sort order', textInput('announcement_sort_order', announcement?.sort_order ?? 0, {
+        type: 'number', step: 1, required: true
+      })),
+      field('Pokaż od', textInput('announcement_starts_at', localDateTime(announcement?.starts_at), {
+        type: 'datetime-local'
+      })),
+      field('Pokaż do', textInput('announcement_ends_at', localDateTime(announcement?.ends_at), {
+        type: 'datetime-local'
+      }))
+    );
+    form.append(title, errorBox, grid);
+    addAnnouncementTranslationFields(form, translations);
+    formActions(form, () => saveAnnouncement(form, announcement, errorBox));
+    form.addEventListener('submit', event => event.preventDefault());
+    state.form = { kind: 'announcement', busy: false };
+    formHost.replaceChildren(form);
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function saveAnnouncement(form, announcement, errorBox) {
+    if (state.form?.busy) return;
+    if (!form.reportValidity()) return;
+    errorBox.hidden = true;
+    setFormBusy(form, true);
+    try {
+      const kind = form.elements.namedItem('announcement_kind').value;
+      const productId = form.elements.namedItem('announcement_product_id').value || null;
+      if (kind !== 'general' && !productId) {
+        throw new Error('Ogłoszenie o nowym produkcie lub promocji wymaga wyboru produktu.');
+      }
+      const payload = {
+        p_id: announcement?.id || null,
+        p_kind: kind,
+        p_product_id: productId,
+        p_show_to_customers: form.elements.namedItem('announcement_show').checked,
+        p_starts_at: isoOrNull(form.elements.namedItem('announcement_starts_at').value),
+        p_ends_at: isoOrNull(form.elements.namedItem('announcement_ends_at').value),
+        p_sort_order: Number(form.elements.namedItem('announcement_sort_order').value),
+        p_translations: readAnnouncementTranslations(form)
+      };
+      const { error } = await sb.rpc('staff_save_in_app_announcement', payload);
+      if (error) throw error;
+      closeForm(true);
+      await loadCatalog({ quiet: true });
+      setMessage(
+        announcement ? 'Ogłoszenie zostało zaktualizowane.' : 'Ogłoszenie zostało utworzone.',
+        'success'
+      );
+    } catch (error) {
+      console.error('ANNOUNCEMENT SAVE ERROR:', error);
+      showFormError(errorBox, error);
+      setFormBusy(form, false);
+    }
   }
 
   function formActions(form, onSave) {
@@ -637,7 +811,7 @@
     style.id = 'slCatalogStyles';
     style.textContent = `
       #${PANEL_ID}{margin:22px 0;padding:18px;border-radius:20px;background:#fff;box-shadow:0 10px 32px rgba(0,0,0,.09)}
-      .sl-cat-head,.sl-cat-products-head,.sl-cat-actions,.sl-cat-image-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+      .sl-cat-head,.sl-cat-products-head,.sl-cat-announcements-head,.sl-cat-actions,.sl-cat-image-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
       .sl-cat-title,.sl-cat-form-title{margin:0}.sl-cat-muted,.sl-cat-legacy,.sl-cat-image-status{color:#666;font-size:13px}
       .sl-cat-primary,.sl-cat-secondary,.sl-cat-danger,.sl-cat-small,.sl-cat-add{border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
       .sl-cat-primary,.sl-cat-add{background:#ffc928;color:#171717}.sl-cat-secondary,.sl-cat-small{background:#eceff3;color:#171717}.sl-cat-danger{background:#ffe3e3;color:#9d1c1c}
@@ -648,8 +822,9 @@
       .sl-cat-flags{display:flex;gap:5px;flex-wrap:wrap}.sl-cat-flags span{font-size:10px;padding:3px 7px;border-radius:999px;background:#e8ebee;color:#4f565c}.sl-cat-flags .is-on{background:#dff5e5;color:#17652d}.sl-cat-flags .is-off{background:#f4e2e2;color:#8d2525}
       .sl-cat-form{max-width:760px;margin:18px auto;padding:16px;border:1px solid #dce1e5;border-radius:18px;background:#fafbfc}.sl-cat-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}.sl-cat-field{display:grid;gap:5px;font-size:12px;font-weight:700}.sl-cat-field input:not([type=checkbox]),.sl-cat-field select,.sl-cat-field textarea{width:100%;box-sizing:border-box;border:1px solid #cfd6dc;border-radius:10px;padding:10px;background:#fff;font:inherit}.sl-cat-field input[type=checkbox]{width:24px;height:24px}.sl-cat-wide{grid-column:1/-1}.sl-cat-subtitle{font-size:15px;margin:18px 0 9px}.sl-cat-translations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sl-cat-locale{border:1px solid #dce1e5;border-radius:13px;padding:10px;display:grid;gap:8px}.sl-cat-locale legend{font-weight:800;padding:0 5px}.sl-cat-actions{justify-content:flex-end;margin-top:16px}
       .sl-cat-image-section{margin-top:14px}.sl-cat-image-preview{max-width:360px;min-height:150px;border:1px dashed #bfc7ce;border-radius:14px;overflow:hidden;background:#f0f2f4;display:grid;place-items:center;gap:4px}.sl-cat-image-preview img{width:100%;max-height:300px;object-fit:contain}.sl-cat-image-preview small{padding:5px}.sl-cat-image-actions{justify-content:flex-start;margin-top:9px}.sl-cat-image-empty,.sl-cat-empty{padding:20px;text-align:center;color:#777}
+      .sl-cat-announcements-section{margin-top:22px;border-top:1px solid #e0e4e8;padding-top:18px}.sl-cat-announcements{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}.sl-cat-announcement{border:1px solid #e0e4e8;border-radius:14px;padding:12px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.sl-cat-announcement-copy{display:grid;gap:5px;min-width:0}.sl-cat-announcement-copy>span{font-size:12px;color:#626b72;overflow-wrap:anywhere}
       @media(max-width:900px){.sl-cat-layout{grid-template-columns:1fr}.sl-cat-category-list{grid-template-columns:repeat(2,minmax(0,1fr))}.sl-cat-products{grid-template-columns:1fr}}
-      @media(max-width:600px){#${PANEL_ID}{padding:13px}.sl-cat-category-list,.sl-cat-form-grid,.sl-cat-translations{grid-template-columns:1fr}.sl-cat-product{grid-template-columns:88px minmax(0,1fr)}.sl-cat-product img,.sl-cat-product-placeholder{width:88px}.sl-cat-form{padding:12px}.sl-cat-wide{grid-column:auto}}
+      @media(max-width:600px){#${PANEL_ID}{padding:13px}.sl-cat-category-list,.sl-cat-form-grid,.sl-cat-translations,.sl-cat-announcements{grid-template-columns:1fr}.sl-cat-product{grid-template-columns:88px minmax(0,1fr)}.sl-cat-product img,.sl-cat-product-placeholder{width:88px}.sl-cat-form{padding:12px}.sl-cat-wide{grid-column:auto}}
       button:disabled,input:disabled,select:disabled,textarea:disabled{opacity:.62;cursor:not-allowed}
     `;
     document.head.appendChild(style);
@@ -684,7 +859,15 @@
     productList = node('div', 'sl-cat-products');
     productsPane.append(productsHead, productList);
     layout.append(categoriesPane, productsPane);
-    panel.append(head, messageBox, formHost, layout);
+    const announcementsSection = node('section', 'sl-cat-announcements-section');
+    const announcementsHead = node('div', 'sl-cat-announcements-head');
+    announcementsHead.append(
+      node('h3', 'sl-cat-subtitle', 'Ogłoszenia w aplikacji'),
+      button('+ Dodaj ogłoszenie', 'sl-cat-add', () => openAnnouncementForm())
+    );
+    announcementList = node('div', 'sl-cat-announcements');
+    announcementsSection.append(announcementsHead, announcementList);
+    panel.append(head, messageBox, formHost, layout, announcementsSection);
     staffPanel.prepend(panel);
 
     window.addEventListener('staff-access-changed', event => {
@@ -699,6 +882,7 @@
         state.loaded = false;
         categoryList.replaceChildren();
         productList.replaceChildren();
+        announcementList.replaceChildren();
       }
     });
 
