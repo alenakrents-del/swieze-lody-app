@@ -573,12 +573,20 @@ const recoveryError =
       loginPanel.classList.remove('hidden');
       staffPanel.classList.add('hidden');
       logoutBtn.classList.add('hidden');
+      window.dispatchEvent(new CustomEvent(
+        'staff-access-changed',
+        { detail: { authorized: false } }
+      ));
     }
 
     function showStaff() {
       loginPanel.classList.add('hidden');
       staffPanel.classList.remove('hidden');
       logoutBtn.classList.remove('hidden');
+      window.dispatchEvent(new CustomEvent(
+        'staff-access-changed',
+        { detail: { authorized: true } }
+      ));
     }
 
     loginBtn.addEventListener(
@@ -1191,6 +1199,8 @@ const category =
   checkStaff();
 }
   </script>
+<script src="image-upload.js"></script>
+<script src="staff-catalog.js"></script>
 <script src="staff-icecream.js"></script>
 </body>
 </html>
