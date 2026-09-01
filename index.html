@@ -8,7 +8,7 @@
   <title>Świeże Lody — Kolekcje</title>
 
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=comic1">
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -415,6 +415,24 @@
 
   </div>
 
+  <section id="comicProgressShell" class="comic-shell" aria-labelledby="comicProgressHeading">
+    <div class="comic-shell-intro">
+      <div>
+        <span id="comicProgressEyebrow" class="comic-eyebrow">Twoja historia</span>
+        <h2 id="comicProgressHeading">Komiks</h2>
+      </div>
+      <div class="brand-hero-slots comic-hero-slots" aria-hidden="true">
+        <span class="brand-hero-slot"></span>
+        <span class="brand-hero-slot"></span>
+        <span class="brand-hero-slot"></span>
+        <span class="brand-hero-slot"></span>
+      </div>
+    </div>
+    <div id="comicProgressContent" class="comic-progress-content" aria-live="polite" aria-busy="true">
+      <p class="comic-status">Ładowanie komiksu…</p>
+    </div>
+  </section>
+
 </section>
 
   </main>
@@ -528,9 +546,10 @@
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+<script src="app.js?v=comic1"></script>
 <script src="auth.js"></script>
- <script src="cart.js"></script>
+<script src="comic.js?v=2"></script>
+<script src="cart.js"></script>
 <script src="order-status.js"></script>
 <script src="reviews.js"></script>
 </body>

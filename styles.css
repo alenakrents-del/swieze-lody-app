@@ -1204,10 +1204,237 @@ main{
 .settings-list button,
 .announcement-card,
 .announcement-status,
-.menu-catalog-status{
+.menu-catalog-status,
+.comic-shell{
   border:var(--outline);
   border-radius:var(--radius-lg);
   box-shadow:var(--shadow-comic);
+}
+
+.comic-shell{
+  min-width:0;
+  margin-top:18px;
+  padding:16px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 8px 8px,rgba(17,17,17,.09) 1.2px,transparent 1.4px) 0 0/14px 14px,
+    var(--paper);
+}
+
+.comic-shell-intro,
+.comic-season-head,
+.comic-progress-label,
+.comic-episode-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.comic-shell-intro h2,
+.comic-season h3,
+.comic-season h4,
+.comic-season h5{
+  margin:0;
+  overflow-wrap:anywhere;
+}
+
+.comic-eyebrow,
+.comic-season-badge,
+.comic-episode-number,
+.comic-lock-badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:3px 8px;
+  border:var(--outline-soft);
+  border-radius:999px;
+  background:var(--y);
+  font-size:12px;
+  font-weight:800;
+  line-height:1.2;
+}
+
+.comic-shell-intro h2{
+  margin-top:6px;
+  font-family:var(--display-font);
+  font-size:30px;
+  letter-spacing:.5px;
+}
+
+.comic-hero-slots{--hero-size:34px}
+
+.comic-progress-content{
+  min-width:0;
+  margin-top:14px;
+}
+
+.comic-status{
+  margin:0;
+  padding:14px;
+  border:var(--outline-soft);
+  border-radius:var(--radius-md);
+  background:rgba(255,255,255,.92);
+  text-align:center;
+}
+
+.comic-status p{margin:0}
+
+.comic-action{
+  min-height:42px;
+  margin-top:10px;
+  padding:8px 14px;
+  border:var(--outline);
+  border-radius:999px;
+  background:var(--y);
+  box-shadow:2px 2px 0 var(--line);
+  font-weight:800;
+  cursor:pointer;
+}
+
+.comic-seasons,
+.comic-episodes,
+.comic-scenes,
+.comic-collectible-list{
+  display:grid;
+  min-width:0;
+  gap:12px;
+}
+
+.comic-guest-note{margin-bottom:12px}
+
+.comic-season{
+  min-width:0;
+  padding:14px;
+  border:var(--outline);
+  border-radius:var(--radius-md);
+  background:rgba(255,255,255,.96);
+  box-shadow:3px 3px 0 var(--line);
+}
+
+.comic-season-title{min-width:0}
+.comic-season-title h3{font-size:21px;line-height:1.15}
+.comic-season-title p,
+.comic-episode-summary,
+.comic-scene p,
+.comic-collectible p{
+  margin:6px 0 0;
+  color:var(--muted);
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+
+.comic-season-badge{
+  flex:0 0 auto;
+  max-width:42%;
+  background:var(--surface);
+  text-align:center;
+  white-space:normal;
+}
+
+.comic-season-badge.is-completed{background:var(--green)}
+
+.comic-progress{margin:14px 0}
+.comic-progress-label{font-size:13px;font-weight:800}
+.comic-progress-track{
+  height:18px;
+  margin-top:6px;
+  overflow:hidden;
+  border:var(--outline);
+  border-radius:999px;
+  background:#eee4d1;
+}
+
+.comic-progress-fill{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,var(--green),var(--y));
+}
+
+.comic-next-hint{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+}
+
+.comic-episode{
+  min-width:0;
+  padding:12px;
+  border:var(--outline-soft);
+  border-radius:var(--radius-md);
+  background:var(--cream);
+}
+
+.comic-episode.is-locked{
+  background:#e7e3dc;
+  color:#4b4842;
+}
+
+.comic-episode.is-locked>.comic-artwork-slot{
+  filter:grayscale(1);
+  opacity:.62;
+}
+
+.comic-episode-number{background:var(--surface)}
+.comic-lock-badge{background:#ded8cc}
+.comic-episode h4{margin-top:10px;font-size:19px}
+
+.comic-artwork-slot{
+  position:relative;
+  display:grid;
+  width:100%;
+  max-width:100%;
+  aspect-ratio:16/10;
+  margin-top:10px;
+  place-items:center;
+  overflow:hidden;
+  border:var(--outline-soft);
+  border-radius:var(--radius-sm);
+  background:
+    radial-gradient(circle at 7px 7px,rgba(17,17,17,.12) 1px,transparent 1.2px) 0 0/12px 12px,
+    linear-gradient(135deg,#fff7de,#ebe4d7);
+}
+
+.comic-artwork-slot span{
+  display:grid;
+  width:52px;
+  height:52px;
+  place-items:center;
+  border:var(--outline);
+  border-radius:50%;
+  background:var(--y);
+  font-family:var(--display-font);
+  font-size:24px;
+  box-shadow:3px 3px 0 var(--line);
+}
+
+.comic-scenes{margin-top:12px}
+.comic-scene{min-width:0}
+.comic-scene .comic-artwork-slot{margin-top:0}
+.comic-scene h5{margin-top:8px;font-size:16px}
+.comic-scene-placeholder{text-align:center}
+
+.comic-collectibles{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:2px dashed var(--line);
+}
+
+.comic-collectibles h4{font-size:17px}
+.comic-collectible-empty,.comic-empty{margin:7px 0 0;color:var(--muted);line-height:1.4}
+.comic-collectible{min-width:0}
+.comic-collectible .comic-artwork-slot{aspect-ratio:2/1}
+.comic-collectible strong{display:block;margin-top:7px;overflow-wrap:anywhere}
+
+.comic-action:focus-visible{
+  outline:3px solid var(--focus);
+  outline-offset:3px;
+}
+
+@media(min-width:390px){
+  .comic-scenes,
+  .comic-collectible-list{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
 .hello{
@@ -1581,6 +1808,10 @@ dialog::backdrop,
   .food img,.food-placeholder{width:72px;height:72px}
   .food .sl-add-btn{grid-column:2;margin:0 9px 9px 0;width:calc(100% - 9px)}
   dialog{padding:22px 15px}
+  .comic-shell{padding:13px}
+  .comic-season{padding:12px}
+  .comic-season-head{align-items:flex-start;flex-direction:column}
+  .comic-season-badge{max-width:100%}
 }
 
 @media(max-width:339px){

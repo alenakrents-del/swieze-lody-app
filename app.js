@@ -2,6 +2,7 @@ const sb = window.supabase.createClient(
   window.APP_CONFIG.supabaseUrl,
   window.APP_CONFIG.supabaseAnonKey
 );
+window.customerSupabase = sb;
 
 let currentLang = localStorage.getItem('swiezeLanguage') || 'pl';
 let currentCollection = 'MILKSHAKE';
