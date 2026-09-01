@@ -129,6 +129,15 @@
     );
   }
 
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
   function saveCart() {
     localStorage.setItem(
       'swiezeCart',
@@ -323,6 +332,97 @@
       margin: 12px 0;
       font-weight: 700;
     }
+
+    .sl-cart-fab {
+      bottom: calc(88px + env(safe-area-inset-bottom));
+      min-height: 46px;
+      border: 2px solid var(--line, #171717);
+      background: var(--line, #171717);
+      box-shadow: 4px 4px 0 #fff, 6px 6px 0 var(--line, #171717);
+    }
+
+    .sl-cart-fab span {
+      border: 1px solid var(--line, #171717);
+      background: var(--y, #ffc728);
+      font-weight: 900;
+    }
+
+    .sl-cart-wrap {
+      overflow-wrap: anywhere;
+      background:
+        radial-gradient(circle at 1px 1px, rgba(17,17,17,.04) 1px, transparent 1.2px) 0 0 / 16px 16px,
+        var(--paper, #fffdf7);
+    }
+
+    .sl-cart-head {
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--line, #171717);
+    }
+
+    .sl-cart-close,
+    .sl-qty button {
+      border: 1.5px solid var(--line, #171717);
+      background: #fff;
+      box-shadow: 2px 2px 0 var(--line, #171717);
+    }
+
+    .sl-cart-close {
+      width: 42px;
+      height: 42px;
+    }
+
+    .sl-cart-item {
+      min-width: 0;
+      border-bottom: 1.5px solid var(--line, #171717);
+    }
+
+    .sl-cart-item > div:first-child {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .sl-qty button {
+      width: 34px;
+      height: 34px;
+    }
+
+    .sl-remove {
+      min-height: 32px;
+      color: #5d5850;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .sl-total {
+      border-bottom: 2px solid var(--line, #171717);
+    }
+
+    .sl-order-btn {
+      min-height: 48px;
+      border: 2px solid var(--line, #171717);
+      border-radius: var(--radius-md, 16px);
+      background: var(--y, #ffc728);
+      color: var(--line, #171717);
+      box-shadow: 3px 3px 0 var(--line, #171717);
+    }
+
+    .sl-success .number,
+    .sl-success .time,
+    .sl-error {
+      border: 1.5px solid var(--line, #171717);
+      border-radius: var(--radius-md, 16px);
+      box-shadow: 2px 2px 0 var(--line, #171717);
+    }
+
+    :where(.sl-cart-fab, .sl-cart-modal button):focus-visible {
+      outline: 3px solid var(--focus, #075cca);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 360px) {
+      .sl-cart-wrap { padding: 16px 13px; }
+      .sl-cart-fab { right: 10px; padding-inline: 12px; }
+    }
   `;
 
   document.head.appendChild(style);
@@ -356,36 +456,42 @@
       `🛒 ${text('cart')} <span>${count}</span>`;
   }
 
-  function addToCart(category, product, index) {
-  const key = `${category}:${index}`;
+  function addToCart(product) {
+    const key = String(product?.legacyKey || '').trim();
+    if (!key) return;
 
-  const existing =
-    cart.find(item => item.key === key);
+    const existing =
+      cart.find(item => item.key === key);
 
-  if (existing) {
-    existing.qty += 1;
-  } else {
-    cart.push({
-      key,
-      category,
-      index,
-      name: product.name,
-      price: product.price,
-      image: product.image || null,
-      qty: 1
-    });
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({
+        key,
+        category: product.categorySlug || null,
+        name: product.name,
+        price: product.price,
+        image: product.image || null,
+        qty: 1
+      });
+    }
+
+    saveCart();
+    showToast(text('added'));
   }
 
-  saveCart();
-  showToast(text('added'));
-}
+  window.addMenuProductToCart = function(product) {
+    addToCart(product);
+  };
 
-window.addIceCreamToCart = function(flavour) {
-  if (!flavour || !flavour.id) return;
+  window.getCartText = text;
 
-  addToCart(
-    'icecream',
-    {
+  window.addIceCreamToCart = function(flavour) {
+    if (!flavour || !flavour.id) return;
+
+    addToCart({
+      legacyKey: `icecream:${flavour.id}`,
+      categorySlug: 'icecream',
       name: {
         pl: flavour.name,
         de: flavour.name,
@@ -394,10 +500,8 @@ window.addIceCreamToCart = function(flavour) {
       },
       price: `${Number(flavour.price || 10)} zł`,
       image: flavour.image_url || null
-    },
-    flavour.id
-  );
-};
+    });
+  };
   function showToast(message) {
     const old =
       document.querySelector('.sl-toast');
@@ -473,17 +577,17 @@ window.addIceCreamToCart = function(flavour) {
 
           <div
             class="sl-cart-item"
-            data-key="${item.key}"
+            data-key="${escapeHtml(item.key)}"
           >
 
             <div>
 
               <b>
-                ${productName(item)}
+                ${escapeHtml(productName(item))}
               </b>
 
               <span>
-                ${item.price}
+                ${escapeHtml(item.price)}
               </span>
 
               <div class="sl-qty">
@@ -496,7 +600,7 @@ window.addIceCreamToCart = function(flavour) {
                 </button>
 
                 <strong>
-                  ${item.qty}
+                  ${escapeHtml(item.qty)}
                 </strong>
 
                 <button
@@ -777,70 +881,6 @@ window.addIceCreamToCart = function(flavour) {
     renderCart();
     dialog.showModal();
   };
-
-  if (typeof openMenu === 'function') {
-    const originalOpenMenu =
-      openMenu;
-
-    openMenu = function(k, title) {
-
-      originalOpenMenu(k, title);
-
-      const products =
-        typeof MENU !== 'undefined' &&
-        MENU[k]
-          ? MENU[k]
-          : [];
-
-      const rows =
-        document.querySelectorAll(
-          '#menuItems .food'
-        );
-
-      rows.forEach(
-        (row, index) => {
-
-          const product =
-            products[index];
-
-          if (
-            !product ||
-            row.querySelector('.sl-add-btn')
-          ) {
-            return;
-          }
-
-          const button =
-            document.createElement(
-              'button'
-            );
-
-          button.className =
-            'sl-add-btn';
-
-          button.type =
-            'button';
-
-          button.textContent =
-            text('add');
-
-          button.onclick = event => {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            addToCart(
-              k,
-              product,
-              index
-            );
-          };
-
-          row.appendChild(button);
-        }
-      );
-    };
-  }
 
   document
     .querySelectorAll('[data-lang]')

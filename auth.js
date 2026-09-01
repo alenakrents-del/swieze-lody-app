@@ -99,6 +99,17 @@ async function ensureCustomerProfile(name, phone) {
 // -------------------------------
 // РЕГИСТРАЦИЯ
 // -------------------------------
+function notifyCustomerAuthChanged(event, session) {
+  window.dispatchEvent(
+    new CustomEvent('customer-auth-changed', {
+      detail: {
+        event,
+        session
+      }
+    })
+  );
+}
+
 async function registerCustomer(name, phone, password) {
   const input = validateCustomerAuth(name, phone, password);
 
@@ -138,6 +149,7 @@ async function registerCustomer(name, phone, password) {
   }
 
   await ensureCustomerProfile(input.name, input.phone);
+  notifyCustomerAuthChanged('PROFILE_READY', data.session);
 
   return data;
 }
@@ -235,14 +247,7 @@ customerAuth.auth.onAuthStateChange((event, session) => {
     session?.user?.id || 'no user'
   );
 
-  window.dispatchEvent(
-    new CustomEvent('customer-auth-changed', {
-      detail: {
-        event,
-        session
-      }
-    })
-  );
+  notifyCustomerAuthChanged(event, session);
 });
 
 

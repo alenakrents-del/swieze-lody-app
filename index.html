@@ -8,7 +8,7 @@
   <title>Świeże Lody — Kolekcje</title>
 
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=comic1">
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -69,7 +69,12 @@
             Zbieraj smaki i odbieraj nagrody!
           </span>
         </div>
-        <i>🍦</i>
+        <div class="brand-hero-slots" aria-hidden="true">
+          <span class="brand-hero-slot" data-hero-slot="scoop"></span>
+          <span class="brand-hero-slot" data-hero-slot="waffle"></span>
+          <span class="brand-hero-slot" data-hero-slot="shake"></span>
+          <span class="brand-hero-slot" data-hero-slot="lemon"></span>
+        </div>
       </section>
 
       <section class="switcher">
@@ -168,68 +173,13 @@
         </p>
       </div>
 
-      <div class="reward-list">
-
-        <article class="big-reward available">
-
-          <div class="r-emoji">✨</div>
-
-          <div>
-            <small data-i18n="available">DOSTĘPNA</small>
-
-            <h2 data-i18n="freeTopping">
-              Darmowy topping
-            </h2>
-
-            <p data-i18n="reward3">
-              Odblokowane za 3 różne milkshake’i.
-            </p>
-          </div>
-
-          <button id="rewardShowCode" data-i18n="showCodeSimple">
-            Pokaż kod
-          </button>
-
-        </article>
-
+      <div id="rewardList" class="reward-list">
         <article class="big-reward locked">
-
-          <div class="r-emoji">🔒</div>
-
+          <div class="r-emoji">🎁</div>
           <div>
-            <small data-i18n="stillLocked">
-              JESZCZE ZABLOKOWANE
-            </small>
-
-            <h2 data-i18n="secretDessert">
-              Sekretny Deser
-            </h2>
-
-            <p data-i18n="discover6">
-              Odkryj 6 smaków Milkshake.
-            </p>
+            <p data-i18n="rewardsLoading">Ładowanie nagród…</p>
           </div>
-
         </article>
-
-        <article class="big-reward locked">
-
-          <div class="r-emoji">🔒</div>
-
-          <div>
-            <small data-i18n="stillLocked">
-              JESZCZE ZABLOKOWANE
-            </small>
-
-            <h2>Secret Milkshake</h2>
-
-            <p data-i18n="collectAll">
-              Zbierz całą kolekcję 9/9.
-            </p>
-          </div>
-
-        </article>
-
       </div>
 
     </section>
@@ -245,34 +195,22 @@
         </p>
       </div>
 
+      <section
+        id="publicAnnouncements"
+        class="public-announcements"
+        aria-live="polite"
+        hidden
+      ></section>
+
       <div class="menu-grid">
 
-        <button
-          data-menu="milkshake"
-          data-title-key="milkshakeTitle"
+        <div
+          id="dynamicMenuCategories"
+          class="menu-dynamic-categories"
+          aria-live="polite"
         >
-          <div>🥤</div>
-          <b>Milkshake</b>
-          <span data-i18n="milkshakeCount">9 smaków • 25 zł</span>
-        </button>
-
-        <button
-          data-menu="lemonade"
-          data-title-key="lemonadeTitle"
-        >
-          <div>🍋</div>
-          <b data-i18n="lemonades">Lemoniady</b>
-          <span data-i18n="lemonadeCount">4 smaki • 18 zł</span>
-        </button>
-
-        <button
-          data-menu="waffle"
-          data-title-key="waffleTitle"
-        >
-          <div>🧇</div>
-          <b data-i18n="waffles">Gofry</b>
-          <span data-i18n="from10">od 10 zł</span>
-        </button>
+          <p class="menu-catalog-status">Ładowanie menu…</p>
+        </div>
 
         <button data-info="icecream">
           <div>🍦</div>
@@ -477,6 +415,24 @@
 
   </div>
 
+  <section id="comicProgressShell" class="comic-shell" aria-labelledby="comicProgressHeading">
+    <div class="comic-shell-intro">
+      <div>
+        <span id="comicProgressEyebrow" class="comic-eyebrow">Twoja historia</span>
+        <h2 id="comicProgressHeading">Komiks</h2>
+      </div>
+      <div class="brand-hero-slots comic-hero-slots" aria-hidden="true">
+        <span class="brand-hero-slot"></span>
+        <span class="brand-hero-slot"></span>
+        <span class="brand-hero-slot"></span>
+        <span class="brand-hero-slot"></span>
+      </div>
+    </div>
+    <div id="comicProgressContent" class="comic-progress-content" aria-live="polite" aria-busy="true">
+      <p class="comic-status">Ładowanie komiksu…</p>
+    </div>
+  </section>
+
 </section>
 
   </main>
@@ -590,9 +546,10 @@
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+<script src="app.js?v=comic1"></script>
 <script src="auth.js"></script>
- <script src="cart.js"></script>
+<script src="comic.js?v=2"></script>
+<script src="cart.js"></script>
 <script src="order-status.js"></script>
 <script src="reviews.js"></script>
 </body>
