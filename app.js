@@ -1341,7 +1341,10 @@ function menuUi(key) {
 function isAvailableNow(startsAt, endsAt, now = Date.now()) {
   const starts = startsAt ? Date.parse(startsAt) : null;
   const ends = endsAt ? Date.parse(endsAt) : null;
-  return (!starts || starts <= now) && (!ends || now < ends);
+  return (
+    (starts === null || (Number.isFinite(starts) && starts <= now))
+    && (ends === null || (Number.isFinite(ends) && now < ends))
+  );
 }
 
 function isReservedMenuBadge(value) {
@@ -1366,22 +1369,32 @@ function currentMenuProductState(product, now = Date.now()) {
 function schedulePublicMenuBoundaryRefresh() {
   if (publicMenuBoundaryTimer) clearTimeout(publicMenuBoundaryTimer);
   const now = Date.now();
-  const boundaries = publicMenuCategories.flatMap(category =>
-    category.products.flatMap(product => [
+  const boundaries = publicMenuCategories.flatMap(category => [
+    category.availableStartsAt,
+    category.availableEndsAt,
+    ...category.products.flatMap(product => [
+      product.availableStartsAt,
+      product.availableEndsAt,
       product.promoStartsAt,
       product.promoEndsAt,
       product.newUntil
     ])
-  )
+  ])
     .map(value => value ? Date.parse(value) : NaN)
     .filter(value => Number.isFinite(value) && value > now);
-  if (!boundaries.length) return;
-  const delay = Math.min(Math.min(...boundaries) - now + 25, 2147483647);
+  const nextBoundary = boundaries.length ? Math.min(...boundaries) : Infinity;
+  const delay = Math.min(nextBoundary - now + 25, 60000, 2147483647);
   publicMenuBoundaryTimer = setTimeout(() => {
-    renderPublicMenuCategories();
-    if (activeMenuCategoryId) renderPublicMenuDialog(activeMenuCategoryId);
-    schedulePublicMenuBoundaryRefresh();
+    loadPublicMenu({ quiet: true }).catch(handlePublicMenuLoadError);
   }, delay);
+}
+
+function handlePublicMenuLoadError(error) {
+  console.error('MENU CATALOG ERROR:', error);
+  publicMenuStatus = 'unavailable';
+  renderPublicMenuCategories(menuUi('unavailable'));
+  if (publicMenuBoundaryTimer) clearTimeout(publicMenuBoundaryTimer);
+  publicMenuBoundaryTimer = null;
 }
 
 function formatMenuPrice(value) {
@@ -1536,9 +1549,11 @@ function openMenu(categoryId) {
   document.querySelector('#menuDlg')?.showModal();
 }
 
-async function loadPublicMenu() {
-  publicMenuStatus = 'loading';
-  renderPublicMenuCategories(menuUi('loading'));
+async function loadPublicMenu(options = {}) {
+  if (!options.quiet) {
+    publicMenuStatus = 'loading';
+    renderPublicMenuCategories(menuUi('loading'));
+  }
 
   const [categoriesResult, categoryTranslationsResult, productsResult, productTranslationsResult] = await Promise.all([
     sb.from('menu_categories')
@@ -1595,6 +1610,8 @@ async function loadPublicMenu() {
         promoEndsAt: product.promo_ends_at,
         isNew: product.is_new,
         newUntil: product.new_until,
+        availableStartsAt: product.available_starts_at,
+        availableEndsAt: product.available_ends_at,
         sortOrder: product.sort_order,
         translations: productTranslations[product.id] || {}
       });
@@ -1611,6 +1628,8 @@ async function loadPublicMenu() {
       slug: category.slug,
       icon: category.icon,
       sortOrder: category.sort_order,
+      availableStartsAt: category.available_starts_at,
+      availableEndsAt: category.available_ends_at,
       translations: categoryTranslations[category.id] || {},
       products: productsByCategory.get(category.id) || []
     }))
@@ -1618,6 +1637,15 @@ async function loadPublicMenu() {
 
   publicMenuStatus = publicMenuCategories.length ? 'ready' : 'unavailable';
   renderPublicMenuCategories(publicMenuCategories.length ? '' : menuUi('unavailable'));
+  if (activeMenuCategoryId) {
+    if (publicMenuCategories.some(category => category.id === activeMenuCategoryId)) {
+      renderPublicMenuDialog(activeMenuCategoryId);
+    } else {
+      activeMenuCategoryId = null;
+      const dialog = document.querySelector('#menuDlg');
+      if (dialog?.open) dialog.close();
+    }
+  }
   schedulePublicMenuBoundaryRefresh();
 }
 
@@ -1814,11 +1842,7 @@ if (locateBtn) {
 renderToppings();
 applyTranslations();
 
-loadPublicMenu().catch(error => {
-  console.error('MENU CATALOG ERROR:', error);
-  publicMenuStatus = 'unavailable';
-  renderPublicMenuCategories(menuUi('unavailable'));
-});
+loadPublicMenu().catch(handlePublicMenuLoadError);
 
 loadPublicAnnouncements();
 

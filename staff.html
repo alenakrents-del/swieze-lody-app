@@ -846,6 +846,12 @@ const recoveryError =
 sb.auth.onAuthStateChange(
   (event) => {
 
+    if (event === 'SIGNED_OUT') {
+      recoveryPanel.classList.add('hidden');
+      showLogin();
+      return;
+    }
+
     if (event !== 'PASSWORD_RECOVERY') {
       return;
     }
