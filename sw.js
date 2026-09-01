@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'swieze-lody-';
-const CACHE = `${CACHE_PREFIX}v5`;
+const CACHE = `${CACHE_PREFIX}v6`;
 const CORE = ['./', 'index.html', 'styles.css', 'app.js', 'cart.js', 'config.js', 'manifest.webmanifest'];
 
 self.addEventListener('install', event => {

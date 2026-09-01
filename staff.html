@@ -8,6 +8,18 @@
   <title>Świeże Lody — Staff</title>
 
   <style>
+    :root {
+      --staff-ink: #171717;
+      --staff-paper: #fffdf7;
+      --staff-yellow: #ffc728;
+      --staff-line: 2px solid var(--staff-ink);
+      --staff-radius-sm: 10px;
+      --staff-radius-md: 16px;
+      --staff-radius-lg: 22px;
+      --staff-shadow: 4px 4px 0 var(--staff-ink);
+      --staff-focus: #075cca;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -15,12 +27,16 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f6f6f6;
+      min-width: 320px;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 1px 1px, rgba(23,23,23,.055) 1px, transparent 1.2px) 0 0 / 18px 18px,
+        #eee8dc;
       color: #171717;
     }
 
     .wrap {
-      width: min(100%, 900px);
+      width: min(100%, 1080px);
       margin: 0 auto;
       padding: 18px;
     }
@@ -31,6 +47,11 @@
       justify-content: space-between;
       gap: 12px;
       margin-bottom: 18px;
+      padding: 14px;
+      border: var(--staff-line);
+      border-radius: var(--staff-radius-lg);
+      background: var(--staff-yellow);
+      box-shadow: var(--staff-shadow);
     }
 
     .top h1 {
@@ -44,55 +65,65 @@
     }
 
     .panel {
-      background: white;
-      border-radius: 18px;
+      background: var(--staff-paper);
+      border: var(--staff-line);
+      border-radius: var(--staff-radius-lg);
       padding: 18px;
-      box-shadow: 0 4px 20px rgba(0,0,0,.07);
+      box-shadow: var(--staff-shadow);
       margin-bottom: 16px;
     }
 
     input,
     select,
+    textarea,
     button {
       font: inherit;
+    }
+
+    :where(button, input, select, textarea, [tabindex]):focus-visible {
+      outline: 3px solid var(--staff-focus);
+      outline-offset: 3px;
     }
 
     input {
       width: 100%;
       padding: 13px 14px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
+      border: 1.5px solid var(--staff-ink);
+      border-radius: var(--staff-radius-sm);
       margin-bottom: 10px;
       background: white;
     }
 
     .primary {
       width: 100%;
-      border: 0;
-      border-radius: 12px;
-      background: #ffc728;
+      border: 1.5px solid var(--staff-ink);
+      border-radius: var(--staff-radius-md);
+      background: var(--staff-yellow);
       padding: 14px;
       font-weight: 900;
       cursor: pointer;
+      box-shadow: 2px 2px 0 var(--staff-ink);
     }
 
     .secondary {
-      border: 1px solid #ddd;
-      border-radius: 12px;
+      border: 1.5px solid var(--staff-ink);
+      border-radius: var(--staff-radius-md);
       background: white;
       padding: 10px 13px;
       font-weight: 800;
       cursor: pointer;
+      box-shadow: 2px 2px 0 var(--staff-ink);
     }
 
     .danger {
-      border: 0;
-      border-radius: 12px;
+      border: 1.5px solid var(--staff-ink);
+      border-radius: var(--staff-radius-md);
       background: #111;
       color: white;
       padding: 10px 13px;
       font-weight: 800;
       cursor: pointer;
+      box-shadow: 2px 2px 0 var(--staff-ink);
     }
 
     .hidden {
@@ -106,10 +137,11 @@
 
     .order-card {
       background: white;
-      border-radius: 18px;
+      border: var(--staff-line);
+      border-left-width: 8px;
+      border-radius: var(--staff-radius-lg);
       padding: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,.07);
-      border-left: 7px solid #ddd;
+      box-shadow: 3px 3px 0 var(--staff-ink);
     }
 
     .order-card[data-status="new"] {
@@ -154,19 +186,22 @@
     .status {
       display: inline-block;
       margin-top: 5px;
+      border: 1.5px solid var(--staff-ink);
       border-radius: 999px;
       padding: 6px 10px;
       background: #f0f0f0;
       font-size: 12px;
       font-weight: 900;
       text-transform: uppercase;
+      box-shadow: 1px 1px 0 var(--staff-ink);
     }
 
     .items {
       margin: 12px 0;
       padding: 12px;
       background: #f8f8f8;
-      border-radius: 12px;
+      border: 1.5px solid var(--staff-ink);
+      border-radius: var(--staff-radius-md);
     }
 
     .item {
@@ -194,12 +229,14 @@
     }
 
     .status-buttons button {
-      border: 0;
-      border-radius: 12px;
+      min-height: 44px;
+      border: 1.5px solid var(--staff-ink);
+      border-radius: var(--staff-radius-md);
       padding: 11px 8px;
       font-weight: 900;
       cursor: pointer;
       background: #ececec;
+      box-shadow: 2px 2px 0 var(--staff-ink);
     }
 
     .status-buttons button[data-next="accepted"] {
@@ -227,17 +264,20 @@
     }
 
     .time-row button {
-      border: 1px solid #ddd;
+      min-height: 42px;
+      border: 1.5px solid var(--staff-ink);
       background: white;
       border-radius: 10px;
       padding: 9px 12px;
       font-weight: 800;
       cursor: pointer;
+      box-shadow: 1px 1px 0 var(--staff-ink);
     }
 
     .notice {
       background: #fff4c7;
-      border-radius: 12px;
+      border: 1.5px solid var(--staff-ink);
+      border-radius: var(--staff-radius-md);
       padding: 12px;
       margin-bottom: 14px;
       font-weight: 700;
@@ -246,7 +286,8 @@
     .error {
       background: #ffe4e4;
       color: #8f0000;
-      border-radius: 12px;
+      border: 1.5px solid #8f0000;
+      border-radius: var(--staff-radius-md);
       padding: 12px;
       margin-top: 10px;
       font-weight: 700;
@@ -266,12 +307,71 @@
     }
 
     .toolbar button {
-      border: 1px solid #ddd;
+      min-height: 42px;
+      border: 1.5px solid var(--staff-ink);
       background: white;
       border-radius: 10px;
       padding: 9px 12px;
       font-weight: 800;
       cursor: pointer;
+      box-shadow: 1px 1px 0 var(--staff-ink);
+    }
+
+    .brand-hero-slots {
+      --hero-size: 34px;
+      display: flex;
+      flex: 0 0 auto;
+      width: calc(var(--hero-size) * 1.85);
+      min-height: calc(var(--hero-size) * 1.45);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-hero-slot {
+      position: relative;
+      display: block;
+      width: var(--hero-size);
+      height: var(--hero-size);
+      margin-left: calc(var(--hero-size) * -.48);
+      overflow: hidden;
+      border: 2px solid var(--staff-ink);
+      border-radius: 50%;
+      background-image: var(--hero-image, linear-gradient(135deg,#fff 0 42%,#e7dfcf 42%));
+      background-position: center;
+      background-size: cover;
+      box-shadow: 2px 2px 0 var(--staff-ink);
+    }
+
+    .brand-hero-slot:first-child { margin-left: 0; }
+    .brand-hero-slot::after {
+      content: "";
+      position: absolute;
+      width: 44%;
+      height: 44%;
+      left: 28%;
+      top: 25%;
+      border-radius: 50%;
+      background: #aaa398;
+      box-shadow: 0 12px 0 4px #aaa398;
+    }
+    .brand-hero-slot:nth-child(2) { transform: translateY(-8px); }
+    .brand-hero-slot:nth-child(3) { transform: translateY(7px); }
+    .brand-hero-slot:nth-child(4) { transform: translateY(-3px); }
+
+    button:disabled,
+    input:disabled,
+    select:disabled,
+    textarea:disabled {
+      opacity: .58;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    @media (max-width: 520px) {
+      .wrap { padding: 12px; }
+      .top { align-items: flex-start; }
+      .staff-hero-slots { display: none; }
+      .order-head { flex-wrap: wrap; }
     }
 
     @media (min-width: 650px) {
@@ -292,6 +392,13 @@
         <div class="muted">
           Panel zamówień
         </div>
+      </div>
+
+      <div class="brand-hero-slots staff-hero-slots" aria-hidden="true">
+        <span class="brand-hero-slot" data-hero-slot="scoop"></span>
+        <span class="brand-hero-slot" data-hero-slot="waffle"></span>
+        <span class="brand-hero-slot" data-hero-slot="shake"></span>
+        <span class="brand-hero-slot" data-hero-slot="lemon"></span>
       </div>
 
       <button

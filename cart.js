@@ -332,6 +332,97 @@
       margin: 12px 0;
       font-weight: 700;
     }
+
+    .sl-cart-fab {
+      bottom: calc(88px + env(safe-area-inset-bottom));
+      min-height: 46px;
+      border: 2px solid var(--line, #171717);
+      background: var(--line, #171717);
+      box-shadow: 4px 4px 0 #fff, 6px 6px 0 var(--line, #171717);
+    }
+
+    .sl-cart-fab span {
+      border: 1px solid var(--line, #171717);
+      background: var(--y, #ffc728);
+      font-weight: 900;
+    }
+
+    .sl-cart-wrap {
+      overflow-wrap: anywhere;
+      background:
+        radial-gradient(circle at 1px 1px, rgba(17,17,17,.04) 1px, transparent 1.2px) 0 0 / 16px 16px,
+        var(--paper, #fffdf7);
+    }
+
+    .sl-cart-head {
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--line, #171717);
+    }
+
+    .sl-cart-close,
+    .sl-qty button {
+      border: 1.5px solid var(--line, #171717);
+      background: #fff;
+      box-shadow: 2px 2px 0 var(--line, #171717);
+    }
+
+    .sl-cart-close {
+      width: 42px;
+      height: 42px;
+    }
+
+    .sl-cart-item {
+      min-width: 0;
+      border-bottom: 1.5px solid var(--line, #171717);
+    }
+
+    .sl-cart-item > div:first-child {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .sl-qty button {
+      width: 34px;
+      height: 34px;
+    }
+
+    .sl-remove {
+      min-height: 32px;
+      color: #5d5850;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .sl-total {
+      border-bottom: 2px solid var(--line, #171717);
+    }
+
+    .sl-order-btn {
+      min-height: 48px;
+      border: 2px solid var(--line, #171717);
+      border-radius: var(--radius-md, 16px);
+      background: var(--y, #ffc728);
+      color: var(--line, #171717);
+      box-shadow: 3px 3px 0 var(--line, #171717);
+    }
+
+    .sl-success .number,
+    .sl-success .time,
+    .sl-error {
+      border: 1.5px solid var(--line, #171717);
+      border-radius: var(--radius-md, 16px);
+      box-shadow: 2px 2px 0 var(--line, #171717);
+    }
+
+    :where(.sl-cart-fab, .sl-cart-modal button):focus-visible {
+      outline: 3px solid var(--focus, #075cca);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 360px) {
+      .sl-cart-wrap { padding: 16px 13px; }
+      .sl-cart-fab { right: 10px; padding-inline: 12px; }
+    }
   `;
 
   document.head.appendChild(style);
