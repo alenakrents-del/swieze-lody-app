@@ -27,9 +27,9 @@
   const SUPPORTED_LANGS = new Set(Object.keys(COPY));
   // Presentation-only aliases for existing server artwork keys; never unlock criteria.
   const ENVELOPE_PANELS = Object.freeze([
-    'assets/comic/season-1/episode-01-panel-01-v1.png',
-    'assets/comic/season-1/episode-01-panel-02-v1.png',
-    'assets/comic/season-1/episode-01-panel-03-v1.png'
+    'assets/comic/season-1/episode-01-panel-01-v2',
+    'assets/comic/season-1/episode-01-panel-02-v2',
+    'assets/comic/season-1/episode-01-panel-03-v2'
   ]);
   const ILLUSTRATED_PANELS = new Map([
     ['comic/season-1/placeholders/beat-00', ENVELOPE_PANELS],
@@ -39,6 +39,15 @@
   ]);
   let requestNumber = 0;
   let readerDialog = null;
+  let readerResizeObserver = null;
+  let sessionOwner = null;
+  const REPLAY_KEY = 'swieze-comic-episode-1-replay-v2';
+  const OFFLINE_COPY = {
+    pl: ['Zapisany epizod 1', 'Tryb offline: możesz wrócić do przeczytanego epizodu. Połącz się, aby sprawdzić aktualny postęp.'],
+    de: ['Gespeicherte Episode 1', 'Offline: Du kannst die gelesene Episode erneut öffnen. Verbinde dich, um deinen aktuellen Fortschritt zu prüfen.'],
+    en: ['Saved Episode 1', 'Offline: revisit the episode you read. Connect to check your current progress.'],
+    cs: ['Uložená epizoda 1', 'Offline: můžeš si znovu přečíst epizodu. Pro aktuální postup se připoj.']
+  };
 
   const el = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -104,7 +113,7 @@
     return 'coast';
   }
 
-  function comicArtwork(artworkKey, panelIndex = 0, label = '', locked = false) {
+  function comicArtwork(artworkKey, panelIndex = 0, label = '', locked = false, thumbnail = false) {
     const theme = artworkTheme(artworkKey);
     const art = el('div', `comic-panel-art art-${theme} art-view-${panelIndex % 3}${locked ? ' is-obscured' : ''}`);
     art.setAttribute('role', 'img');
@@ -120,15 +129,18 @@
       const illustration = el('img', 'comic-illustration');
       illustration.alt = '';
       illustration.setAttribute('aria-hidden', 'true');
-      illustration.width = 1536;
-      illustration.height = 1024;
+      illustration.width = 900;
+      illustration.height = 1575;
       illustration.decoding = 'async';
       illustration.loading = 'lazy';
       illustration.addEventListener('error', () => {
         illustration.remove();
         art.classList.remove('has-illustration');
       }, { once: true });
-      illustration.src = panels[Math.min(Math.max(0, panelIndex), panels.length - 1)];
+      const asset = panels[Math.min(Math.max(0, panelIndex), panels.length - 1)];
+      illustration.sizes = thumbnail ? '150px' : '(max-width: 559px) calc(100vw - 36px), 672px';
+      illustration.srcset = [360, 720, 900].map(width => `${asset}-${width}.webp ${width}w`).join(', ');
+      illustration.src = `${asset}-720.webp`;
       art.classList.add('has-illustration');
       art.append(illustration);
     }
@@ -177,6 +189,22 @@
     return script && safeArray(episode.scenes).some(scene => scene.code === script.sceneCode) ? script : null;
   }
 
+  function bubbleNumber(value, fallback, min, max) {
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.min(max, Math.max(min, number)) : fallback;
+  }
+
+  function applyBubbleLayout(bubble, placement = {}) {
+    // Benchmark numeric guards, merged with the existing portrait coordinates/tails.
+    const x = bubbleNumber(placement.x, 4, 0, 76);
+    const y = bubbleNumber(placement.y, 4, 0, 88);
+    const width = bubbleNumber(placement.width, 76, 24, 100 - x);
+    bubble.style.setProperty('--bubble-x', `${x}%`);
+    bubble.style.setProperty('--bubble-y', `${y}%`);
+    bubble.style.setProperty('--bubble-width', `${width}%`);
+    bubble.style.setProperty('--speaker-side', placement.anchor?.[0] > 50 ? 'end' : 'start');
+  }
+
   function renderDialoguePanels(episode, script, lang) {
     const pages = el('div', 'comic-reader-pages has-dialogue');
     const scene = episode.scenes.find(item => item.code === script.sceneCode);
@@ -184,10 +212,13 @@
       const panel = el('article', `comic-reader-panel panel-${index + 1} comic-dialogue-panel`);
       panel.append(comicArtwork(scene.artwork_key || scene.code, entry.artworkIndex, scene.title || ''));
       const conversation = el('div', 'comic-dialogue');
+      conversation.setAttribute('aria-label', scene.title || episode.title || '');
       entry.lines.forEach((line, lineIndex) => {
         // Only known cast IDs become CSS classes; all content is plain text.
         const speaker = ['maja', 'maks', 'lea'].includes(line.speaker) ? line.speaker : 'unknown';
-        const bubble = el('div', `comic-speech speaker-${speaker}${lineIndex % 2 ? ' from-right' : ''}`);
+        const bubble = el('div', `comic-speech speaker-${speaker}`);
+        applyBubbleLayout(bubble, line.placement);
+        bubble.dataset.speaker = speaker;
         if (index === script.panels.length - 1 && lineIndex === entry.lines.length - 1) bubble.classList.add('is-cliffhanger');
         bubble.append(
           el('span', 'comic-speech-name', window.comicStoryData.cast[speaker]?.name || ''),
@@ -196,6 +227,7 @@
         conversation.append(bubble);
       });
       panel.append(conversation);
+      panel.dataset.panelId = entry.id;
       pages.append(panel);
     });
     return pages;
@@ -223,9 +255,58 @@
     if (readerDialog?.open) readerDialog.close();
   }
 
+  function positionDialogue(dialog, script) {
+    if (!script) return;
+    const ns = 'http://www.w3.org/2000/svg';
+    dialog.querySelectorAll('.comic-dialogue-panel').forEach((panel, index) => {
+      const entry = script.panels[index];
+      panel.classList.remove('uses-lettering-gutter');
+      panel.querySelector('.comic-tail-layer')?.remove();
+      const art = panel.querySelector('.comic-panel-art');
+      const artBox = art.getBoundingClientRect();
+      const origin = panel.getBoundingClientRect();
+      const bubbles = [...panel.querySelectorAll('.comic-speech')];
+      const zones = entry.protectedZones.map(([x,y,w,h]) => ({ left:artBox.left+x*artBox.width/100, top:artBox.top+y*artBox.height/100, right:artBox.left+(x+w)*artBox.width/100, bottom:artBox.top+(y+h)*artBox.height/100 }));
+      const intersects = (a,b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+      const boxes = bubbles.map(b => b.getBoundingClientRect());
+      const unsafe = boxes.some((box,i) => box.top < artBox.top || box.left < artBox.left || box.bottom > artBox.bottom-3 || box.right > artBox.right || zones.some(zone => intersects(box,zone)) || boxes.slice(0,i).some(other => intersects(box,other)));
+      // Deliberate accessible fallback for enlarged text/unusually long translations:
+      // a lettered comic gutter, with positions still driven by speaker anchors.
+      // Do not shrink fonts, clip dialogue, or lay text over protected art.
+      if (unsafe) panel.classList.add('uses-lettering-gutter');
+      const svg = document.createElementNS(ns, 'svg');
+      svg.classList.add('comic-tail-layer');
+      svg.setAttribute('aria-hidden','true');
+      svg.setAttribute('width','100%');
+      svg.setAttribute('height','100%');
+      bubbles.forEach((bubble,i) => {
+        const { anchor, edge } = entry.lines[i].placement;
+        const box = bubble.getBoundingClientRect();
+        const target = { x:artBox.left+anchor[0]*artBox.width/100, y:artBox.top+anchor[1]*artBox.height/100 };
+        const top = unsafe || edge === 'top';
+        const x = Math.max(box.left+22, Math.min(box.right-22,target.x));
+        const y = top ? box.top+2 : box.bottom-2;
+        const dx = target.x-x, dy = target.y-y;
+        const length = Math.hypot(dx,dy) || 1;
+        const reach = Math.min(32,length*.65);
+        const tx = x+dx/length*reach, ty = y+dy/length*reach;
+        // Short directional tails stop well before faces/hands/map.
+        const tail = document.createElementNS(ns,'path');
+        tail.setAttribute('d',`M ${x-origin.left-7} ${y-origin.top} L ${tx-origin.left} ${ty-origin.top} L ${x-origin.left+7} ${y-origin.top}`);
+        tail.setAttribute('fill','#fff');
+        tail.setAttribute('stroke','#142434');
+        tail.setAttribute('stroke-width','2');
+        tail.dataset.speaker = entry.lines[i].speaker;
+        svg.append(tail);
+      });
+      panel.append(svg);
+    });
+  }
+
   function openEpisode(season, episode, episodeIndex, copy, lang) {
     if (episode.is_unlocked !== true) return;
     const script = episodeScript(season, episode);
+    readerResizeObserver?.disconnect();
     readerDialog?.remove();
     const dialog = el('dialog', 'comic-reader');
     readerDialog = dialog;
@@ -283,12 +364,23 @@
     dialog.addEventListener('click', event => {
       if (event.target === dialog) closeReader();
     });
-    dialog.addEventListener('close', () => document.body.classList.remove('comic-reader-open'));
+    dialog.addEventListener('close', () => {
+      readerResizeObserver?.disconnect();
+      document.body.classList.remove('comic-reader-open');
+    });
     document.body.append(dialog);
     document.body.classList.add('comic-reader-open');
     dialog.showModal();
     dialog.scrollTop = 0;
     close.focus();
+    if (script) {
+      positionDialogue(dialog, script);
+      readerResizeObserver = new ResizeObserver(() => positionDialogue(dialog, script));
+      readerResizeObserver.observe(dialog);
+      dialog.querySelectorAll('.comic-dialogue-panel .comic-panel-art, .comic-speech').forEach(node => readerResizeObserver.observe(node));
+      document.fonts?.ready.then(() => { if (dialog.open) positionDialogue(dialog,script); });
+      rememberPilot(season,episode,lang);
+    }
   }
 
   function renderJourney(season, copy, lang) {
@@ -309,7 +401,7 @@
       button.setAttribute('aria-label', unlocked ? `${copy.read}: ${episode.title || `${copy.episode} ${index + 1}`}` : `${copy.episode} ${index + 1}: ${copy.locked}`);
 
       const node = el('span', 'comic-route-node', unlocked ? String(index + 1) : '🔒');
-      const thumb = comicArtwork(episode.cover_artwork_key || episode.code, index, unlocked ? (episode.title || '') : copy.locked, !unlocked);
+      const thumb = comicArtwork(episode.cover_artwork_key || episode.code, index, unlocked ? (episode.title || '') : copy.locked, !unlocked, true);
       thumb.classList.add('comic-route-art');
       const info = el('span', 'comic-route-info');
       info.append(el('small', '', `${copy.episode} ${index + 1}`));
@@ -418,8 +510,45 @@
     replaceContent(statusView(copy.unavailable, copy.retry, refresh));
   }
 
+  function rememberPilot(season, episode, lang) {
+    if (sessionOwner === null || !episodeScript(season,episode)) return;
+    // Only an already-opened Episode 1, never private progress, thresholds or later scenes.
+    // Scope to the current session owner so a switch/logout cannot replay another account.
+    try {
+      const prior = JSON.parse(localStorage.getItem(REPLAY_KEY) || 'null');
+      const translations = prior?.owner === sessionOwner ? prior.translations || {} : {};
+      translations[lang] = { title: episode.title, sceneTitle: episode.scenes[0]?.title || episode.title };
+      localStorage.setItem(REPLAY_KEY, JSON.stringify({ version:2, owner:sessionOwner, translations }));
+    } catch (_) { /* optional offline replay; online reading must still work */ }
+  }
+
+  function renderSavedPilot() {
+    if (sessionOwner === null) return false;
+    try {
+      const saved = JSON.parse(localStorage.getItem(REPLAY_KEY) || 'null');
+      if (saved?.version !== 2 || saved.owner !== sessionOwner) return false;
+      const lang = getLang();
+      const title = saved.translations?.[lang] || saved.translations?.pl || Object.values(saved.translations || {})[0];
+      if (!title || typeof title.title !== 'string') return false;
+      const code = 'beat-00-unmarked-envelope';
+      const script = window.comicStoryData?.episodes?.[`season-1/${code}`];
+      if (!script) return false;
+      // This is visibly a previously read copy, NOT a reconstructed current server catalog.
+      // It contains no next episode, progress bar, percentage or new unlock action.
+      const episode = { code, title:title.title, is_unlocked:true, cover_artwork_key:code, scenes:[{code:script.sceneCode,title:title.sceneTitle,artwork_key:script.sceneCode}] };
+      const season = { code:'season-1', episodes:[episode] };
+      const copy = COPY[lang];
+      const box = statusView(OFFLINE_COPY[lang][1], `${copy.read}: ${title.title}`, () => openEpisode(season,episode,0,copy,lang));
+      box.prepend(el('h3','',OFFLINE_COPY[lang][0]));
+      box.classList.add('comic-saved-replay');
+      replaceContent(box);
+      return true;
+    } catch (_) { return false; }
+  }
+
   async function refresh() {
     const request = ++requestNumber;
+    sessionOwner = null;
     const lang = getLang();
     const copy = COPY[lang] || COPY.pl;
     setStaticCopy(copy);
@@ -430,6 +559,8 @@
       const { data: sessionData, error: sessionError } = await comicSupabase.auth.getSession();
       if (sessionError) throw sessionError;
       const isGuest = !sessionData.session;
+      if (request !== requestNumber) return;
+      sessionOwner = isGuest ? 'guest' : sessionData.session.user.id;
       const rpcName = isGuest ? 'get_public_comic_catalog' : 'get_my_comic_progress';
       const { data, error } = await comicSupabase.rpc(rpcName, { p_locale: lang });
       if (error) throw error;
@@ -437,7 +568,10 @@
       render(data || { seasons: [] }, isGuest);
     } catch (error) {
       console.error('Comic progress load failed:', error);
-      if (request === requestNumber) renderUnavailable();
+      if (request === requestNumber) {
+        const networkFailure = navigator.onLine === false || /failed to fetch|networkerror|network request failed|load failed/i.test(String(error?.message || ''));
+        if (!networkFailure || !renderSavedPilot()) renderUnavailable();
+      }
     }
   }
 

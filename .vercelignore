@@ -1,0 +1,4 @@
+# Editable high-resolution sources and art-direction documents are not web assets.
+artwork-masters/
+docs/comic/
+tools/comic-assets/
