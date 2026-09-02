@@ -25,6 +25,18 @@
   };
 
   const SUPPORTED_LANGS = new Set(Object.keys(COPY));
+  // Presentation-only aliases for existing server artwork keys; never unlock criteria.
+  const ENVELOPE_PANELS = Object.freeze([
+    'assets/comic/season-1/episode-01-panel-01-v1.png',
+    'assets/comic/season-1/episode-01-panel-02-v1.png',
+    'assets/comic/season-1/episode-01-panel-03-v1.png'
+  ]);
+  const ILLUSTRATED_PANELS = new Map([
+    ['comic/season-1/placeholders/beat-00', ENVELOPE_PANELS],
+    ['comic/season-1/placeholders/scene-00', ENVELOPE_PANELS],
+    ['beat-00-unmarked-envelope', ENVELOPE_PANELS],
+    ['scene-00-unmarked-envelope', ENVELOPE_PANELS]
+  ]);
   let requestNumber = 0;
   let readerDialog = null;
 
@@ -102,6 +114,24 @@
       shape.setAttribute('aria-hidden', 'true');
       art.append(shape);
     });
+    const panels = ILLUSTRATED_PANELS.get(String(artworkKey || ''));
+    // Locked previews never select a later reveal panel.
+    if (panels && !locked) {
+      const illustration = el('img', 'comic-illustration');
+      illustration.alt = '';
+      illustration.setAttribute('aria-hidden', 'true');
+      illustration.width = 1536;
+      illustration.height = 1024;
+      illustration.decoding = 'async';
+      illustration.loading = 'lazy';
+      illustration.addEventListener('error', () => {
+        illustration.remove();
+        art.classList.remove('has-illustration');
+      }, { once: true });
+      illustration.src = panels[Math.min(Math.max(0, panelIndex), panels.length - 1)];
+      art.classList.add('has-illustration');
+      art.append(illustration);
+    }
     if (locked) {
       const veil = el('span', 'comic-art-lock', '🔒');
       veil.setAttribute('aria-hidden', 'true');
@@ -124,18 +154,55 @@
     return [sentences[0], sentences.slice(1, -1).join(' '), sentences.at(-1)];
   }
 
-  function renderPanel(scene, beat, panelIndex, sceneIndex) {
+  function renderPanel(scene, beat, panelIndex, sceneIndex, showTitle = true) {
     const panel = el('article', `comic-reader-panel panel-${(panelIndex % 3) + 1}`);
     panel.append(comicArtwork(scene.artwork_key || scene.code, panelIndex, scene.title || ''));
-    const copyBox = el('div', panelIndex % 3 === 1 ? 'comic-panel-copy is-bubble' : 'comic-panel-copy is-caption');
-    if (panelIndex === 0 && scene.title) copyBox.append(el('h4', '', scene.title));
+    // Server scene bodies are narration, not attributed character dialogue.
+    const copyBox = el('div', `comic-panel-copy is-caption${panelIndex % 3 === 2 ? ' is-reveal' : ''}`);
+    if (showTitle && panelIndex === 0 && scene.title) copyBox.append(el('h4', '', scene.title));
     copyBox.append(el('p', '', beat));
     panel.append(copyBox);
     panel.style.setProperty('--panel-order', String(sceneIndex + panelIndex));
     return panel;
   }
 
-  function renderScenePanels(episode) {
+  function localizedStoryText(text, lang) {
+    return typeof text?.[lang] === 'string' && text[lang].trim() ? text[lang] : (text?.pl || '');
+  }
+
+  function episodeScript(season, episode) {
+    // Presentation data never grants access or supplies server thresholds.
+    if (episode?.is_unlocked !== true) return null;
+    const script = window.comicStoryData?.episodes?.[`${season.code}/${episode.code}`];
+    return script && safeArray(episode.scenes).some(scene => scene.code === script.sceneCode) ? script : null;
+  }
+
+  function renderDialoguePanels(episode, script, lang) {
+    const pages = el('div', 'comic-reader-pages has-dialogue');
+    const scene = episode.scenes.find(item => item.code === script.sceneCode);
+    script.panels.forEach((entry, index) => {
+      const panel = el('article', `comic-reader-panel panel-${index + 1} comic-dialogue-panel`);
+      panel.append(comicArtwork(scene.artwork_key || scene.code, entry.artworkIndex, scene.title || ''));
+      const conversation = el('div', 'comic-dialogue');
+      entry.lines.forEach((line, lineIndex) => {
+        // Only known cast IDs become CSS classes; all content is plain text.
+        const speaker = ['maja', 'maks', 'lea'].includes(line.speaker) ? line.speaker : 'unknown';
+        const bubble = el('div', `comic-speech speaker-${speaker}${lineIndex % 2 ? ' from-right' : ''}`);
+        if (index === script.panels.length - 1 && lineIndex === entry.lines.length - 1) bubble.classList.add('is-cliffhanger');
+        bubble.append(
+          el('span', 'comic-speech-name', window.comicStoryData.cast[speaker]?.name || ''),
+          el('p', '', localizedStoryText(line.text, lang))
+        );
+        conversation.append(bubble);
+      });
+      panel.append(conversation);
+      pages.append(panel);
+    });
+    return pages;
+  }
+
+  function renderScenePanels(episode, script, lang) {
+    if (script) return renderDialoguePanels(episode, script, lang);
     const pages = el('div', 'comic-reader-pages');
     const scenes = safeArray(episode.scenes);
     if (!scenes.length) {
@@ -146,7 +213,7 @@
     scenes.forEach((scene, sceneIndex) => {
       const beats = storyBeats(scene.body);
       (beats.length ? beats : [scene.title]).forEach((beat, panelIndex) => {
-        pages.append(renderPanel(scene, beat, panelIndex, sceneIndex));
+        pages.append(renderPanel(scene, beat, panelIndex, sceneIndex, scene.title !== episode.title));
       });
     });
     return pages;
@@ -158,6 +225,7 @@
 
   function openEpisode(season, episode, episodeIndex, copy, lang) {
     if (episode.is_unlocked !== true) return;
+    const script = episodeScript(season, episode);
     readerDialog?.remove();
     const dialog = el('dialog', 'comic-reader');
     readerDialog = dialog;
@@ -170,20 +238,30 @@
     toolbar.append(close, el('span', 'comic-reader-count', `${copy.episode} ${episodeIndex + 1}`));
 
     const cover = el('section', 'comic-reader-cover');
-    cover.append(comicArtwork(episode.cover_artwork_key || episode.code, 0, episode.title || ''));
+    const coverKey = episode.cover_artwork_key || episode.code;
+    // Until bespoke cover art exists, show the establishing panel once in the story.
+    if (!ILLUSTRATED_PANELS.has(String(coverKey || ''))) {
+      cover.append(comicArtwork(coverKey, 0, episode.title || ''));
+    }
     const coverCopy = el('div', 'comic-reader-cover-copy');
     coverCopy.append(
       el('span', 'comic-kicker', episode.is_final ? copy.finale : `${copy.episode} ${episodeIndex + 1}`),
       el('h3', '', episode.title || `${copy.episode} ${episodeIndex + 1}`)
     );
     coverCopy.querySelector('h3').id = 'comicReaderTitle';
-    if (episode.summary) coverCopy.append(el('p', '', episode.summary));
+    if (!script && episode.summary && episode.summary !== episode.title) coverCopy.append(el('p', '', episode.summary));
     cover.append(coverCopy);
 
     const nextEpisode = safeArray(season.episodes)[episodeIndex + 1];
     const ending = el('footer', 'comic-reader-ending');
     ending.append(el('span', 'comic-ending-burst', episode.is_final ? '★' : '…'));
     ending.append(el('h4', '', episode.is_final ? copy.finale : copy.chapterEnd));
+    const lastScene = safeArray(episode.scenes).at(-1);
+    const lastClue = script ? null : storyBeats(lastScene?.body).at(-1);
+    if (lastClue) ending.append(el('blockquote', 'comic-ending-clue', lastClue));
+    if (script && nextEpisode?.code === script.nextEpisodeCode) {
+      ending.append(el('p', 'comic-next-teaser', localizedStoryText(script.nextTeaser, lang)));
+    }
     if (nextEpisode?.is_unlocked === true) {
       ending.append(el('p', '', copy.nextReady));
       const nextButton = el('button', 'comic-action', `${copy.read}: ${nextEpisode.title || `${copy.episode} ${episodeIndex + 2}`}`);
@@ -201,7 +279,7 @@
     back.addEventListener('click', closeReader);
     ending.append(back);
 
-    dialog.append(toolbar, cover, renderScenePanels(episode), ending);
+    dialog.append(toolbar, cover, renderScenePanels(episode, script, lang), ending);
     dialog.addEventListener('click', event => {
       if (event.target === dialog) closeReader();
     });
@@ -247,6 +325,11 @@
       button.append(node, thumb, info);
       if (unlocked) button.addEventListener('click', () => openEpisode(season, episode, index, copy, lang));
       stop.append(button);
+      const previousScript = index > 0 ? episodeScript(season, episodes[index - 1]) : null;
+      if (!unlocked && previousScript?.nextEpisodeCode === episode.code) {
+        // A non-interactive teaser, not an early reveal or an unlock control.
+        stop.append(el('p', 'comic-route-teaser', localizedStoryText(previousScript.nextTeaser, lang)));
+      }
       route.append(stop);
     });
     journey.append(route);
