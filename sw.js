@@ -1,12 +1,12 @@
 const CACHE_PREFIX = 'swieze-lody-';
-const CACHE = `${CACHE_PREFIX}v12`;
+const CACHE = `${CACHE_PREFIX}v18`;
 const CORE = [
   './',
   'index.html',
-  'styles.css?v=comic1',
-  'app.js?v=comic1',
+  'styles.css?v=comic2',
+  'app.js?v=comic3',
   'auth.js',
-  'comic.js?v=2',
+  'comic.js?v=6',
   'cart.js',
   'order-status.js',
   'reviews.js',
