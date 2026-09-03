@@ -26,27 +26,44 @@
 
   const SUPPORTED_LANGS = new Set(Object.keys(COPY));
   // Presentation-only aliases for existing server artwork keys; never unlock criteria.
-  const ENVELOPE_PANELS = Object.freeze([
-    'assets/comic/season-1/episode-01-panel-01-v2',
-    'assets/comic/season-1/episode-01-panel-02-v2',
-    'assets/comic/season-1/episode-01-panel-03-v2'
-  ]);
+  const panelAssets = (episode, version) => Object.freeze(
+    ['01', '02', '03'].map(panel => `assets/comic/season-1/episode-${episode}-panel-${panel}-${version}`)
+  );
+  const EPISODE_01_PANELS = panelAssets('01', 'v2');
+  const EPISODE_02_PANELS = panelAssets('02', 'v1');
+  const EPISODE_03_PANELS = panelAssets('03', 'v1');
+  const EPISODE_04_PANELS = panelAssets('04', 'v1');
   const ILLUSTRATED_PANELS = new Map([
-    ['comic/season-1/placeholders/beat-00', ENVELOPE_PANELS],
-    ['comic/season-1/placeholders/scene-00', ENVELOPE_PANELS],
-    ['beat-00-unmarked-envelope', ENVELOPE_PANELS],
-    ['scene-00-unmarked-envelope', ENVELOPE_PANELS]
+    ['comic/season-1/placeholders/beat-00', EPISODE_01_PANELS],
+    ['comic/season-1/placeholders/scene-00', EPISODE_01_PANELS],
+    ['beat-00-unmarked-envelope', EPISODE_01_PANELS],
+    ['scene-00-unmarked-envelope', EPISODE_01_PANELS],
+
+    ['comic/season-1/placeholders/beat-07', EPISODE_02_PANELS],
+    ['comic/season-1/placeholders/scene-07', EPISODE_02_PANELS],
+    ['beat-07-windmill-not-mill', EPISODE_02_PANELS],
+    ['scene-07-windmill-not-mill', EPISODE_02_PANELS],
+
+    ['comic/season-1/placeholders/beat-14', EPISODE_03_PANELS],
+    ['comic/season-1/placeholders/scene-14', EPISODE_03_PANELS],
+    ['beat-14-ink-from-waves', EPISODE_03_PANELS],
+    ['scene-14-ink-from-waves', EPISODE_03_PANELS],
+
+    ['comic/season-1/placeholders/beat-21', EPISODE_04_PANELS],
+    ['comic/season-1/placeholders/scene-21', EPISODE_04_PANELS],
+    ['beat-21-park-as-map', EPISODE_04_PANELS],
+    ['scene-21-park-as-map', EPISODE_04_PANELS]
   ]);
   let requestNumber = 0;
   let readerDialog = null;
   let readerResizeObserver = null;
   let sessionOwner = null;
-  const REPLAY_KEY = 'swieze-comic-episode-1-replay-v2';
+  const REPLAY_KEY = 'swieze-comic-replay-v4';
   const OFFLINE_COPY = {
-    pl: ['Zapisany epizod 1', 'Tryb offline: możesz wrócić do przeczytanego epizodu. Połącz się, aby sprawdzić aktualny postęp.'],
-    de: ['Gespeicherte Episode 1', 'Offline: Du kannst die gelesene Episode erneut öffnen. Verbinde dich, um deinen aktuellen Fortschritt zu prüfen.'],
-    en: ['Saved Episode 1', 'Offline: revisit the episode you read. Connect to check your current progress.'],
-    cs: ['Uložená epizoda 1', 'Offline: můžeš si znovu přečíst epizodu. Pro aktuální postup se připoj.']
+    pl: ['Zapisany epizod', 'Tryb offline: możesz wrócić do ostatnio przeczytanego epizodu. Połącz się, aby sprawdzić aktualny postęp.'],
+    de: ['Gespeicherte Episode', 'Offline: Du kannst die zuletzt gelesene Episode erneut öffnen. Verbinde dich, um deinen aktuellen Fortschritt zu prüfen.'],
+    en: ['Saved episode', 'Offline: revisit the last episode you read. Connect to check your current progress.'],
+    cs: ['Uložená epizoda', 'Offline: můžeš si znovu přečíst poslední otevřenou epizodu. Připoj se, abys zkontroloval aktuální postup.']
   };
 
   const el = (tag, className, text) => {
@@ -379,7 +396,7 @@
       readerResizeObserver.observe(dialog);
       dialog.querySelectorAll('.comic-dialogue-panel .comic-panel-art, .comic-speech').forEach(node => readerResizeObserver.observe(node));
       document.fonts?.ready.then(() => { if (dialog.open) positionDialogue(dialog,script); });
-      rememberPilot(season,episode,lang);
+      rememberReplaySnapshot(season, episode, episodeIndex, lang);
     }
   }
 
@@ -510,40 +527,156 @@
     replaceContent(statusView(copy.unavailable, copy.retry, refresh));
   }
 
-  function rememberPilot(season, episode, lang) {
-    if (sessionOwner === null || !episodeScript(season,episode)) return;
-    // Only an already-opened Episode 1, never private progress, thresholds or later scenes.
-    // Scope to the current session owner so a switch/logout cannot replay another account.
+  function replayPanelSnapshot(entry, lang) {
+    return {
+      id: String(entry.id || ''),
+      artworkIndex: bubbleNumber(entry.artworkIndex, 0, 0, 2),
+      protectedZones: safeArray(entry.protectedZones).slice(0, 8)
+        .filter(zone => Array.isArray(zone) && zone.length >= 4)
+        .map(zone => zone.slice(0, 4).map(value => bubbleNumber(value, 0, 0, 100))),
+      lines: safeArray(entry.lines).slice(0, 4).map(line => ({
+        speaker: ['maja', 'maks', 'lea'].includes(line.speaker) ? line.speaker : 'unknown',
+        placement: {
+          x: bubbleNumber(line.placement?.x, 4, 0, 76),
+          y: bubbleNumber(line.placement?.y, 4, 0, 88),
+          width: bubbleNumber(line.placement?.width, 76, 24, 96),
+          anchor: [
+            bubbleNumber(line.placement?.anchor?.[0], 50, 0, 100),
+            bubbleNumber(line.placement?.anchor?.[1], 50, 0, 100)
+          ],
+          edge: line.placement?.edge === 'top' ? 'top' : 'bottom'
+        },
+        text: { [lang]: localizedStoryText(line.text, lang) }
+      }))
+    };
+  }
+
+  function rememberReplaySnapshot(season, episode, episodeIndex, lang) {
+    if (sessionOwner === null || episode?.is_unlocked !== true) return;
+    const script = episodeScript(season, episode);
+    if (!script) return;
+    const scene = safeArray(episode.scenes).find(item => item.code === script.sceneCode);
+    if (!scene) return;
+
+    // Authorization already happened in the server-backed catalog before the online episode opener.
+    // Store only the exact localized episode copy that was actually opened.
+    // Never persist progress, thresholds, catalog entries or a code that can select another script.
     try {
-      const prior = JSON.parse(localStorage.getItem(REPLAY_KEY) || 'null');
-      const translations = prior?.owner === sessionOwner ? prior.translations || {} : {};
-      translations[lang] = { title: episode.title, sceneTitle: episode.scenes[0]?.title || episode.title };
-      localStorage.setItem(REPLAY_KEY, JSON.stringify({ version:2, owner:sessionOwner, translations }));
+      localStorage.setItem(REPLAY_KEY, JSON.stringify({
+        version: 4,
+        owner: sessionOwner,
+        locale: lang,
+        episodeNumber: episodeIndex + 1,
+        title: String(episode.title || ''),
+        sceneTitle: String(scene.title || episode.title || ''),
+        sceneCode: String(script.sceneCode || ''),
+        artworkKey: String(scene.artwork_key || scene.code || ''),
+        panels: safeArray(script.panels).map(entry => replayPanelSnapshot(entry, lang))
+      }));
     } catch (_) { /* optional offline replay; online reading must still work */ }
   }
 
-  function renderSavedPilot() {
-    if (sessionOwner === null) return false;
+  function savedReplaySnapshot() {
+    if (sessionOwner === null) return null;
     try {
       const saved = JSON.parse(localStorage.getItem(REPLAY_KEY) || 'null');
-      if (saved?.version !== 2 || saved.owner !== sessionOwner) return false;
-      const lang = getLang();
-      const title = saved.translations?.[lang] || saved.translations?.pl || Object.values(saved.translations || {})[0];
-      if (!title || typeof title.title !== 'string') return false;
-      const code = 'beat-00-unmarked-envelope';
-      const script = window.comicStoryData?.episodes?.[`season-1/${code}`];
-      if (!script) return false;
-      // This is visibly a previously read copy, NOT a reconstructed current server catalog.
-      // It contains no next episode, progress bar, percentage or new unlock action.
-      const episode = { code, title:title.title, is_unlocked:true, cover_artwork_key:code, scenes:[{code:script.sceneCode,title:title.sceneTitle,artwork_key:script.sceneCode}] };
-      const season = { code:'season-1', episodes:[episode] };
-      const copy = COPY[lang];
-      const box = statusView(OFFLINE_COPY[lang][1], `${copy.read}: ${title.title}`, () => openEpisode(season,episode,0,copy,lang));
-      box.prepend(el('h3','',OFFLINE_COPY[lang][0]));
-      box.classList.add('comic-saved-replay');
-      replaceContent(box);
-      return true;
-    } catch (_) { return false; }
+      if (saved?.version !== 4 || saved.owner !== sessionOwner) return null;
+      if (!SUPPORTED_LANGS.has(saved.locale)) return null;
+      if (!Number.isInteger(saved.episodeNumber) || saved.episodeNumber < 1 || saved.episodeNumber > 4) return null;
+      if (typeof saved.title !== 'string' || !saved.title.trim() || saved.title.length > 180) return null;
+      if (typeof saved.sceneTitle !== 'string' || saved.sceneTitle.length > 180) return null;
+      if (typeof saved.sceneCode !== 'string' || !saved.sceneCode.trim()) return null;
+      if (typeof saved.artworkKey !== 'string' || !ILLUSTRATED_PANELS.has(saved.artworkKey)) return null;
+      if (!Array.isArray(saved.panels) || saved.panels.length !== 3) return null;
+
+      for (const panel of saved.panels) {
+        if (!panel || !Array.isArray(panel.protectedZones) || !Array.isArray(panel.lines)) return null;
+        if (panel.lines.length < 1 || panel.lines.length > 4) return null;
+        for (const line of panel.lines) {
+          if (!['maja', 'maks', 'lea'].includes(line?.speaker)) return null;
+          if (typeof line?.text?.[saved.locale] !== 'string' || line.text[saved.locale].length > 500) return null;
+          if (!line.placement || !Array.isArray(line.placement.anchor) || line.placement.anchor.length !== 2) return null;
+        }
+      }
+      // Re-sanitize numeric layout fields on read. localStorage is untrusted input, never authorization.
+      return { ...saved, panels: saved.panels.map(panel => replayPanelSnapshot(panel, saved.locale)) };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function openSavedReplay(saved) {
+    if (!saved) return;
+    const lang = saved.locale;
+    const copy = COPY[lang] || COPY.pl;
+    const offline = OFFLINE_COPY[lang] || OFFLINE_COPY.pl;
+    const script = { sceneCode: saved.sceneCode, panels: saved.panels };
+    const episode = {
+      title: saved.title,
+      scenes: [{ code: saved.sceneCode, title: saved.sceneTitle, artwork_key: saved.artworkKey }]
+    };
+
+    readerResizeObserver?.disconnect();
+    readerDialog?.remove();
+    const dialog = el('dialog', 'comic-reader comic-saved-reader');
+    readerDialog = dialog;
+    dialog.setAttribute('aria-labelledby', 'comicReaderTitle');
+
+    const toolbar = el('header', 'comic-reader-toolbar');
+    const close = el('button', 'comic-reader-close', `← ${copy.back}`);
+    close.type = 'button';
+    close.addEventListener('click', closeReader);
+    toolbar.append(close, el('span', 'comic-reader-count', `${copy.episode} ${saved.episodeNumber}`));
+
+    const cover = el('section', 'comic-reader-cover');
+    const coverCopy = el('div', 'comic-reader-cover-copy');
+    coverCopy.append(
+      el('span', 'comic-kicker', offline[0]),
+      el('h3', '', saved.title)
+    );
+    coverCopy.querySelector('h3').id = 'comicReaderTitle';
+    cover.append(coverCopy);
+
+    const ending = el('footer', 'comic-reader-ending');
+    ending.append(el('span', 'comic-ending-burst', '✓'));
+    ending.append(el('h4', '', offline[0]));
+    ending.append(el('p', '', offline[1]));
+    const back = el('button', 'comic-reader-back comic-action', copy.back);
+    back.type = 'button';
+    back.addEventListener('click', closeReader);
+    ending.append(back);
+
+    dialog.append(toolbar, cover, renderDialoguePanels(episode, script, lang), ending);
+    dialog.addEventListener('click', event => {
+      if (event.target === dialog) closeReader();
+    });
+    dialog.addEventListener('close', () => {
+      readerResizeObserver?.disconnect();
+      document.body.classList.remove('comic-reader-open');
+    });
+    document.body.append(dialog);
+    document.body.classList.add('comic-reader-open');
+    dialog.showModal();
+    dialog.scrollTop = 0;
+    close.focus();
+
+    positionDialogue(dialog, script);
+    readerResizeObserver = new ResizeObserver(() => positionDialogue(dialog, script));
+    readerResizeObserver.observe(dialog);
+    dialog.querySelectorAll('.comic-dialogue-panel .comic-panel-art, .comic-speech').forEach(node => readerResizeObserver.observe(node));
+    document.fonts?.ready.then(() => { if (dialog.open) positionDialogue(dialog, script); });
+  }
+
+  function renderSavedReplayPrompt() {
+    const saved = savedReplaySnapshot();
+    if (!saved) return false;
+    const copy = COPY[saved.locale] || COPY.pl;
+    const offline = OFFLINE_COPY[saved.locale] || OFFLINE_COPY.pl;
+    const box = statusView(offline[1], `${copy.read}: ${saved.title}`, () => openSavedReplay(saved));
+    box.prepend(el('h3', '', offline[0]));
+    box.classList.add('comic-saved-replay');
+    replaceContent(box);
+    return true;
   }
 
   async function refresh() {
@@ -570,7 +703,7 @@
       console.error('Comic progress load failed:', error);
       if (request === requestNumber) {
         const networkFailure = navigator.onLine === false || /failed to fetch|networkerror|network request failed|load failed/i.test(String(error?.message || ''));
-        if (!networkFailure || !renderSavedPilot()) renderUnavailable();
+        if (!networkFailure || !renderSavedReplayPrompt()) renderUnavailable();
       }
     }
   }
