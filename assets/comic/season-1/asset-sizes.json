@@ -1,0 +1,77 @@
+[
+  {
+    "panel": "01",
+    "originalBytes": 3081165,
+    "masterBytes": 2489933,
+    "variants": [
+      {
+        "file": "episode-01-panel-01-v2-360.webp",
+        "width": 360,
+        "height": 630,
+        "bytes": 47156
+      },
+      {
+        "file": "episode-01-panel-01-v2-720.webp",
+        "width": 720,
+        "height": 1260,
+        "bytes": 151516
+      },
+      {
+        "file": "episode-01-panel-01-v2-900.webp",
+        "width": 900,
+        "height": 1575,
+        "bytes": 208666
+      }
+    ]
+  },
+  {
+    "panel": "02",
+    "originalBytes": 3453906,
+    "masterBytes": 2651549,
+    "variants": [
+      {
+        "file": "episode-01-panel-02-v2-360.webp",
+        "width": 360,
+        "height": 630,
+        "bytes": 53186
+      },
+      {
+        "file": "episode-01-panel-02-v2-720.webp",
+        "width": 720,
+        "height": 1260,
+        "bytes": 186152
+      },
+      {
+        "file": "episode-01-panel-02-v2-900.webp",
+        "width": 900,
+        "height": 1575,
+        "bytes": 259634
+      }
+    ]
+  },
+  {
+    "panel": "03",
+    "originalBytes": 3128640,
+    "masterBytes": 2376420,
+    "variants": [
+      {
+        "file": "episode-01-panel-03-v2-360.webp",
+        "width": 360,
+        "height": 630,
+        "bytes": 40298
+      },
+      {
+        "file": "episode-01-panel-03-v2-720.webp",
+        "width": 720,
+        "height": 1260,
+        "bytes": 132252
+      },
+      {
+        "file": "episode-01-panel-03-v2-900.webp",
+        "width": 900,
+        "height": 1575,
+        "bytes": 178894
+      }
+    ]
+  }
+]

@@ -1854,7 +1854,23 @@ window.addEventListener(
 queueCustomerCollectionRefresh();
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js');
+  window.addEventListener('load', async () => {
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    let refreshing = false;
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+
+    try {
+      const registration = await navigator.serviceWorker.register('sw.js', {
+        updateViaCache: 'none'
+      });
+      await registration.update();
+    } catch {
+      // The currently cached shell remains available when the device is offline.
+    }
   });
 }
