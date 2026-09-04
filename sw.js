@@ -1,13 +1,13 @@
 const CACHE_PREFIX = 'swieze-lody-';
-const CACHE = `${CACHE_PREFIX}v23`;
+const CACHE = `${CACHE_PREFIX}v24`;
 const CORE = [
   './',
   'index.html',
   'styles.css?v=comic-benchmark3',
   'app.js?v=comic3',
   'auth.js',
-  'comic-story-data.js?v=5',
-  'comic.js?v=11',
+  'comic-story-data.js?v=6',
+  'comic.js?v=12',
   'cart.js',
   'order-status.js',
   'reviews.js',
@@ -18,7 +18,7 @@ const CORE = [
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 // Cache viewed artwork without delaying a JS update on large image downloads.
-const COMIC_ART_VERSIONS = Object.freeze({ '01': 'v2', '02': 'v1', '03': 'v1', '04': 'v1' });
+const COMIC_ART_VERSIONS = Object.freeze({ '01': 'v2', '02': 'v1', '03': 'v1', '04': 'v1', '05': 'v3' });
 const COMIC_ART = new Set(Object.entries(COMIC_ART_VERSIONS).flatMap(([episode, version]) =>
   ['01', '02', '03'].flatMap(panel => [360, 720, 900].map(width =>
     new URL(`assets/comic/season-1/episode-${episode}-panel-${panel}-${version}-${width}.webp`, self.location.href).href

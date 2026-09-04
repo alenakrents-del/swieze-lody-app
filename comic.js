@@ -33,6 +33,7 @@
   const EPISODE_02_PANELS = panelAssets('02', 'v1');
   const EPISODE_03_PANELS = panelAssets('03', 'v1');
   const EPISODE_04_PANELS = panelAssets('04', 'v1');
+  const EPISODE_05_PANELS = panelAssets('05', 'v3');
   const ILLUSTRATED_PANELS = new Map([
     ['comic/season-1/placeholders/beat-00', EPISODE_01_PANELS],
     ['comic/season-1/placeholders/scene-00', EPISODE_01_PANELS],
@@ -52,7 +53,12 @@
     ['comic/season-1/placeholders/beat-21', EPISODE_04_PANELS],
     ['comic/season-1/placeholders/scene-21', EPISODE_04_PANELS],
     ['beat-21-park-as-map', EPISODE_04_PANELS],
-    ['scene-21-park-as-map', EPISODE_04_PANELS]
+    ['scene-21-park-as-map', EPISODE_04_PANELS],
+
+    ['comic/season-1/placeholders/beat-29', EPISODE_05_PANELS],
+    ['comic/season-1/placeholders/scene-29', EPISODE_05_PANELS],
+    ['beat-29-round-fort', EPISODE_05_PANELS],
+    ['scene-29-round-fort', EPISODE_05_PANELS]
   ]);
   let requestNumber = 0;
   let readerDialog = null;
@@ -582,11 +588,11 @@
       const saved = JSON.parse(localStorage.getItem(REPLAY_KEY) || 'null');
       if (saved?.version !== 4 || saved.owner !== sessionOwner) return null;
       if (!SUPPORTED_LANGS.has(saved.locale)) return null;
-      if (!Number.isInteger(saved.episodeNumber) || saved.episodeNumber < 1 || saved.episodeNumber > 4) return null;
+      if (!Number.isInteger(saved.episodeNumber) || saved.episodeNumber < 1 || saved.episodeNumber > 15) return null;
       if (typeof saved.title !== 'string' || !saved.title.trim() || saved.title.length > 180) return null;
       if (typeof saved.sceneTitle !== 'string' || saved.sceneTitle.length > 180) return null;
       if (typeof saved.sceneCode !== 'string' || !saved.sceneCode.trim()) return null;
-      if (typeof saved.artworkKey !== 'string' || !ILLUSTRATED_PANELS.has(saved.artworkKey)) return null;
+      if (typeof saved.artworkKey !== 'string' || !saved.artworkKey.trim() || saved.artworkKey.length > 180) return null;
       if (!Array.isArray(saved.panels) || saved.panels.length !== 3) return null;
 
       for (const panel of saved.panels) {
