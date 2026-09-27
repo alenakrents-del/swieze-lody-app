@@ -1,0 +1,48 @@
+PASS — customer-v3.js
+PASS — staff-v4.js
+PASS — sw.js
+PASS — comic-story-canon-v7.js
+PASS — comic-longform-episodes-1-3.js
+PASS — comic-longform-episodes-4-15.js
+PASS — comic-longform-reader.js
+PASS — addon load order
+PASS — SW v29
+PASS — SW caches 4-15
+PASS — episode 01 longform
+PASS — episode 02 longform
+PASS — episode 03 longform
+PASS — episode 04 longform
+PASS — episode 05 longform
+PASS — episode 06 longform
+PASS — episode 07 longform
+PASS — episode 08 longform
+PASS — episode 09 longform
+PASS — episode 10 longform
+PASS — episode 11 longform
+PASS — episode 12 longform
+PASS — episode 13 longform
+PASS — episode 14 longform
+PASS — episode 15 longform
+PASS — E4-E12 excludes brakująca warstwa
+PASS — E4-E12 excludes czwarty arkusz
+PASS — E4-E12 excludes vierte Schicht
+PASS — E4-E12 excludes viertes Blatt
+PASS — E4-E12 excludes missing layer
+PASS — E4-E12 excludes fourth sheet
+PASS — E4-E12 excludes chybějící vrstva
+PASS — E4-E12 excludes čtvrtý list
+PASS — E13 hypothesis
+PASS — E14 whole rectangle
+PASS — E15 K confirmed
+PASS — E4 block density >=12 (18 blocks)
+PASS — E5 block density >=12 (17 blocks)
+PASS — E6 block density >=12 (17 blocks)
+PASS — E7 block density >=12 (17 blocks)
+PASS — E8 block density >=12 (15 blocks)
+PASS — E9 block density >=12 (16 blocks)
+PASS — E10 block density >=12 (15 blocks)
+PASS — E11 block density >=12 (16 blocks)
+PASS — E12 block density >=12 (15 blocks)
+PASS — E13 block density >=12 (16 blocks)
+PASS — E14 block density >=12 (15 blocks)
+PASS — E15 block density >=12 (24 blocks)

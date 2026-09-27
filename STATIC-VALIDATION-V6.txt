@@ -1,0 +1,19 @@
+PASS — node --check customer-v3.js
+PASS — node --check staff-v4.js
+PASS — node --check sw.js
+PASS — node --check comic-story-canon-v7.js
+PASS — node --check comic-longform-episodes-1-3.js
+PASS — node --check comic-longform-episodes-4-15.js
+PASS — node --check comic-longform-reader.js
+PASS — reader v2 loaded
+PASS — staff v2 loaded
+PASS — SW v30
+PASS — SW caches reader v2
+PASS — SW caches staff v2
+PASS — reader recognizes E01-E15 artwork ids
+PASS — reader refreshes localized copy
+PASS — staff stale active helper
+PASS — staff terminal history filter
+PASS — staff fresh attention pool
+PASS — migration included
+PASS — migration 30-day history

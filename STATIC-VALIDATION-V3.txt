@@ -1,0 +1,14 @@
+PASS — customer-v3.js
+PASS — staff-v4.js
+PASS — sw.js
+PASS — comic-story-canon-v7.js
+PASS — canon patch load order
+PASS — canon patch cached
+PASS — override excludes: Brakuje jednej warstwy.
+PASS — override excludes: One layer is missing.
+PASS — override excludes: Eine Schicht fehlt.
+PASS — override excludes: Jedna vrstva chybí.
+PASS — override excludes: Brakującą warstwę ostatnio widziano
+PASS — override excludes: The missing layer was last seen
+PASS — override excludes: dokładnie jedną lukę
+PASS — override excludes: exactly one gap

@@ -1,0 +1,18 @@
+PASS — customer-v3.js
+PASS — staff-v4.js
+PASS — sw.js
+PASS — comic-story-canon-v7.js
+PASS — comic-longform-episodes-1-3.js
+PASS — comic-longform-reader.js
+PASS — longform css linked
+PASS — longform data after comic.js
+PASS — longform reader after data
+PASS — SW caches comic-longform-episodes-1-3.js?v=1
+PASS — SW caches comic-longform-reader.js?v=1
+PASS — SW caches comic-longform.css?v=1
+PASS — pilot excludes premature: One layer is missing
+PASS — pilot excludes premature: Brakuje jednej warstwy
+PASS — pilot excludes premature: Die fehlende Schicht
+PASS — pilot excludes premature: Chybějící vrstva
+PASS — pilot excludes premature: fourth transparent sheet
+PASS — pilot excludes premature: czwarty przezroczysty

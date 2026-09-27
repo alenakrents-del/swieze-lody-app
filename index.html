@@ -5,40 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#ffc728">
 
-  <title>Świeże Lody — Kolekcje</title>
+  <title>Świeże Lody</title>
 
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css?v=comic-benchmark3">
+  <link rel="stylesheet" href="customer-v3.css?v=1">
+  <link rel="stylesheet" href="comic-longform.css?v=1">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
-
-  <style>
-    .language-switcher{
-      display:flex;
-      gap:4px;
-      justify-content:center;
-      padding:8px 10px;
-      background:#fff;
-    }
-
-    .language-switcher button{
-      border:1px solid #ddd;
-      background:#fff;
-      border-radius:10px;
-      padding:5px 8px;
-      font-weight:700;
-      cursor:pointer;
-    }
-
-    .language-switcher button.active{
-      background:#ffc728;
-      border-color:#ffc728;
-    }
-  </style>
+  <meta name="apple-mobile-web-app-title" content="Świeże Lody">
 </head>
 
-<body>
+<body class="v3">
 
 <div class="app">
 
@@ -48,129 +27,127 @@
       <div class="tag" data-i18n="madeHere">Robione na miejscu</div>
     </div>
 
-    <button class="avatar" data-page="profile">👤</button>
+    <button class="avatar" data-page="profile" aria-label="Profil">👤</button>
   </header>
-
-  <div class="language-switcher">
-    <button data-lang="pl">🇵🇱 PL</button>
-    <button data-lang="de">🇩🇪 DE</button>
-    <button data-lang="en">🇬🇧 EN</button>
-    <button data-lang="cs">🇨🇿 CZ</button>
-  </div>
 
   <main>
 
-    <section id="page-collection" class="page active">
+    <!-- =====================================================
+         MENU — default customer screen
+    ====================================================== -->
+    <section id="page-menu" class="page active">
 
-      <section class="hello">
-        <div>
-          <b data-i18n="hello">👋 Cześć!</b>
-          <span data-i18n="collectRewards">
-            Zbieraj smaki i odbieraj nagrody!
-          </span>
-        </div>
-        <div class="brand-hero-slots" aria-hidden="true">
-          <span class="brand-hero-slot" data-hero-slot="scoop"></span>
-          <span class="brand-hero-slot" data-hero-slot="waffle"></span>
-          <span class="brand-hero-slot" data-hero-slot="shake"></span>
-          <span class="brand-hero-slot" data-hero-slot="lemon"></span>
-        </div>
-      </section>
+      <div id="v3OrderShortcutHost"></div>
 
-      <section class="switcher">
-
-        <button class="chip active" data-collection="MILKSHAKE">
-          🥤 Milkshake
-        </button>
-
-        <button class="chip" data-collection="LEMONADE">
-          🍋 <span data-i18n="lemonades">Lemoniady</span>
-        </button>
-
-        <button class="chip" data-collection="VACATION">
-          🏖️ <span data-i18n="mission">Misja</span>
-        </button>
-
-      </section>
-
-      <section class="title">
-
-        <div class="round" id="collectionIcon">
-          🥤
-        </div>
-
-        <div>
-          <h1 id="collectionTitle">
-            Twoja kolekcja Milkshake
-          </h1>
-
-          <p>
-            <strong id="now">0</strong>
-            /
-            <span id="total">0</span>
-            <span data-i18n="discovered">odkrytych</span>
-          </p>
-        </div>
-
-      </section>
-
-      <div class="progress">
-        <div id="bar"></div>
+      <div class="section-head v3-section-head">
+        <h1 data-v3-copy="menuTitle">Menu</h1>
+        <p data-v3-copy="menuSubtitle">Wybierz kategorię i dodaj produkt bez dodatkowych ekranów.</p>
       </div>
 
-      <section id="cards" class="cards"></section>
+      <section
+        id="publicAnnouncements"
+        class="public-announcements"
+        aria-live="polite"
+        hidden
+      ></section>
 
-      <section id="rewardCard" class="reward hidden">
+      <div
+        id="v3MenuCategories"
+        class="v3-menu-categories"
+        aria-label="Kategorie menu"
+      >
+        <span class="v3-loading">Ładowanie menu…</span>
+      </div>
 
-        <div class="gift">🎁</div>
+      <div
+        id="v3ProductList"
+        class="v3-product-list"
+        aria-live="polite"
+      ></div>
 
-        <div>
-          <small data-i18n="rewardUnlocked">
-            🎉 NAGRODA ODBLOKOWANA!
-          </small>
-
-          <h2 id="rewardTitle">
-            Darmowy topping
-          </h2>
-
-          <p id="rewardDesc">
-            Wybierz 1 z 8 toppingów gratis.
-          </p>
+      <!-- Legacy menu targets stay mounted for the current app.js.
+           customer-v3.js renders the same catalog directly in the page. -->
+      <div id="legacyMenuGrid" class="menu-grid" aria-hidden="true">
+        <div
+          id="dynamicMenuCategories"
+          class="menu-dynamic-categories"
+          aria-live="polite"
+        >
+          <p class="menu-catalog-status">Ładowanie menu…</p>
         </div>
 
-        <button id="code" data-i18n="showCode">
-          🎟️ Pokaż kod
+        <button data-info="icecream" type="button">
+          <div>🍦</div>
+          <b data-i18n="iceCream">Lody</b>
+          <span data-i18n="iceCreamPrice">100 g • 10 zł</span>
         </button>
 
-      </section>
+        <button data-info="coffee" type="button">
+          <div>☕</div>
+          <b data-i18n="coffee">Kawa</b>
+          <span data-i18n="onSite">na miejscu</span>
+        </button>
 
-      <section class="secret">
-
-        <div>
-          <b id="secretLabel">🔒 SEKRETNY DESER</b>
-
-          <h2 id="secret">???</h2>
-
-          <p id="hint"></p>
-
-          <div id="dots" class="dots"></div>
-        </div>
-
-        <div class="shadowdessert">🍨</div>
-
-      </section>
+        <button data-info="secret" type="button">
+          <div>🔒</div>
+          <b>Secret Menu</b>
+          <span data-i18n="toUnlock">do odblokowania</span>
+        </button>
+      </div>
 
     </section>
 
 
+    <!-- =====================================================
+         STORY — comic is no longer buried inside Profile
+    ====================================================== -->
+    <section id="page-story" class="page">
+
+      <div class="section-head v3-section-head">
+        <h1 data-v3-copy="storyTitle">Historia</h1>
+        <p data-v3-copy="storySubtitle">Czytaj dalej i sprawdź, ile brakuje do następnego epizodu.</p>
+      </div>
+
+      <section id="v3StoryContinue" class="v3-story-continue" hidden>
+        <span class="v3-eyebrow" data-v3-copy="continueReading">Czytaj dalej</span>
+        <h2 id="v3StoryEpisodeTitle">Komiks</h2>
+        <p id="v3StoryNextHint"></p>
+        <button id="v3StoryContinueBtn" type="button" class="v3-primary" data-v3-copy="read">Czytaj</button>
+      </section>
+
+      <section id="comicProgressShell" class="comic-shell" aria-labelledby="comicProgressHeading">
+        <div class="comic-shell-intro">
+          <div>
+            <span id="comicProgressEyebrow" class="comic-eyebrow">Twoja historia</span>
+            <h2 id="comicProgressHeading">Komiks</h2>
+          </div>
+          <div class="comic-cast" aria-hidden="true">
+            <span class="comic-cast-member is-maya"></span>
+            <span class="comic-cast-member is-maks"></span>
+            <span class="comic-cast-member is-lea"></span>
+            <span class="comic-cast-member is-frytka"></span>
+          </div>
+        </div>
+        <div id="comicProgressContent" class="comic-progress-content" aria-live="polite" aria-busy="true">
+          <p class="comic-status">Ładowanie komiksu…</p>
+        </div>
+      </section>
+
+      <button id="v3StoryAllBtn" class="v3-secondary v3-story-all" type="button" hidden>
+        <span data-v3-copy="allEpisodes">Wszystkie epizody</span>
+      </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         REWARDS + COLLECTIONS — merged into one place
+    ====================================================== -->
     <section id="page-rewards" class="page">
 
-      <div class="section-head">
+      <div class="section-head v3-section-head">
         <h1 data-i18n="yourRewards">🎁 Twoje nagrody</h1>
-
-        <p data-i18n="rewardSubtitle">
-          Aktywne nagrody i odblokowane bonusy.
-        </p>
+        <p data-v3-copy="rewardsSubtitle">Nagrody i kolekcje w jednym miejscu.</p>
       </div>
 
       <div id="rewardList" class="reward-list">
@@ -182,334 +159,279 @@
         </article>
       </div>
 
-    </section>
-
-
-    <section id="page-menu" class="page">
-
-      <div class="section-head">
-        <h1 data-i18n="menuTitle">☰ Menu</h1>
-
-        <p data-i18n="tapCategory">
-          Dotknij kategorii, aby zobaczyć produkty.
-        </p>
-      </div>
-
-      <section
-        id="publicAnnouncements"
-        class="public-announcements"
-        aria-live="polite"
-        hidden
-      ></section>
-
-      <div class="menu-grid">
-
-        <div
-          id="dynamicMenuCategories"
-          class="menu-dynamic-categories"
-          aria-live="polite"
-        >
-          <p class="menu-catalog-status">Ładowanie menu…</p>
+      <section class="v3-collections">
+        <div class="v3-subhead">
+          <h2 data-v3-copy="collectionsTitle">Kolekcje</h2>
+          <p data-v3-copy="collectionsSubtitle">Próbuj różnych smaków i odblokowuj bonusy.</p>
         </div>
 
-        <button data-info="icecream">
-          <div>🍦</div>
-          <b data-i18n="iceCream">Lody</b>
-          <span data-i18n="iceCreamPrice">100 g • 10 zł</span>
-        </button>
+        <section class="switcher">
+          <button class="chip active" data-collection="MILKSHAKE">
+            🥤 Milkshake
+          </button>
 
-        <button data-info="coffee">
-          <div>☕</div>
-          <b data-i18n="coffee">Kawa</b>
-          <span data-i18n="onSite">na miejscu</span>
-        </button>
+          <button class="chip" data-collection="LEMONADE">
+            🍋 <span data-i18n="lemonades">Lemoniady</span>
+          </button>
 
-        <button data-info="secret">
-          <div>🔒</div>
-          <b>Secret Menu</b>
-          <span data-i18n="toUnlock">do odblokowania</span>
-        </button>
+          <button class="chip" data-collection="VACATION">
+            🏖️ <span data-i18n="mission">Misja</span>
+          </button>
+        </section>
 
-      </div>
+        <section class="title">
+          <div class="round" id="collectionIcon">🥤</div>
+          <div>
+            <h1 id="collectionTitle">Twoja kolekcja Milkshake</h1>
+            <p>
+              <strong id="now">0</strong> /
+              <span id="total">0</span>
+              <span data-i18n="discovered">odkrytych</span>
+            </p>
+          </div>
+        </section>
 
-    </section>
-
-
-    <section id="page-location" class="page">
-
-      <div class="section-head">
-        <h1 data-i18n="hereNow">📍 Tu i teraz</h1>
-
-        <p>
-          Świeże Lody • Stefana Żeromskiego 69
-        </p>
-      </div>
-
-      <div class="map-card">
-
-        <div class="map-visual">
-          🏖️
-          <span>📍</span>
+        <div class="progress">
+          <div id="bar"></div>
         </div>
 
-        <h2 data-i18n="hereNowShop">
-          Świeże Lody. Tu i teraz.
-        </h2>
+        <section id="cards" class="cards"></section>
 
-        <p>
-          Stefana Żeromskiego 69, Świnoujście
-        </p>
+        <section id="rewardCard" class="reward hidden">
+          <div class="gift">🎁</div>
+          <div>
+            <small data-i18n="rewardUnlocked">🎉 NAGRODA ODBLOKOWANA!</small>
+            <h2 id="rewardTitle">Darmowy topping</h2>
+            <p id="rewardDesc">Wybierz 1 z 8 toppingów gratis.</p>
+          </div>
+          <button id="code" data-i18n="showCode">🎟️ Pokaż kod</button>
+        </section>
 
-        <div id="distanceStatus" class="distance"
-             data-i18n="distanceStart">
-          Kliknij, a pokażę ile zostało iść.
-        </div>
-
-        <div class="walk">
-          <div id="walkbar"></div>
-        </div>
-
-        <button id="locate" class="locate"
-                data-i18n="calculateDistance">
-          📡 Policz odległość
-        </button>
-
-        <a
-          class="primary-link"
-          href="https://maps.apple.com/?q=Stefana+Zeromskiego+69+Swinoujscie"
-          target="_blank"
-          rel="noopener"
-          data-i18n="guideMe"
-        >
-          🚶 Prowadź mnie
-        </a>
-
-      </div>
+        <section class="secret">
+          <div>
+            <b id="secretLabel">🔒 SEKRETNY DESER</b>
+            <h2 id="secret">???</h2>
+            <p id="hint"></p>
+            <div id="dots" class="dots"></div>
+          </div>
+          <div class="shadowdessert">🍨</div>
+        </section>
+      </section>
 
     </section>
 
 
-    <section id="page-more" class="page">
-
-      <div class="section-head">
-        <h1 data-i18n="more">••• Więcej</h1>
-
-        <p data-i18n="collectorProgram">
-          Program kolekcjonera Świeże Lody.
-        </p>
-      </div>
-
-      <div class="settings-list">
-
-        <button data-page="profile">
-          👤
-          <span data-i18n="customerProfile">Profil klienta</span>
-          <b>›</b>
-        </button>
-
-        <button id="howItWorks">
-          🎮
-          <span data-i18n="howWorks">Jak działa gra?</span>
-          <b>›</b>
-        </button>
-
-        <button id="familyPass">
-          👨‍👩‍👧
-          <span>Family Pass</span>
-          <b>›</b>
-        </button>
-
-        <button id="privacy">
-          🔐
-          <span data-i18n="privacy">Prywatność</span>
-          <b>›</b>
-        </button>
-
-      </div>
-
-    </section>
-
-
+    <!-- =====================================================
+         PROFILE + settings + location
+    ====================================================== -->
     <section id="page-profile" class="page">
 
-  <div class="section-head">
-    <h1 data-i18n="yourProfile">👤 Twój profil</h1>
-    <p>Konto klienta Świeże Lody.</p>
-  </div>
-
-  <div id="authGuest" class="profile-card">
-
-    <div class="profile-avatar">🍦</div>
-
-    <h2>Witaj!</h2>
-
-    <p class="muted">
-      Zarejestruj się lub zaloguj.
-    </p>
-
-    <input
-      id="authName"
-      type="text"
-      placeholder="Imię lub nick"
-      autocomplete="nickname"
-    >
-
-    <input
-      id="authPhone"
-      type="tel"
-      placeholder="+48 501 234 567"
-      autocomplete="tel"
-    >
-
-    <input
-      id="authPassword"
-      type="password"
-      placeholder="Hasło"
-      autocomplete="current-password"
-    >
-
-    <button id="authRegister" class="locate">
-      Utwórz konto
-    </button>
-
-    <button id="authLogin" class="locate">
-      Zaloguj się
-    </button>
-
-    <p id="authMessage" class="muted"></p>
-
-  </div>
-
-
-  <div id="authProfile" class="profile-card" hidden>
-
-    <div class="profile-avatar">🍦</div>
-
-    <h2 id="customerProfileName">Klient</h2>
-
-    <p class="muted">
-      Kolekcjoner Świeże Lody
-    </p>
-
-    <div class="qr-realish">
-      <div>ŚL</div>
-      <small id="customerQrToken">---</small>
-    </div>
-
-    <p class="scan-help">
-      Pokaż ten kod przy zamówieniu.
-    </p>
-
-    <div class="stats">
-
-      <div>
-        <b id="customerPoints">0</b>
-        <span>punkty</span>
+      <div class="section-head v3-section-head">
+        <h1 data-i18n="yourProfile">👤 Twój profil</h1>
+        <p data-v3-copy="profileSubtitle">Konto, język, instalacja i lokalizacja.</p>
       </div>
 
-    </div>
+      <div id="authGuest" class="profile-card">
 
-    <button id="authLogout" class="locate">
-      Wyloguj się
-    </button>
+        <div class="profile-avatar">🍦</div>
+        <h2 data-v3-copy="welcome">Witaj!</h2>
 
-  </div>
+        <div class="v3-auth-tabs" role="tablist" aria-label="Logowanie">
+          <button id="v3AuthLoginMode" class="active" type="button" role="tab" aria-selected="true" data-v3-copy="signIn">
+            Zaloguj się
+          </button>
+          <button id="v3AuthRegisterMode" type="button" role="tab" aria-selected="false" data-v3-copy="createAccount">
+            Utwórz konto
+          </button>
+        </div>
 
-  <section id="comicProgressShell" class="comic-shell" aria-labelledby="comicProgressHeading">
-    <div class="comic-shell-intro">
-      <div>
-        <span id="comicProgressEyebrow" class="comic-eyebrow">Twoja historia</span>
-        <h2 id="comicProgressHeading">Komiks</h2>
+        <p id="v3AuthBenefit" class="v3-account-benefit" data-v3-copy="accountBenefit">
+          Zaloguj się przed zamówieniem, aby zakup mógł zostać przypisany do Twojej historii i nagród.
+        </p>
+
+        <input
+          id="authName"
+          class="v3-register-only"
+          type="text"
+          placeholder="Imię lub nick"
+          autocomplete="nickname"
+          hidden
+        >
+
+        <input
+          id="authPhone"
+          type="tel"
+          placeholder="+48 501 234 567"
+          autocomplete="tel"
+        >
+
+        <div class="v3-password-row">
+          <input
+            id="authPassword"
+            type="password"
+            placeholder="Hasło"
+            autocomplete="current-password"
+          >
+          <button id="v3TogglePassword" type="button" aria-label="Pokaż hasło">👁</button>
+        </div>
+
+        <button id="authRegister" class="locate v3-register-only" hidden>
+          Utwórz konto
+        </button>
+
+        <button id="authLogin" class="locate">
+          Zaloguj się
+        </button>
+
+        <button id="v3LoginHelp" class="v3-link-button" type="button" data-v3-copy="loginHelp">
+          Problem z logowaniem?
+        </button>
+
+        <p id="authMessage" class="muted"></p>
+
       </div>
-      <div class="comic-cast" aria-hidden="true">
-        <span class="comic-cast-member is-maya"></span>
-        <span class="comic-cast-member is-maks"></span>
-        <span class="comic-cast-member is-lea"></span>
-        <span class="comic-cast-member is-frytka"></span>
-      </div>
-    </div>
-    <div id="comicProgressContent" class="comic-progress-content" aria-live="polite" aria-busy="true">
-      <p class="comic-status">Ładowanie komiksu…</p>
-    </div>
-  </section>
 
-</section>
+
+      <div id="authProfile" class="profile-card" hidden>
+
+        <div class="profile-avatar">🍦</div>
+        <h2 id="customerProfileName">Klient</h2>
+        <p class="muted" data-i18n="collector">Kolekcjoner Świeże Lody</p>
+
+        <div class="qr-realish">
+          <div>ŚL</div>
+          <small id="customerQrToken">---</small>
+        </div>
+
+        <p class="scan-help" data-i18n="showAtOrder">
+          Pokaż ten kod przy zamówieniu.
+        </p>
+
+        <div class="stats">
+          <div>
+            <b id="customerPoints">0</b>
+            <span>punkty</span>
+          </div>
+        </div>
+
+        <button id="authLogout" class="locate">
+          Wyloguj się
+        </button>
+      </div>
+
+      <section class="v3-profile-settings">
+
+        <details class="v3-settings-card">
+          <summary>🌐 <span data-v3-copy="language">Język</span></summary>
+          <div class="language-switcher">
+            <button data-lang="pl">🇵🇱 PL</button>
+            <button data-lang="de">🇩🇪 DE</button>
+            <button data-lang="en">🇬🇧 EN</button>
+            <button data-lang="cs">🇨🇿 CZ</button>
+          </div>
+        </details>
+
+        <button id="v3InstallApp" class="v3-settings-button" type="button">
+          <span>📲 <span data-v3-copy="installApp">Zainstaluj aplikację</span></span>
+          <b>›</b>
+        </button>
+
+        <details class="v3-settings-card">
+          <summary>📍 <span data-v3-copy="location">Jak do nas trafić</span></summary>
+
+          <div class="map-card v3-map-card">
+            <h2 data-i18n="hereNowShop">Świeże Lody. Tu i teraz.</h2>
+            <p>Stefana Żeromskiego 69, Świnoujście</p>
+
+            <div id="distanceStatus" class="distance" data-i18n="distanceStart">
+              Kliknij, a pokażę ile zostało iść.
+            </div>
+
+            <div class="walk">
+              <div id="walkbar"></div>
+            </div>
+
+            <button id="locate" class="locate" data-i18n="calculateDistance">
+              📡 Policz odległość
+            </button>
+
+            <a
+              class="primary-link"
+              href="https://www.google.com/maps/search/?api=1&query=Stefana+Zeromskiego+69+Swinoujscie"
+              target="_blank"
+              rel="noopener"
+              data-i18n="guideMe"
+            >
+              🚶 Prowadź mnie
+            </a>
+          </div>
+        </details>
+
+        <button id="howItWorks" class="v3-settings-button" type="button">
+          <span>🎮 <span data-i18n="howWorks">Jak działa gra?</span></span>
+          <b>›</b>
+        </button>
+
+        <button id="familyPass" class="v3-settings-button" type="button">
+          <span>👨‍👩‍👧 Family Pass</span>
+          <b>›</b>
+        </button>
+
+        <button id="privacy" class="v3-settings-button" type="button">
+          <span>🔐 <span data-i18n="privacy">Prywatność</span></span>
+          <b>›</b>
+        </button>
+
+      </section>
+
+    </section>
 
   </main>
 
 
   <nav>
+    <button class="on" data-page="menu">
+      🍦
+      <span data-v3-copy="navMenu">Menu</span>
+    </button>
 
-    <button class="on" data-page="collection">
-      🏠
-      <span data-i18n="collectionNav">Kolekcja</span>
+    <button data-page="story">
+      🗺️
+      <span data-v3-copy="navStory">Historia</span>
     </button>
 
     <button data-page="rewards">
       🎁
-      <span data-i18n="rewardsNav">Nagrody</span>
+      <span data-v3-copy="navRewards">Nagrody</span>
     </button>
 
-    <button data-page="menu">
-      ☰
-      <span>Menu</span>
+    <button data-page="profile">
+      👤
+      <span data-v3-copy="navProfile">Profil</span>
     </button>
-
-    <button data-page="location">
-      📍
-      <span data-i18n="locationNav">Lokalizacja</span>
-    </button>
-
-    <button data-page="more">
-      •••
-      <span data-i18n="moreNav">Więcej</span>
-    </button>
-
   </nav>
 
 </div>
 
 
 <dialog id="dlg">
-
   <button class="x" id="x">×</button>
-
-  <h3 data-i18n="yourRewardCode">
-    TWÓJ KOD NAGRODY
-  </h3>
-
-  <div class="qr">
-    <b>ŚL</b>
-  </div>
-
-  <h2 data-i18n="freeTopping">
-    Darmowy topping
-  </h2>
-
+  <h3 data-i18n="yourRewardCode">TWÓJ KOD NAGRODY</h3>
+  <div class="qr"><b>ŚL</b></div>
+  <h2 data-i18n="freeTopping">Darmowy topping</h2>
   <p data-i18n="rewardCodeHelp">
     Pokaż ten ekran przy zamówieniu.
     Nagrodę zatwierdza obsługa.
   </p>
-
 </dialog>
 
 
 <dialog id="toppingDlg">
-
   <button class="x" id="topX">×</button>
-
-  <h2 data-i18n="chooseTopping">
-    ✨ Wybierz topping
-  </h2>
-
-  <p data-i18n="oneFree">
-    Jeden topping gratis.
-  </p>
-
+  <h2 data-i18n="chooseTopping">✨ Wybierz topping</h2>
+  <p data-i18n="oneFree">Jeden topping gratis.</p>
   <div id="toppingGrid" class="topping-grid"></div>
-
   <b id="chosenTopping"></b>
-
   <button
     id="confirmTopping"
     class="locate"
@@ -518,29 +440,20 @@
   >
     Pokaż kod
   </button>
-
 </dialog>
 
 
 <dialog id="menuDlg">
-
   <button class="x" id="menuX">×</button>
-
   <h2 id="menuTitle"></h2>
-
   <div id="menuItems" class="food-list"></div>
-
 </dialog>
 
 
 <dialog id="infoDlg">
-
   <button class="x" id="infoX">×</button>
-
   <h2 id="infoTitle"></h2>
-
   <p id="infoText"></p>
-
 </dialog>
 
 
@@ -549,9 +462,14 @@
 <script src="app.js?v=comic3"></script>
 <script src="auth.js"></script>
 <script src="comic-story-data.js?v=6"></script>
+<script src="comic-story-canon-v7.js?v=1"></script>
 <script src="comic.js?v=12"></script>
+<script src="comic-longform-episodes-1-3.js?v=1"></script>
+<script src="comic-longform-episodes-4-15.js?v=1"></script>
+<script src="comic-longform-reader.js?v=2"></script>
 <script src="cart.js"></script>
 <script src="order-status.js"></script>
 <script src="reviews.js"></script>
+<script src="customer-v3.js?v=1"></script>
 </body>
 </html>

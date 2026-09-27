@@ -4,1316 +4,190 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#ffc728">
-
-  <title>Świeże Lody — Staff</title>
-
-  <style>
-    :root {
-      --staff-ink: #171717;
-      --staff-paper: #fffdf7;
-      --staff-yellow: #ffc728;
-      --staff-line: 2px solid var(--staff-ink);
-      --staff-radius-sm: 10px;
-      --staff-radius-md: 16px;
-      --staff-radius-lg: 22px;
-      --staff-shadow: 4px 4px 0 var(--staff-ink);
-      --staff-focus: #075cca;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      min-width: 320px;
-      overflow-x: hidden;
-      background:
-        radial-gradient(circle at 1px 1px, rgba(23,23,23,.055) 1px, transparent 1.2px) 0 0 / 18px 18px,
-        #eee8dc;
-      color: #171717;
-    }
-
-    .wrap {
-      width: min(100%, 1080px);
-      margin: 0 auto;
-      padding: 18px;
-    }
-
-    .top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 18px;
-      padding: 14px;
-      border: var(--staff-line);
-      border-radius: var(--staff-radius-lg);
-      background: var(--staff-yellow);
-      box-shadow: var(--staff-shadow);
-    }
-
-    .top h1 {
-      margin: 0;
-      font-size: 25px;
-    }
-
-    .muted {
-      color: #777;
-      font-size: 14px;
-    }
-
-    .panel {
-      background: var(--staff-paper);
-      border: var(--staff-line);
-      border-radius: var(--staff-radius-lg);
-      padding: 18px;
-      box-shadow: var(--staff-shadow);
-      margin-bottom: 16px;
-    }
-
-    input,
-    select,
-    textarea,
-    button {
-      font: inherit;
-    }
-
-    :where(button, input, select, textarea, [tabindex]):focus-visible {
-      outline: 3px solid var(--staff-focus);
-      outline-offset: 3px;
-    }
-
-    input {
-      width: 100%;
-      padding: 13px 14px;
-      border: 1.5px solid var(--staff-ink);
-      border-radius: var(--staff-radius-sm);
-      margin-bottom: 10px;
-      background: white;
-    }
-
-    .primary {
-      width: 100%;
-      border: 1.5px solid var(--staff-ink);
-      border-radius: var(--staff-radius-md);
-      background: var(--staff-yellow);
-      padding: 14px;
-      font-weight: 900;
-      cursor: pointer;
-      box-shadow: 2px 2px 0 var(--staff-ink);
-    }
-
-    .secondary {
-      border: 1.5px solid var(--staff-ink);
-      border-radius: var(--staff-radius-md);
-      background: white;
-      padding: 10px 13px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 2px 2px 0 var(--staff-ink);
-    }
-
-    .danger {
-      border: 1.5px solid var(--staff-ink);
-      border-radius: var(--staff-radius-md);
-      background: #111;
-      color: white;
-      padding: 10px 13px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 2px 2px 0 var(--staff-ink);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .orders {
-      display: grid;
-      gap: 14px;
-    }
-
-    .order-card {
-      background: white;
-      border: var(--staff-line);
-      border-left-width: 8px;
-      border-radius: var(--staff-radius-lg);
-      padding: 16px;
-      box-shadow: 3px 3px 0 var(--staff-ink);
-    }
-
-    .order-card[data-status="new"] {
-      border-left-color: #ff5a5a;
-    }
-
-    .order-card[data-status="accepted"] {
-      border-left-color: #ffb020;
-    }
-
-    .order-card[data-status="preparing"] {
-      border-left-color: #4b8cff;
-    }
-
-    .order-card[data-status="ready"] {
-      border-left-color: #20b26b;
-    }
-
-    .order-card[data-status="collected"] {
-      border-left-color: #999;
-      opacity: .78;
-    }
-
-    .order-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-
-    .order-number {
-      font-size: 26px;
-      font-weight: 900;
-    }
-
-    .order-total {
-      font-size: 20px;
-      font-weight: 900;
-    }
-
-    .status {
-      display: inline-block;
-      margin-top: 5px;
-      border: 1.5px solid var(--staff-ink);
-      border-radius: 999px;
-      padding: 6px 10px;
-      background: #f0f0f0;
-      font-size: 12px;
-      font-weight: 900;
-      text-transform: uppercase;
-      box-shadow: 1px 1px 0 var(--staff-ink);
-    }
-
-    .items {
-      margin: 12px 0;
-      padding: 12px;
-      background: #f8f8f8;
-      border: 1.5px solid var(--staff-ink);
-      border-radius: var(--staff-radius-md);
-    }
-
-    .item {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 6px 0;
-      border-bottom: 1px solid #e9e9e9;
-    }
-
-    .item:last-child {
-      border-bottom: 0;
-    }
-
-    .controls {
-      display: grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .status-buttons {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
-
-    .status-buttons button {
-      min-height: 44px;
-      border: 1.5px solid var(--staff-ink);
-      border-radius: var(--staff-radius-md);
-      padding: 11px 8px;
-      font-weight: 900;
-      cursor: pointer;
-      background: #ececec;
-      box-shadow: 2px 2px 0 var(--staff-ink);
-    }
-
-    .status-buttons button[data-next="accepted"] {
-      background: #ffd48b;
-    }
-
-    .status-buttons button[data-next="preparing"] {
-      background: #b9d1ff;
-    }
-
-    .status-buttons button[data-next="ready"] {
-      background: #a8e6c7;
-    }
-
-    .status-buttons button[data-next="collected"] {
-      background: #222;
-      color: white;
-    }
-
-    .time-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .time-row button {
-      min-height: 42px;
-      border: 1.5px solid var(--staff-ink);
-      background: white;
-      border-radius: 10px;
-      padding: 9px 12px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 1px 1px 0 var(--staff-ink);
-    }
-
-    .notice {
-      background: #fff4c7;
-      border: 1.5px solid var(--staff-ink);
-      border-radius: var(--staff-radius-md);
-      padding: 12px;
-      margin-bottom: 14px;
-      font-weight: 700;
-    }
-
-    .error {
-      background: #ffe4e4;
-      color: #8f0000;
-      border: 1.5px solid #8f0000;
-      border-radius: var(--staff-radius-md);
-      padding: 12px;
-      margin-top: 10px;
-      font-weight: 700;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 40px 10px;
-      color: #777;
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .toolbar button {
-      min-height: 42px;
-      border: 1.5px solid var(--staff-ink);
-      background: white;
-      border-radius: 10px;
-      padding: 9px 12px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 1px 1px 0 var(--staff-ink);
-    }
-
-    .brand-hero-slots {
-      --hero-size: 34px;
-      display: flex;
-      flex: 0 0 auto;
-      width: calc(var(--hero-size) * 1.85);
-      min-height: calc(var(--hero-size) * 1.45);
-      align-items: center;
-      justify-content: center;
-    }
-
-    .brand-hero-slot {
-      position: relative;
-      display: block;
-      width: var(--hero-size);
-      height: var(--hero-size);
-      margin-left: calc(var(--hero-size) * -.48);
-      overflow: hidden;
-      border: 2px solid var(--staff-ink);
-      border-radius: 50%;
-      background-image: var(--hero-image, linear-gradient(135deg,#fff 0 42%,#e7dfcf 42%));
-      background-position: center;
-      background-size: cover;
-      box-shadow: 2px 2px 0 var(--staff-ink);
-    }
-
-    .brand-hero-slot:first-child { margin-left: 0; }
-    .brand-hero-slot::after {
-      content: "";
-      position: absolute;
-      width: 44%;
-      height: 44%;
-      left: 28%;
-      top: 25%;
-      border-radius: 50%;
-      background: #aaa398;
-      box-shadow: 0 12px 0 4px #aaa398;
-    }
-    .brand-hero-slot:nth-child(2) { transform: translateY(-8px); }
-    .brand-hero-slot:nth-child(3) { transform: translateY(7px); }
-    .brand-hero-slot:nth-child(4) { transform: translateY(-3px); }
-
-    button:disabled,
-    input:disabled,
-    select:disabled,
-    textarea:disabled {
-      opacity: .58;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    @media (max-width: 520px) {
-      .wrap { padding: 12px; }
-      .top { align-items: flex-start; }
-      .staff-hero-slots { display: none; }
-      .order-head { flex-wrap: wrap; }
-    }
-
-    @media (min-width: 650px) {
-      .status-buttons {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-  </style>
+  <link rel="manifest" href="staff.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Lody Staff">
+  <title>Lody Staff</title>
+  <link rel="stylesheet" href="staff-v4.css?v=2">
 </head>
-
 <body>
-
-  <div class="wrap">
-
-    <div class="top">
+  <div class="admin-shell">
+    <header class="admin-top">
       <div>
-        <h1>🍦 Świeże Lody Staff</h1>
-        <div class="muted">
-          Panel zamówień
-        </div>
+        <h1>Lody Admin</h1>
+        <p id="adminTopSubtitle">Panel obsługi</p>
       </div>
+      <button id="adminMoreBtn" class="admin-icon hidden" type="button" aria-label="Więcej">•••</button>
+    </header>
 
-      <div class="brand-hero-slots staff-hero-slots" aria-hidden="true">
-        <span class="brand-hero-slot" data-hero-slot="scoop"></span>
-        <span class="brand-hero-slot" data-hero-slot="waffle"></span>
-        <span class="brand-hero-slot" data-hero-slot="shake"></span>
-        <span class="brand-hero-slot" data-hero-slot="lemon"></span>
-      </div>
+    <main class="admin-main">
+      <section id="loginPanel" class="admin-auth-card">
+        <h2>Logowanie</h2>
+        <p class="muted">Dostęp tylko dla obsługi.</p>
 
-      <button
-        id="logoutBtn"
-        class="danger hidden"
-        type="button"
-      >
-        Wyloguj
-      </button>
-    </div>
+        <label class="admin-field">
+          <span>Email</span>
+          <input id="email" type="email" autocomplete="username">
+        </label>
 
+        <label class="admin-field">
+          <span>Hasło</span>
+          <input id="password" type="password" autocomplete="current-password">
+        </label>
 
-    <section id="loginPanel" class="panel">
+        <button id="loginBtn" class="admin-primary" type="button">Zaloguj</button>
+        <button id="resetPasswordBtn" class="admin-secondary" type="button">Nie pamiętam hasła</button>
+        <div id="loginError"></div>
+      </section>
 
-      <h2>Logowanie</h2>
+      <section id="recoveryPanel" class="admin-auth-card hidden">
+        <h2>Ustaw nowe hasło</h2>
+        <p class="muted">Wpisz nowe hasło do panelu pracownika.</p>
 
-      <p class="muted">
-        Dostęp tylko dla obsługi.
-      </p>
+        <label class="admin-field">
+          <span>Nowe hasło</span>
+          <input id="newPassword" type="password" autocomplete="new-password">
+        </label>
 
-      <input
-        id="email"
-        type="email"
-        placeholder="Email"
-        autocomplete="username"
-      >
+        <label class="admin-field">
+          <span>Powtórz hasło</span>
+          <input id="newPasswordRepeat" type="password" autocomplete="new-password">
+        </label>
 
-      <input
-        id="password"
-        type="password"
-        placeholder="Hasło"
-        autocomplete="current-password"
-      >
+        <button id="saveNewPasswordBtn" class="admin-primary" type="button">Zapisz nowe hasło</button>
+        <div id="recoveryError"></div>
+      </section>
 
-      <button
-        id="loginBtn"
-        class="primary"
-        type="button"
-      >
-        Zaloguj
-      </button>
-      <button
-  id="resetPasswordBtn"
-  class="secondary"
-  type="button"
-  style="width:100%; margin-top:10px;"
->
-  Nie pamiętam hasła
-</button>
-      <div id="loginError"></div>
+      <section id="staffPanel" class="hidden">
+        <section class="admin-view active" data-admin-view="home">
+          <div class="admin-heading">
+            <div>
+              <h2>Start</h2>
+              <p>Najważniejsze rzeczy na dzisiaj.</p>
+            </div>
+            <button id="homeRefreshBtn" class="admin-small" type="button">↻</button>
+          </div>
 
-    </section>
-    
-<section
-  id="recoveryPanel"
-  class="panel hidden"
->
+          <div class="admin-kpis" aria-label="Status zamówień">
+            <button type="button" data-home-filter="new">
+              <strong id="kpiNew">0</strong>
+              <span>Nowe</span>
+            </button>
+            <button type="button" data-home-filter="preparing">
+              <strong id="kpiPreparing">0</strong>
+              <span>Robimy</span>
+            </button>
+            <button type="button" data-home-filter="ready">
+              <strong id="kpiReady">0</strong>
+              <span>Gotowe</span>
+            </button>
+          </div>
 
-  <h2>Ustaw nowe hasło</h2>
+          <div class="admin-quick-grid">
+            <button type="button" data-admin-go="orders">
+              <span>🧾</span>
+              <strong>Zamówienia</strong>
+              <small>Przyjmij, przygotuj, wydaj</small>
+            </button>
+            <button type="button" data-admin-go="today">
+              <span>🍦</span>
+              <strong>Dzisiaj</strong>
+              <small>Smaki i dostępność</small>
+            </button>
+            <button type="button" data-admin-go="products">
+              <span>📦</span>
+              <strong>Produkty</strong>
+              <small>Katalog, ceny, zdjęcia</small>
+            </button>
+            <button type="button" data-admin-go="more">
+              <span>📣</span>
+              <strong>Akcje</strong>
+              <small>Promocje i ogłoszenia</small>
+            </button>
+          </div>
 
-  <p class="muted">
-    Wpisz nowe hasło do panelu pracownika.
-  </p>
+          <section class="admin-attention">
+            <div class="admin-section-head">
+              <h3>Wymaga uwagi</h3>
+              <button type="button" data-admin-go="orders">Wszystkie</button>
+            </div>
+            <div id="homeAttention"></div>
+          </section>
 
-  <input
-    id="newPassword"
-    type="password"
-    placeholder="Nowe hasło"
-    autocomplete="new-password"
-  >
+          <div id="homeTodaySummary" class="admin-summary-note">Ładowanie dostępności…</div>
+        </section>
 
-  <input
-    id="newPasswordRepeat"
-    type="password"
-    placeholder="Powtórz nowe hasło"
-    autocomplete="new-password"
-  >
+        <section class="admin-view" data-admin-view="orders">
+          <div class="admin-heading">
+            <div>
+              <h2>Zamówienia</h2>
+              <p>Tylko bieżąca obsługa zamówień.</p>
+            </div>
+            <button id="refreshBtn" class="admin-small" type="button">↻</button>
+          </div>
 
-  <button
-    id="saveNewPasswordBtn"
-    class="primary"
-    type="button"
-  >
-    Zapisz nowe hasło
-  </button>
+          <div class="admin-filter-row">
+            <button class="active" type="button" data-order-filter="active">Aktywne</button>
+            <button type="button" data-order-filter="new">Nowe <span id="filterNewCount">0</span></button>
+            <button type="button" data-order-filter="ready">Gotowe <span id="filterReadyCount">0</span></button>
+            <button type="button" data-order-filter="all">Historia</button>
+          </div>
 
-  <div id="recoveryError"></div>
+          <div id="orders" class="orders"></div>
+        </section>
 
-</section>
-    <section id="staffPanel" class="hidden">
+        <section class="admin-view" data-admin-view="today">
+          <div class="admin-heading">
+            <div>
+              <h2>Dzisiaj</h2>
+              <p>Szybkie zmiany tego, co klient widzi dziś.</p>
+            </div>
+          </div>
+          <div id="staffTodaySlot"></div>
+        </section>
 
-      <div class="notice">
-        🔔 Nowe zamówienia pojawiają się tutaj.
-      </div>
+        <section class="admin-view" data-admin-view="products">
+          <div class="admin-heading">
+            <div>
+              <h2>Produkty</h2>
+              <p>Stały katalog, ceny, zdjęcia i kategorie.</p>
+            </div>
+          </div>
+          <div id="staffProductsSlot"></div>
+        </section>
 
-      <div class="toolbar">
+        <section class="admin-view" data-admin-view="more">
+          <div class="admin-heading">
+            <div>
+              <h2>Więcej</h2>
+              <p>Promocje, konto i ustawienia używane rzadziej.</p>
+            </div>
+          </div>
 
-        <button
-          id="refreshBtn"
-          type="button"
-        >
-          ↻ Odśwież
-        </button>
+          <section id="staffAnnouncementsSlot"></section>
 
-        <button
-          data-filter="active"
-          type="button"
-        >
-          Aktywne
-        </button>
+          <div class="admin-settings">
+            <button type="button" id="goOrdersFromMore"><span>🧾 Historia zamówień</span><b>›</b></button>
+            <button type="button" id="logoutBtn"><span>🚪 Wyloguj</span><b>›</b></button>
+          </div>
+        </section>
+      </section>
+    </main>
 
-        <button
-          data-filter="all"
-          type="button"
-        >
-          Wszystkie
-        </button>
-
-      </div>
-
-      <div id="orders" class="orders"></div>
-
-    </section>
-
+    <nav id="adminBottomNav" class="admin-bottom-nav hidden" aria-label="Główna nawigacja">
+      <button class="active" type="button" data-admin-go="home"><span>⌂</span><small>Start</small></button>
+      <button type="button" data-admin-go="orders"><span>🧾</span><small>Zamówienia</small></button>
+      <button type="button" data-admin-go="today"><span>🍦</span><small>Dzisiaj</small></button>
+      <button type="button" data-admin-go="products"><span>📦</span><small>Produkty</small></button>
+    </nav>
   </div>
 
-
   <script src="config.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script>
-    const recoveryFromUrl =
-  window.location.hash.includes('type=recovery') ||
-  window.location.search.includes('type=recovery');
-    const sb = window.supabase.createClient(
-  window.APP_CONFIG.supabaseUrl,
-  window.APP_CONFIG.supabaseAnonKey,
-  {
-    auth: {
-      storageKey: 'swieze-lody-staff-auth',
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true
-    }
-  }
-);
-    const loginPanel =
-      document.getElementById('loginPanel');
-
-    const staffPanel =
-      document.getElementById('staffPanel');
-
-    const loginBtn =
-      document.getElementById('loginBtn');
-const resetPasswordBtn =
-  document.getElementById('resetPasswordBtn');
-    const recoveryPanel =
-  document.getElementById('recoveryPanel');
-
-const newPasswordInput =
-  document.getElementById('newPassword');
-
-const newPasswordRepeatInput =
-  document.getElementById('newPasswordRepeat');
-
-const saveNewPasswordBtn =
-  document.getElementById('saveNewPasswordBtn');
-
-const recoveryError =
-  document.getElementById('recoveryError');
-    const logoutBtn =
-      document.getElementById('logoutBtn');
-
-    const refreshBtn =
-      document.getElementById('refreshBtn');
-
-    const loginError =
-      document.getElementById('loginError');
-
-    const ordersBox =
-      document.getElementById('orders');
-
-    let currentFilter = 'active';
-
-    let lastKnownOrderIds = new Set();
-
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
-
-    function money(value) {
-      const n = Number(value || 0);
-
-      return `${n.toFixed(2).replace('.00', '')} zł`;
-    }
-
-    function statusLabel(status) {
-      const labels = {
-        new: 'NOWE',
-        accepted: 'PRZYJĘTE',
-        preparing: 'PRZYGOTOWANIE',
-        ready: 'GOTOWE',
-        collected: 'WYDANE',
-        cancelled: 'ANULOWANE'
-      };
-
-      return labels[status] || status;
-    }
-
-    function formatTime(dateString) {
-      if (!dateString) {
-        return '';
-      }
-
-      const d = new Date(dateString);
-
-      return d.toLocaleTimeString(
-        'pl-PL',
-        {
-          hour: '2-digit',
-          minute: '2-digit'
-        }
-      );
-    }
-
-    function formatDate(dateString) {
-      if (!dateString) {
-        return '';
-      }
-
-      const d = new Date(dateString);
-
-      return d.toLocaleDateString(
-        'pl-PL',
-        {
-          day: '2-digit',
-          month: '2-digit'
-        }
-      );
-    }
-
-    async function checkStaff() {
-      const {
-        data: sessionData
-      } =
-        await sb.auth.getSession();
-
-      const session =
-        sessionData?.session;
-
-      if (!session) {
-        showLogin();
-        return;
-      }
-
-      const {
-        data,
-        error
-      } =
-        await sb.rpc('is_staff');
-
-      if (error || data !== true) {
-        await sb.auth.signOut();
-        showLogin();
-        return;
-      }
-
-      showStaff();
-      await loadOrders();
-    }
-
-    function showLogin() {
-      loginPanel.classList.remove('hidden');
-      staffPanel.classList.add('hidden');
-      logoutBtn.classList.add('hidden');
-      window.dispatchEvent(new CustomEvent(
-        'staff-access-changed',
-        { detail: { authorized: false } }
-      ));
-    }
-
-    function showStaff() {
-      loginPanel.classList.add('hidden');
-      staffPanel.classList.remove('hidden');
-      logoutBtn.classList.remove('hidden');
-      window.dispatchEvent(new CustomEvent(
-        'staff-access-changed',
-        { detail: { authorized: true } }
-      ));
-    }
-
-    loginBtn.addEventListener(
-      'click',
-      async () => {
-
-        loginError.innerHTML = '';
-
-        const email =
-          document
-            .getElementById('email')
-            .value
-            .trim();
-
-        const password =
-          document
-            .getElementById('password')
-            .value;
-
-        if (!email || !password) {
-          loginError.innerHTML =
-            '<div class="error">Wpisz email i hasło.</div>';
-
-          return;
-        }
-
-        loginBtn.disabled = true;
-        loginBtn.textContent = 'Logowanie…';
-
-        const {
-          error
-        } =
-          await sb.auth.signInWithPassword({
-            email,
-            password
-          });
-
-        if (error) {
-          loginError.innerHTML =
-            '<div class="error">Nieprawidłowy email lub hasło.</div>';
-
-          loginBtn.disabled = false;
-          loginBtn.textContent = 'Zaloguj';
-
-          return;
-        }
-
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Zaloguj';
-
-        await checkStaff();
-      }
-    );
-     resetPasswordBtn.addEventListener(
-  'click',
-  async () => {
-
-    loginError.innerHTML = '';
-
-    const email =
-      document
-        .getElementById('email')
-        .value
-        .trim();
-
-    if (!email) {
-      loginError.innerHTML =
-        '<div class="error">Wpisz email.</div>';
-      return;
-    }
-
-    const { error } =
-      await sb.auth.resetPasswordForEmail(
-        email,
-        {
-          redirectTo:
-            'https://swiezelodykolekcjepwav3.vercel.app/staff.html'
-        }
-      );
-
-    if (error) {
-      loginError.innerHTML =
-        '<div class="error">Nie udało się wysłać wiadomości.</div>';
-      return;
-    }
-
-    loginError.innerHTML =
-      '<div class="notice">Sprawdź swoją skrzynkę email.</div>';
-  }
-);saveNewPasswordBtn.addEventListener(
-  'click',
-  async () => {
-
-    recoveryError.innerHTML = '';
-
-    const password =
-      newPasswordInput.value;
-
-    const repeat =
-      newPasswordRepeatInput.value;
-
-    if (password.length < 8) {
-      recoveryError.innerHTML =
-        '<div class="error">Hasło musi mieć co najmniej 8 znaków.</div>';
-      return;
-    }
-
-    if (password !== repeat) {
-      recoveryError.innerHTML =
-        '<div class="error">Hasła nie są takie same.</div>';
-      return;
-    }
-
-    saveNewPasswordBtn.disabled = true;
-    saveNewPasswordBtn.textContent = 'Zapisywanie…';
-
-    const { error } =
-      await sb.auth.updateUser({
-        password
-      });
-
-    saveNewPasswordBtn.disabled = false;
-    saveNewPasswordBtn.textContent =
-      'Zapisz nowe hasło';
-
-    if (error) {
-      console.error(error);
-
-      recoveryError.innerHTML =
-        '<div class="error">Nie udało się zmienić hasła.</div>';
-      return;
-    }
-
-    recoveryError.innerHTML =
-      '<div class="notice">Hasło zostało zmienione.</div>';
-
-    await sb.auth.signOut();
-
-    window.history.replaceState(
-      {},
-      document.title,
-      window.location.pathname
-    );
-
-    recoveryPanel.classList.add('hidden');
-    showLogin();
-  }
-);
-
-sb.auth.onAuthStateChange(
-  (event) => {
-
-    if (event === 'SIGNED_OUT') {
-      recoveryPanel.classList.add('hidden');
-      showLogin();
-      return;
-    }
-
-    if (event !== 'PASSWORD_RECOVERY') {
-      return;
-    }
-
-    loginPanel.classList.add('hidden');
-    staffPanel.classList.add('hidden');
-    logoutBtn.classList.add('hidden');
-
-    recoveryPanel.classList.remove('hidden');
-
-    newPasswordInput.value = '';
-    newPasswordRepeatInput.value = '';
-    recoveryError.innerHTML = '';
-  }
-);    
-    logoutBtn.addEventListener(    
-      'click',
-      async () => {
-
-        await sb.auth.signOut();
-
-        showLogin();
-      }
-    );
-
-    refreshBtn.addEventListener(
-      'click',
-      loadOrders
-    );
-
-    document
-      .querySelectorAll('[data-filter]')
-      .forEach(button => {
-
-        button.addEventListener(
-          'click',
-          () => {
-
-            currentFilter =
-              button.dataset.filter;
-
-            loadOrders();
-          }
-        );
-      });
-
-    async function loadOrders() {
-      ordersBox.innerHTML =
-        '<div class="empty">Ładowanie…</div>';
-
-      const {
-        data,
-        error
-      } =
-        await sb.rpc(
-          'staff_list_orders'
-        );
-
-      if (error) {
-        console.error(error);
-
-        ordersBox.innerHTML =
-          '<div class="error">Nie udało się pobrać zamówień.</div>';
-
-        return;
-      }
-
-      let orders =
-        Array.isArray(data)
-          ? data
-          : [];
-
-      if (currentFilter === 'active') {
-        orders =
-          orders.filter(order =>
-            ![
-              'collected',
-              'cancelled'
-            ].includes(order.status)
-          );
-      }
-
-      const newIds =
-        new Set(
-          orders
-            .filter(
-              order =>
-                order.status === 'new'
-            )
-            .map(
-              order =>
-                String(order.id)
-            )
-        );
-
-      if (
-        lastKnownOrderIds.size &&
-        [...newIds].some(
-          id =>
-            !lastKnownOrderIds.has(id)
-        )
-      ) {
-        playNotification();
-      }
-
-      lastKnownOrderIds = newIds;
-
-      renderOrders(orders);
-    }
-
-    function renderOrders(orders) {
-      if (!orders.length) {
-        ordersBox.innerHTML =
-          '<div class="empty">Brak zamówień.</div>';
-
-        return;
-      }
-
-      ordersBox.innerHTML =
-        orders.map(order => {
-
-          const items =
-            Array.isArray(order.items)
-              ? order.items
-              : [];
-
-          const itemsHtml =
-            items.length
-              ? items.map(item => {
-
-                const name =
-                  item.name ||
-                  item.product_name ||
-                  'Produkt';
-                const categoryKey =
-  String(item.product_key || '')
-    .split(':')[0];
-
-const categoryLabels = {
-  milkshake: '🥤 Milkshake',
-  lemonade: '🍋 Lemoniada',
-  waffle: '🧇 Gofr'
-};
-
-const category =
-  categoryLabels[categoryKey] ||
-  '🍦 Produkt';
-                const qty =
-                  item.quantity ||
-                  item.qty ||
-                  1;
-
-                const price =
-                  item.unit_price ||
-                  item.price ||
-                  0;
-
-                return `
-                  <div class="item">
-
-                   <div>
-  <b>${escapeHtml(category)}</b><br>
-  ${escapeHtml(name)}
-  × ${escapeHtml(qty)}
-</div>
-
-                    <b>
-                      ${money(
-                        Number(price) *
-                        Number(qty)
-                      )}
-                    </b>
-
-                  </div>
-                `;
-              }).join('')
-              : '<div class="muted">Brak pozycji</div>';
-
-          return `
-            <article
-              class="order-card"
-              data-order-id="${order.id}"
-              data-status="${escapeHtml(order.status)}"
-            >
-
-              <div class="order-head">
-
-                <div>
-
-                  <div class="order-number">
-                    #${escapeHtml(order.order_number)}
-                  </div>
-
-                  <div class="status">
-                    ${statusLabel(order.status)}
-                  </div>
-
-                  <div class="muted">
-                    ${formatDate(order.created_at)}
-                    •
-                    ${formatTime(order.created_at)}
-                    •
-                    ${escapeHtml(
-                      String(order.locale || 'pl').toUpperCase()
-                    )}
-                  </div>
-
-                </div>
-
-                <div class="order-total">
-                  ${money(order.total)}
-                </div>
-
-              </div>
-
-              <div class="items">
-                ${itemsHtml}
-              </div>
-
-              <div class="muted">
-                ⏱️ Czas:
-                <b>
-                  ${escapeHtml(order.estimated_minutes)}
-                  min
-                </b>
-              </div>
-
-              <div class="controls">
-
-                <div class="time-row">
-
-                  <b>Czas:</b>
-
-                  <button
-                    type="button"
-                    data-minutes="10"
-                  >
-                    10 min
-                  </button>
-
-                  <button
-                    type="button"
-                    data-minutes="15"
-                  >
-                    15 min
-                  </button>
-
-                  <button
-                    type="button"
-                    data-minutes="20"
-                  >
-                    20 min
-                  </button>
-
-                  <button
-                    type="button"
-                    data-minutes="30"
-                  >
-                    30 min
-                  </button>
-
-                </div>
-
-                <div class="status-buttons">
-
-                  <button
-                    type="button"
-                    data-next="accepted"
-                  >
-                    ✓ Przyjęte
-                  </button>
-
-                  <button
-                    type="button"
-                    data-next="preparing"
-                  >
-                    👩‍🍳 Przygotowanie
-                  </button>
-
-                  <button
-                    type="button"
-                    data-next="ready"
-                  >
-                    ✅ Gotowe
-                  </button>
-
-                  <button
-                    type="button"
-                    data-next="collected"
-                  >
-                    🛍️ Wydane
-                  </button>
-
-                </div>
-
-              </div>
-
-            </article>
-          `;
-        }).join('');
-
-      attachOrderButtons();
-    }
-
-    function attachOrderButtons() {
-      document
-        .querySelectorAll(
-          '.order-card'
-        )
-        .forEach(card => {
-
-          const orderId =
-            Number(
-              card.dataset.orderId
-            );
-
-          card
-            .querySelectorAll(
-              '[data-next]'
-            )
-            .forEach(button => {
-
-              button.addEventListener(
-                'click',
-                async () => {
-
-                  await updateOrder(
-                    orderId,
-                    button.dataset.next,
-                    null
-                  );
-                }
-              );
-            });
-
-          card
-            .querySelectorAll(
-              '[data-minutes]'
-            )
-            .forEach(button => {
-
-              button.addEventListener(
-                'click',
-                async () => {
-
-                  await updateOrder(
-                    orderId,
-                    null,
-                    Number(
-                      button.dataset.minutes
-                    )
-                  );
-                }
-              );
-            });
-        });
-    }
-
-    async function updateOrder(
-      orderId,
-      status,
-      minutes
-    ) {
-      const {
-        error
-      } =
-        await sb.rpc(
-          'staff_update_order',
-          {
-            p_order_id: orderId,
-            p_status: status,
-            p_estimated_minutes: minutes
-          }
-        );
-
-      if (error) {
-        console.error(error);
-
-        alert(
-          'Nie udało się zaktualizować zamówienia.'
-        );
-
-        return;
-      }
-
-      await loadOrders();
-    }
-
-    function playNotification() {
-      try {
-        const AudioContext =
-          window.AudioContext ||
-          window.webkitAudioContext;
-
-        if (!AudioContext) {
-          return;
-        }
-
-        const ctx =
-          new AudioContext();
-
-        const oscillator =
-          ctx.createOscillator();
-
-        const gain =
-          ctx.createGain();
-
-        oscillator.frequency.value = 880;
-
-        gain.gain.value = 0.12;
-
-        oscillator.connect(gain);
-        gain.connect(ctx.destination);
-
-        oscillator.start();
-
-        setTimeout(
-          () => {
-            oscillator.stop();
-            ctx.close();
-          },
-          250
-        );
-
-      } catch (e) {
-        console.log(
-          'Sound unavailable'
-        );
-      }
-    }
-
-    setInterval(
-      async () => {
-
-        const {
-          data
-        } =
-          await sb.auth.getSession();
-
-        if (
-          data?.session &&
-          !staffPanel.classList.contains(
-            'hidden'
-          )
-        ) {
-          loadOrders();
-        }
-      },
-      15000
-    );
-
-    if (recoveryFromUrl) {
-  loginPanel.classList.add('hidden');
-  staffPanel.classList.add('hidden');
-  logoutBtn.classList.add('hidden');
-  recoveryPanel.classList.remove('hidden');
-} else {
-  checkStaff();
-}
-  </script>
-<script src="image-upload.js"></script>
-<script src="staff-catalog.js"></script>
-<script src="staff-icecream.js"></script>
+  <script src="staff-v4.js?v=2"></script>
+  <script src="image-upload.js"></script>
+  <script src="staff-catalog.js"></script>
+  <script src="staff-icecream.js"></script>
 </body>
 </html>
