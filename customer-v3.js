@@ -284,12 +284,17 @@
     button.dataset.v3OriginalText = original;
     button.classList.add('v3-added');
     button.textContent = copy('added');
+    button.setAttribute('aria-live', 'polite');
+
+    if (navigator.vibrate) {
+      try { navigator.vibrate(25); } catch (_) {}
+    }
 
     setTimeout(() => {
       button.classList.remove('v3-added');
       button.textContent = button.dataset.v3OriginalText || copy('add');
       delete button.dataset.v3FeedbackBusy;
-    }, 950);
+    }, 1400);
   }
 
   document.addEventListener('click', event => {
