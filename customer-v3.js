@@ -297,9 +297,79 @@
     }, 1400);
   }
 
+  function feedbackButton(event) {
+    const target = event.target;
+    if (!(target instanceof Element)) return null;
+    return target.closest('.sl-add-btn, .sl-ice-add, .v3-product-add');
+  }
+
+  function setPressed(button, pressed) {
+    if (!button) return;
+
+    button.style.transform = pressed
+      ? 'translate(2px, 2px) scale(.96)'
+      : '';
+
+    button.style.boxShadow = pressed ? 'none' : '';
+  }
+
+  function showAddConfirmation() {
+    document.querySelector('.v3-add-confirm')?.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'v3-add-confirm';
+    toast.textContent = copy('added');
+
+    Object.assign(toast.style, {
+      position: 'fixed',
+      left: '50%',
+      bottom: 'calc(145px + env(safe-area-inset-bottom))',
+      transform: 'translateX(-50%)',
+      zIndex: '9999',
+      padding: '14px 20px',
+      borderRadius: '14px',
+      background: '#171717',
+      color: '#fff',
+      fontSize: '17px',
+      fontWeight: '950',
+      boxShadow: '0 8px 30px rgba(0,0,0,.28)',
+      pointerEvents: 'none',
+      whiteSpace: 'nowrap'
+    });
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 1400);
+  }
+
+  document.addEventListener('pointerdown', event => {
+    setPressed(feedbackButton(event), true);
+  }, true);
+
+  document.addEventListener('pointerup', event => {
+    setPressed(feedbackButton(event), false);
+  }, true);
+
+  document.addEventListener('pointercancel', event => {
+    setPressed(feedbackButton(event), false);
+  }, true);
+
+  document.addEventListener('touchstart', event => {
+    setPressed(feedbackButton(event), true);
+  }, { capture: true, passive: true });
+
+  document.addEventListener('touchend', event => {
+    setPressed(feedbackButton(event), false);
+  }, { capture: true, passive: true });
+
   document.addEventListener('click', event => {
-    const button = event.target.closest('.sl-add-btn, .sl-ice-add, .v3-product-add');
-    if (button) setAddedFeedback(button);
+    const button = feedbackButton(event);
+
+    if (button) {
+      setPressed(button, false);
+      setAddedFeedback(button);
+      showAddConfirmation();
+    }
   }, true);
 
   function categoryKey(category) {
