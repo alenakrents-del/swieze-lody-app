@@ -752,8 +752,13 @@
         cartButton.classList.toggle('v3-empty-cart', count <= 0);
 
         if (count > 0) {
-          cartButton.innerHTML =
+          const nextMarkup =
             `🛒 ${count} · ${formattedPrice(total)} <span>→</span>`;
+
+          // Avoid an endless MutationObserver loop.
+          if (cartButton.innerHTML !== nextMarkup) {
+            cartButton.innerHTML = nextMarkup;
+          }
         }
       };
 
