@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'swieze-lody-';
-const CACHE = `${CACHE_PREFIX}v34`;
+const CACHE = `${CACHE_PREFIX}v35`;
 const CORE = [
   './',
   'index.html',
@@ -20,11 +20,8 @@ const CORE = [
   'customer-v3.js?v=5',
   'staff.html',
   'staff-v4.css?v=2',
-  'staff-v4.js?v=2',
+  'staff-v4.js?v=3',
   'staff.webmanifest',
-  'staff-catalog.js',
-  'staff-icecream.js',
-  'image-upload.js',
   'config.js',
   'manifest.webmanifest',
   'icon-192.png',

@@ -42,6 +42,77 @@
   let lastKnownNewIds = new Set();
   let currentView = 'home';
 
+  const moduleLoads = new Map();
+
+  function scriptBase(src) {
+    return String(src || '').split('?')[0];
+  }
+
+  function loadScriptOnce(src) {
+    const key = scriptBase(src);
+
+    if (moduleLoads.has(key)) {
+      return moduleLoads.get(key);
+    }
+
+    const existing = [...document.scripts].find(script =>
+      scriptBase(script.getAttribute('src')) === key
+    );
+
+    if (existing) {
+      const ready = Promise.resolve();
+      moduleLoads.set(key, ready);
+      return ready;
+    }
+
+    const promise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+
+      script.src = src;
+      script.async = true;
+
+      script.onload = () => resolve();
+
+      script.onerror = () => {
+        moduleLoads.delete(key);
+        reject(
+          new Error(
+            'Nie udało się załadować modułu: ' + src
+          )
+        );
+      };
+
+      document.body.appendChild(script);
+    });
+
+    moduleLoads.set(key, promise);
+
+    return promise;
+  }
+
+  async function ensureStaffModules(view) {
+    if (view === 'today') {
+      await loadScriptOnce(
+        'staff-icecream.js?v=2'
+      );
+    }
+
+    if (
+      view === 'products' ||
+      view === 'more'
+    ) {
+      await loadScriptOnce(
+        'image-upload.js?v=2'
+      );
+
+      await loadScriptOnce(
+        'staff-catalog.js?v=2'
+      );
+    }
+
+    moveExistingModules();
+  }
+
   function escapeHtml(value) {
     return String(value ?? '')
       .replaceAll('&', '&amp;')
@@ -97,6 +168,13 @@
       more: 'Akcje i ustawienia'
     }[view] || 'Panel obsługi';
     window.scrollTo({ top: 0, behavior: 'instant' });
+
+    ensureStaffModules(view).catch(error => {
+      console.error(
+        'STAFF MODULE LOAD ERROR:',
+        error
+      );
+    });
   }
 
   document.querySelectorAll('[data-admin-go]').forEach(button => {
@@ -598,6 +676,20 @@
     }
   }
 
-  registerStaffServiceWorker();
-  checkStaff();
+  checkStaff().finally(() => {
+    const scheduleServiceWorkerUpdate =
+      () => registerStaffServiceWorker();
+
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(
+        scheduleServiceWorkerUpdate,
+        { timeout: 5000 }
+      );
+    } else {
+      setTimeout(
+        scheduleServiceWorkerUpdate,
+        2500
+      );
+    }
+  });
 })();
