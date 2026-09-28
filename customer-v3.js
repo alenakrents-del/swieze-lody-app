@@ -743,8 +743,10 @@
     const content = dialog?.querySelector('#slCartContent');
 
     if (content) {
-      cartObserver = new MutationObserver(() => enhanceCart());
-      cartObserver.observe(content, { childList: true });
+      document.addEventListener(
+        'swieze-cart-rendered',
+        enhanceCart
+      );
     }
 
     const cartButton = document.querySelector('.sl-cart-fab');

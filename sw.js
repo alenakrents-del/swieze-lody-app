@@ -1,10 +1,10 @@
 const CACHE_PREFIX = 'swieze-lody-';
-const CACHE = `${CACHE_PREFIX}v33`;
+const CACHE = `${CACHE_PREFIX}v34`;
 const CORE = [
   './',
   'index.html',
   'styles.css?v=comic-benchmark3',
-  'customer-v3.css?v=1',
+  'customer-v3.css?v=2',
   'app.js?v=comic3',
   'auth.js',
   'comic-story-data.js?v=6',
@@ -14,10 +14,10 @@ const CORE = [
   'comic-longform-reader.js?v=2',
   'comic-longform.css?v=1',
   'comic.js?v=12',
-  'cart.js',
+  'cart.js?v=2',
   'order-status.js',
   'reviews.js',
-  'customer-v3.js?v=4',
+  'customer-v3.js?v=5',
   'staff.html',
   'staff-v4.css?v=2',
   'staff-v4.js?v=2',

@@ -527,6 +527,7 @@
         padding: '10px 14px',
         borderRadius: '12px',
         zIndex: '100',
+        pointerEvents: 'none',
         fontWeight: '800',
         boxShadow:
           '0 6px 20px rgba(0,0,0,.25)'
@@ -732,6 +733,10 @@
       orderBtn.onclick =
         placeRealOrder;
     }
+
+    document.dispatchEvent(
+      new CustomEvent('swieze-cart-rendered')
+    );
   }
 
   async function placeRealOrder() {

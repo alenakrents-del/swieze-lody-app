@@ -84,6 +84,8 @@ body.v3 .v3-section-head p{
 
 /* Bottom navigation: only four persistent tasks. */
 body.v3 nav{
+  z-index:80;
+  pointer-events:auto;
   height:72px;
   grid-template-columns:repeat(4,1fr);
   padding-bottom:var(--v3-safe-bottom);
@@ -302,6 +304,9 @@ body.v3 .announcement-status{
 
 /* Cart becomes one checkout bar and disappears when empty. */
 body.v3 .sl-cart-fab{
+  z-index:70!important;
+  pointer-events:auto!important;
+  touch-action:manipulation;
   left:50%!important;
   right:auto!important;
   bottom:calc(76px + var(--v3-safe-bottom))!important;
