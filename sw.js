@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'swieze-lody-';
-const CACHE = `${CACHE_PREFIX}v32`;
+const CACHE = `${CACHE_PREFIX}v33`;
 const CORE = [
   './',
   'index.html',
@@ -17,7 +17,7 @@ const CORE = [
   'cart.js',
   'order-status.js',
   'reviews.js',
-  'customer-v3.js?v=3',
+  'customer-v3.js?v=4',
   'staff.html',
   'staff-v4.css?v=2',
   'staff-v4.js?v=2',

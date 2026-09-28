@@ -672,48 +672,70 @@
   /* -------------------------------------------------------
      CART CREDITING HINT
   ------------------------------------------------------- */
+  let cartEnhanceBusy = false;
+
   async function enhanceCart() {
-    const dialog = document.querySelector('.sl-cart-modal');
-    const content = dialog?.querySelector('#slCartContent');
-    if (!dialog || !content) return;
+    if (cartEnhanceBusy) return;
 
-    content.querySelector('.v3-cart-credit')?.remove();
-
-    const orderButton = content.querySelector('#slOrderButton');
-    if (!orderButton) return;
-
-    let session = null;
-    let profile = null;
+    cartEnhanceBusy = true;
 
     try {
-      session = await window.customerAuth?.getSession?.();
-      if (session) {
-        profile = await window.customerAuth?.getProfile?.();
+      const dialog = document.querySelector('.sl-cart-modal');
+      const content = dialog?.querySelector('#slCartContent');
+      if (!dialog || !content) return;
+
+      const orderButton = content.querySelector('#slOrderButton');
+      if (!orderButton) return;
+
+      let session = null;
+      let profile = null;
+
+      try {
+        session = await window.customerAuth?.getSession?.();
+        if (session) {
+          profile = await window.customerAuth?.getProfile?.();
+        }
+      } catch (_) {}
+
+      const linked = Boolean(session && profile?.id);
+      const stateKey = `${linked ? 'signed' : 'guest'}:${lang()}`;
+
+      const existing = content.querySelector('.v3-cart-credit');
+
+      if (existing?.dataset.v3CreditState === stateKey) {
+        return;
       }
-    } catch (_) {}
 
-    const linked = Boolean(session && profile?.id);
+      existing?.remove();
 
-    const hint = document.createElement('div');
-    hint.className = `v3-cart-credit${linked ? ' is-signed' : ''}`;
-    hint.textContent = linked ? copy('cartSigned') : copy('cartGuest');
+      const hint = document.createElement('div');
+      hint.className = `v3-cart-credit${linked ? ' is-signed' : ''}`;
+      hint.dataset.v3CreditState = stateKey;
+      hint.textContent = linked ? copy('cartSigned') : copy('cartGuest');
 
-    if (!linked) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = copy('goSignIn');
-      button.addEventListener('click', () => {
-        dialog.close();
-        try {
-          if (typeof showPage === 'function') showPage('profile');
-        } catch (_) {}
-        setAuthMode('login');
-        setTimeout(() => document.getElementById('authPhone')?.focus(), 50);
-      });
-      hint.appendChild(button);
+      if (!linked) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = copy('goSignIn');
+
+        button.addEventListener('click', () => {
+          dialog.close();
+
+          try {
+            if (typeof showPage === 'function') showPage('profile');
+          } catch (_) {}
+
+          setAuthMode('login');
+          setTimeout(() => document.getElementById('authPhone')?.focus(), 50);
+        });
+
+        hint.appendChild(button);
+      }
+
+      orderButton.before(hint);
+    } finally {
+      cartEnhanceBusy = false;
     }
-
-    orderButton.before(hint);
   }
 
   function startCartBridge() {
@@ -722,7 +744,7 @@
 
     if (content) {
       cartObserver = new MutationObserver(() => enhanceCart());
-      cartObserver.observe(content, { childList: true, subtree: true });
+      cartObserver.observe(content, { childList: true });
     }
 
     const cartButton = document.querySelector('.sl-cart-fab');
