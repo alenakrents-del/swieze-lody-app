@@ -676,20 +676,5 @@
     }
   }
 
-  checkStaff().finally(() => {
-    const scheduleServiceWorkerUpdate =
-      () => registerStaffServiceWorker();
-
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(
-        scheduleServiceWorkerUpdate,
-        { timeout: 5000 }
-      );
-    } else {
-      setTimeout(
-        scheduleServiceWorkerUpdate,
-        2500
-      );
-    }
-  });
+  checkStaff();
 })();
