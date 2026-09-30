@@ -1,5 +1,16 @@
 const CACHE_PREFIX = 'swieze-lody-';
 const CACHE = `${CACHE_PREFIX}v36`;
+const STAFF_ASSETS = new Set([
+  '/image-upload.js',
+  '/staff-catalog.js',
+  '/staff-icecream.js',
+  '/staff-order-workflow.js',
+  '/staff-v4.css',
+  '/staff-v4.js',
+  '/staff.webmanifest',
+  '/staff.html',
+  '/supabase-staff-lite.js'
+]);
 const CORE = [
   './',
   'index.html',
@@ -68,6 +79,17 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  const requestUrl = new URL(event.request.url);
+  if (
+    requestUrl.origin === self.location.origin &&
+    (
+      requestUrl.pathname.startsWith('/staff') ||
+      STAFF_ASSETS.has(requestUrl.pathname)
+    )
+  ) {
+    return;
+  }
+
   if (event.request.method === 'GET' && COMIC_ART.has(event.request.url)) {
     event.respondWith(
       (async () => {

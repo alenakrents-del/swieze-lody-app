@@ -199,7 +199,7 @@ button{touch-action:manipulation}
 .order-card[data-status="collected"],
 .order-card[data-status="cancelled"],
 .order-card[data-status="returned"],
-.order-card[data-status="refunded"]{border-left-color:#999;opacity:.78}
+.order-card[data-status="refunded"]{border-left-color:#999}
 .order-card.is-stale{border-color:#d48a16;background:#fffaf0}
 .stale-badge{
   display:inline-block;
@@ -283,6 +283,26 @@ button{touch-action:manipulation}
 .order-card[data-status="preparing"] .status-buttons [data-next="ready"],
 .order-card[data-status="ready"] .status-buttons [data-next="collected"]{
   display:block;
+}
+.order-secondary-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:7px;
+}
+.order-secondary-actions button{
+  min-height:38px;
+  border:1px solid #b8b0a4;
+  border-radius:10px;
+  padding:7px 11px;
+  background:#fff;
+  color:#292929;
+  font:inherit;
+  font-size:12px;
+  font-weight:850;
+}
+.order-secondary-actions .order-danger{
+  border-color:#d98d86;
+  color:#9e241b;
 }
 .admin-attention .order-card .items,
 .admin-attention .order-card .controls,

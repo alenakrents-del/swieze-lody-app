@@ -280,6 +280,78 @@
         }
       };
 
+      const storageRequest = async (
+        path,
+        {
+          method = 'GET',
+          body,
+          headers = {}
+        } = {}
+      ) => {
+        let session =
+          await validSession();
+
+        const send = async token => {
+          const response = await fetch(
+            `${baseUrl}${path}`,
+            {
+              method,
+              headers: {
+                apikey: apiKey,
+                Authorization:
+                  `Bearer ${token || apiKey}`,
+                ...headers
+              },
+              body,
+              cache: 'no-store'
+            }
+          );
+
+          const text =
+            await response.text();
+
+          const payload =
+            safeJson(text);
+
+          if (!response.ok) {
+            throw errorFrom(
+              payload,
+              response.status
+            );
+          }
+
+          return payload;
+        };
+
+        try {
+          return await send(
+            session?.access_token
+          );
+        } catch (error) {
+          if (
+            error?.status !== 401 ||
+            !session?.refresh_token
+          ) {
+            throw error;
+          }
+
+          session =
+            await refreshSession();
+
+          return send(
+            session?.access_token
+          );
+        }
+      };
+
+      const encodeStoragePath = path =>
+        String(path || '')
+          .split('/')
+          .map(segment =>
+            encodeURIComponent(segment)
+          )
+          .join('/');
+
       const fromRecoveryHash = () => {
         const params =
           new URLSearchParams(
@@ -551,9 +623,113 @@
         }
       };
 
+      const storage = {
+        from(bucket) {
+          const encodedBucket =
+            encodeURIComponent(
+              String(bucket || '')
+            );
+
+          return {
+            async upload(
+              path,
+              fileBody,
+              uploadOptions = {}
+            ) {
+              try {
+                const encodedPath =
+                  encodeStoragePath(path);
+
+                const data =
+                  await storageRequest(
+                    `/storage/v1/object/${encodedBucket}/${encodedPath}`,
+                    {
+                      method: 'POST',
+                      body: fileBody,
+                      headers: {
+                        'Content-Type':
+                          uploadOptions.contentType ||
+                          fileBody?.type ||
+                          'application/octet-stream',
+                        'cache-control':
+                          `max-age=${uploadOptions.cacheControl || '3600'}`,
+                        'x-upsert': String(
+                          Boolean(
+                            uploadOptions.upsert
+                          )
+                        )
+                      }
+                    }
+                  );
+
+                return {
+                  data,
+                  error: null
+                };
+              } catch (error) {
+                return {
+                  data: null,
+                  error
+                };
+              }
+            },
+
+            getPublicUrl(path) {
+              const encodedPath =
+                encodeStoragePath(path);
+
+              return {
+                data: {
+                  publicUrl:
+                    `${baseUrl}/storage/v1/object/public/${encodedBucket}/${encodedPath}`
+                }
+              };
+            },
+
+            async remove(paths) {
+              try {
+                const prefixes =
+                  (Array.isArray(paths)
+                    ? paths
+                    : [])
+                    .map(path =>
+                      String(path || '')
+                    );
+
+                const data =
+                  await storageRequest(
+                    `/storage/v1/object/${encodedBucket}`,
+                    {
+                      method: 'DELETE',
+                      headers: {
+                        'Content-Type':
+                          'application/json'
+                      },
+                      body: JSON.stringify({
+                        prefixes
+                      })
+                    }
+                  );
+
+                return {
+                  data,
+                  error: null
+                };
+              } catch (error) {
+                return {
+                  data: null,
+                  error
+                };
+              }
+            }
+          };
+        }
+      };
+
       return {
         auth,
-        rpc
+        rpc,
+        storage
       };
     }
   };
