@@ -354,8 +354,12 @@
     if (event === 'SIGNED_OUT' && !recoveryFromUrl) showLogin();
   });
 
-  const ACTIVE_STATUSES = new Set(['new', 'accepted', 'preparing', 'ready']);
-  const HISTORY_STATUSES = new Set(['collected', 'cancelled', 'returned', 'refunded']);
+  const orderWorkflow = window.StaffOrderWorkflow;
+  if (!orderWorkflow) {
+    throw new Error('Staff order workflow is unavailable.');
+  }
+
+  const { ACTIVE_STATUSES } = orderWorkflow;
 
   function isStaleActive(order) {
     if (!ACTIVE_STATUSES.has(order?.status) || !order?.created_at) return false;
@@ -364,22 +368,14 @@
   }
 
   function nextAction(status) {
-    return {
-      new: ['accepted', '✓ Przyjmij'],
-      accepted: ['preparing', '👩‍🍳 Robimy'],
-      preparing: ['ready', '✅ Gotowe'],
-      ready: ['collected', '🛍️ Wydane']
-    }[status] || null;
+    return orderWorkflow.nextAction(status);
   }
 
   function filterOrders(list) {
-    if (currentFilter === 'all') return list.filter(order => HISTORY_STATUSES.has(order.status));
-    if (currentFilter === 'new') return list.filter(order => order.status === 'new');
-    if (currentFilter === 'ready') return list.filter(order => order.status === 'ready');
-    if (currentFilter === 'preparing') {
-      return list.filter(order => ['accepted', 'preparing'].includes(order.status));
-    }
-    return list.filter(order => !['collected', 'cancelled'].includes(order.status));
+    return orderWorkflow.filterOrders(
+      list,
+      currentFilter
+    );
   }
 
   async function loadOrders() {
@@ -453,9 +449,13 @@
     const active = ACTIVE_STATUSES.has(order.status);
     const stale = isStaleActive(order);
     const next = nextAction(order.status);
+    const historyAction =
+      orderWorkflow.historyAction(
+        order.status
+      );
     const showEstimate = ['new', 'accepted', 'preparing'].includes(order.status);
 
-    const controls = active ? `
+    const controls = active || historyAction ? `
         <div class="controls">
           ${showEstimate ? `
           <div class="time-row">
@@ -468,6 +468,16 @@
           ${next ? `
           <div class="status-buttons">
             <button type="button" data-next="${next[0]}">${next[1]}</button>
+          </div>` : ''}
+
+          ${active ? `
+          <div class="order-secondary-actions">
+            <button type="button" class="order-danger" data-status-action="cancelled">Anuluj zamówienie</button>
+          </div>` : ''}
+
+          ${historyAction ? `
+          <div class="order-secondary-actions">
+            <button type="button" data-status-action="${historyAction[0]}">${historyAction[1]}</button>
           </div>` : ''}
         </div>
     ` : '';
@@ -554,6 +564,20 @@
       card.querySelectorAll('[data-minutes]').forEach(button => {
         button.addEventListener('click', async () => {
           await updateOrder(orderId, null, Number(button.dataset.minutes), button);
+        });
+      });
+
+      card.querySelectorAll('[data-status-action]').forEach(button => {
+        button.addEventListener('click', async () => {
+          const status = button.dataset.statusAction;
+          const messages = {
+            cancelled: 'Anulować to zamówienie?',
+            returned: 'Oznaczyć zamówienie jako zwrócone?',
+            refunded: 'Potwierdzić refundację zamówienia?'
+          };
+
+          if (!window.confirm(messages[status] || 'Zmienić status zamówienia?')) return;
+          await updateOrder(orderId, status, null, button);
         });
       });
     });
@@ -663,18 +687,6 @@
   }, 15000);
 
   moveExistingModules();
-
-  async function registerStaffServiceWorker() {
-    if (!('serviceWorker' in navigator)) return;
-    try {
-      const registration = await navigator.serviceWorker.register('sw.js', {
-        updateViaCache: 'none'
-      });
-      await registration.update();
-    } catch (error) {
-      console.warn('Staff service worker unavailable:', error);
-    }
-  }
 
   checkStaff();
 })();
