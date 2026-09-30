@@ -17,7 +17,7 @@ const money=value=>Number.isFinite(Number(value))?`${Number(value).toFixed(2)} z
 function message(text,type='',auth=false){const el=$(auth?'authMessage':'globalMessage');el.textContent=text||'';el.className=`message ${type}`}
 function setBusy(busy){state.busy=busy;document.body.classList.toggle('loading',busy);document.querySelectorAll('button').forEach(b=>b.disabled=busy)}
 async function task(fn,success=''){if(state.busy)return fn();const auth=!$('authView').classList.contains('hidden');setBusy(true);message('', '',auth);try{await fn();if(success)message(success,'success',auth)}catch(error){console.error(error);message(error.message||'Wystąpił błąd.','error',auth)}finally{setBusy(false)}}
-function showAuth(){state.user=null;$('adminView').classList.add('hidden');$('authView').classList.remove('hidden')}
+function showAuth(){state.user=null;message('','',true);$('adminView').classList.add('hidden');$('authView').classList.remove('hidden')}
 function showAdmin(user){state.user=user;$('staffEmail').textContent=user.email||'';$('authView').classList.add('hidden');$('adminView').classList.remove('hidden');switchView(state.view)}
 async function guard(session){if(!session?.user){showAuth();return false}const allowed=await api.isStaff();if(!allowed){await api.logout();showAuth();message('To konto nie ma uprawnień pracownika.','error',true);return false}showAdmin(session.user);return true}
 async function boot(){const params=new URLSearchParams(location.hash.slice(1));if(params.get('type')==='recovery'){$('loginForm').classList.add('hidden');$('recoveryBtn').classList.add('hidden');$('passwordForm').classList.remove('hidden')}const{data,error}=await api.session();if(error)throw error;if(await guard(data.session))await loadOrders()}
