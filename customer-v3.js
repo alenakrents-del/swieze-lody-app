@@ -800,10 +800,10 @@
   ------------------------------------------------------- */
   function orderStatusText(status) {
     const map = {
-      pl: { new:'Nowe', accepted:'Przyjęte', preparing:'Robimy', ready:'Gotowe', collected:'Wydane', cancelled:'Anulowane' },
-      de: { new:'Neu', accepted:'Angenommen', preparing:'In Arbeit', ready:'Fertig', collected:'Abgeholt', cancelled:'Storniert' },
-      en: { new:'New', accepted:'Accepted', preparing:'Preparing', ready:'Ready', collected:'Collected', cancelled:'Cancelled' },
-      cs: { new:'Nová', accepted:'Přijatá', preparing:'Příprava', ready:'Hotovo', collected:'Vydáno', cancelled:'Zrušeno' }
+      pl: { new:'Nowe', accepted:'Przyjęte', preparing:'Robimy', ready:'Gotowe', collected:'Wydane', cancelled:'Anulowane', returned:'Zwrócone', refunded:'Zrefundowane' },
+      de: { new:'Neu', accepted:'Angenommen', preparing:'In Arbeit', ready:'Fertig', collected:'Abgeholt', cancelled:'Storniert', returned:'Zurückgegeben', refunded:'Erstattet' },
+      en: { new:'New', accepted:'Accepted', preparing:'Preparing', ready:'Ready', collected:'Collected', cancelled:'Cancelled', returned:'Returned', refunded:'Refunded' },
+      cs: { new:'Nová', accepted:'Přijatá', preparing:'Příprava', ready:'Hotovo', collected:'Vydáno', cancelled:'Zrušeno', returned:'Vráceno', refunded:'Refundováno' }
     };
     return map[lang()]?.[status] || status || '';
   }
@@ -821,7 +821,13 @@
       order = JSON.parse(localStorage.getItem('swiezeLastOrder') || 'null');
     } catch (_) {}
 
-    const active = order && !['collected', 'cancelled'].includes(order.status);
+    const terminalStatuses = [
+      'collected',
+      'cancelled',
+      'returned',
+      'refunded'
+    ];
+    const active = order && !terminalStatuses.includes(order.status);
 
     button.classList.toggle('v3-no-active-order', !active);
 
