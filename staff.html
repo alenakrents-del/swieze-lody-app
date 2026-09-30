@@ -301,13 +301,6 @@
 
         if (!customerWorkers.length) return;
 
-        const wasControlled =
-          new URL(
-            navigator.serviceWorker.controller?.scriptURL ||
-            location.href,
-            location.href
-          ).pathname === '/sw.js';
-
         const results = await Promise.all(
           customerWorkers.map(registration =>
             registration.unregister()
@@ -317,19 +310,14 @@
         if (results.some(result => !result)) {
           throw new Error('Nie udało się odłączyć klientowego service workera.');
         }
-
-        if (wasControlled) {
-          location.reload();
-          await new Promise(() => {});
-        }
       };
 
       const start = () => {
         requestAnimationFrame(() => {
           setTimeout(async () => {
             try {
-              await isolateFromCustomerWorker();
               await boot();
+              await isolateFromCustomerWorker();
             } catch (error) {
               console.error('STAFF ISOLATION ERROR:', error);
               const box = document.getElementById('loginError');
