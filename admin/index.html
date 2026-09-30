@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#18261f">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Świeże Lody — panel administracyjny</title>
+  <link rel="icon" href="/icon-192.png" type="image/png">
+  <link rel="stylesheet" href="/admin/admin.css?v=1">
+</head>
+<body>
+  <main id="authView" class="auth-layout">
+    <section class="auth-card" aria-labelledby="authTitle">
+      <div class="brand-mark" aria-hidden="true">ŚL</div>
+      <p class="eyebrow">Świeże Lody</p>
+      <h1 id="authTitle">Panel administracyjny</h1>
+      <p class="muted">Zaloguj się kontem pracownika.</p>
+      <form id="loginForm" novalidate>
+        <label>Email<input id="email" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+        <label>Hasło<input id="password" name="password" type="password" autocomplete="current-password" required></label>
+        <button id="loginBtn" class="primary" type="submit">Zaloguj</button>
+      </form>
+      <button id="recoveryBtn" class="link-button" type="button">Nie pamiętam hasła</button>
+      <form id="passwordForm" class="hidden" novalidate>
+        <label>Nowe hasło<input id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+        <button class="primary" type="submit">Ustaw nowe hasło</button>
+      </form>
+      <p id="authMessage" class="message" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <div id="adminView" class="app hidden">
+    <header class="topbar">
+      <div><p class="eyebrow">Świeże Lody</p><strong>Admin</strong></div>
+      <div class="topbar-actions"><span id="staffEmail" class="muted"></span><button id="logoutBtn" class="secondary" type="button">Wyloguj</button></div>
+    </header>
+    <nav id="adminNav" class="tabs" aria-label="Sekcje panelu">
+      <button data-view="orders" class="active" type="button">Zamówienia</button>
+      <button data-view="flavours" type="button">Smaki dziś</button>
+      <button data-view="catalog" type="button">Katalog</button>
+      <button data-view="announcements" type="button">Ogłoszenia</button>
+    </nav>
+    <main class="content">
+      <p id="globalMessage" class="message" role="status" aria-live="polite"></p>
+      <section id="ordersView" class="view">
+        <div class="section-head"><div><p class="eyebrow">Realizacja</p><h1>Zamówienia</h1></div><button id="refreshOrders" class="secondary" type="button">Odśwież</button></div>
+        <div id="orderFilters" class="filter-row" role="group" aria-label="Filtry zamówień">
+          <button data-filter="active" class="active" type="button">Aktywne</button><button data-filter="new" type="button">Nowe</button><button data-filter="preparing" type="button">W przygotowaniu</button><button data-filter="ready" type="button">Gotowe</button><button data-filter="history" type="button">Historia</button>
+        </div>
+        <div id="ordersList" class="card-list" aria-live="polite"></div>
+      </section>
+      <section id="flavoursView" class="view hidden">
+        <div class="section-head"><div><p class="eyebrow">Lodziarnia</p><h1>Dzisiejsze smaki</h1></div><button id="newFlavour" class="primary" type="button">Dodaj smak</button></div>
+        <div id="flavoursList" class="card-list"></div>
+      </section>
+      <section id="catalogView" class="view hidden">
+        <div class="section-head"><div><p class="eyebrow">Oferta</p><h1>Katalog produktów</h1></div><div class="button-row"><button id="newCategory" class="secondary" type="button">Nowa kategoria</button><button id="newProduct" class="primary" type="button">Nowy produkt</button></div></div>
+        <div id="catalogList" class="catalog-grid"></div>
+      </section>
+      <section id="announcementsView" class="view hidden">
+        <div class="section-head"><div><p class="eyebrow">Komunikacja</p><h1>Ogłoszenia i akcje</h1></div><button id="newAnnouncement" class="primary" type="button">Nowe ogłoszenie</button></div>
+        <div id="announcementsList" class="card-list"></div>
+      </section>
+      <section id="editor" class="editor hidden" aria-labelledby="editorTitle">
+        <div class="section-head"><h2 id="editorTitle">Edycja</h2><button id="closeEditor" class="secondary" type="button">Zamknij</button></div>
+        <div id="editorBody"></div>
+      </section>
+    </main>
+  </div>
+  <script src="/vendor/supabase.min.js"></script>
+  <script src="/config.js"></script>
+  <script type="module" src="/admin/admin.js?v=1"></script>
+</body>
+</html>

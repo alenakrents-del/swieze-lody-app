@@ -1,0 +1,13 @@
+{
+  "name": "swieze-lody-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs && npm run test:syntax",
+    "test:syntax": "node --check admin/admin.js && node --check admin/admin-api.js && node --check admin/admin-storage.js && node --check admin/admin-workflow.js",
+    "test:e2e": "node tests/admin-e2e.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.55.0"
+  }
+}
