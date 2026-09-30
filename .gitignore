@@ -1,0 +1,12 @@
+.DS_Store
+**/.DS_Store
+.vercel/
+.env
+.env.*
+!.env.example
+node_modules/
+.pnpm-store/
+coverage/
+playwright-report/
+test-results/
+npm-debug.log*

@@ -3,12 +3,17 @@
   "redirects": [
     {
       "source": "/staff",
-      "destination": "/staff.html",
+      "destination": "/admin/",
       "permanent": false
     },
     {
       "source": "/staff/",
-      "destination": "/staff.html",
+      "destination": "/admin/",
+      "permanent": false
+    },
+    {
+      "source": "/staff.html",
+      "destination": "/admin/",
       "permanent": false
     }
   ]

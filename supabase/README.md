@@ -1,5 +1,11 @@
 # Supabase production schema
 
+`baseline/production_schema_20260930.sql` captures foundational tables that
+exist in production but have no `CREATE TABLE` in migration history, including
+`customers`, collections and the menu catalog. It is only for a brand-new empty
+project and must never be run against production. It came from read-only catalog
+inspection; production was not reset or mutated.
+
 The files in `migrations/` include the production migration history for project
 `orabfrxuxvssdunkqnbx` as observed on 2026-09-30.
 

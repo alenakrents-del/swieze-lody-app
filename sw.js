@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'swieze-lody-';
-const CACHE = `${CACHE_PREFIX}v36`;
+const CACHE = `${CACHE_PREFIX}v37`;
 const STAFF_ASSETS = new Set([
   '/image-upload.js',
   '/staff-catalog.js',
@@ -84,6 +84,8 @@ self.addEventListener('fetch', event => {
     requestUrl.origin === self.location.origin &&
     (
       requestUrl.pathname.startsWith('/staff') ||
+      requestUrl.pathname === '/admin' ||
+      requestUrl.pathname.startsWith('/admin/') ||
       STAFF_ASSETS.has(requestUrl.pathname)
     )
   ) {
