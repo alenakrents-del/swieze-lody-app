@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'swieze-lody-';
-const CACHE = `${CACHE_PREFIX}v37`;
+const CACHE = `${CACHE_PREFIX}v38`;
 const STAFF_ASSETS = new Set([
   '/image-upload.js',
   '/staff-catalog.js',
@@ -33,7 +33,7 @@ const CORE = [
   'manifest.webmanifest',
   'icon-192.png',
   'icon-512.png',
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+  '/vendor/supabase.min.js'
 ];
 
 // Cache viewed artwork without delaying a JS update on large image downloads.

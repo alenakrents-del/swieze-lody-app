@@ -16,9 +16,19 @@
       ready: 'Gotowe do odbioru',
       collected: 'Wydane',
       cancelled: 'Anulowane',
+      returned: 'Zwrócone',
+      refunded: 'Zrefundowane',
       noOrder: 'Brak aktywnego zamówienia',
       readyTitle: 'Zamówienie gotowe!',
       readyText: 'Możesz już odebrać swoje zamówienie.',
+      collectedTitle: 'Dziękujemy!',
+      collectedText: 'Zamówienie odebrane.',
+      cancelledTitle: 'Zamówienie anulowane',
+      cancelledText: 'To zamówienie zostało anulowane.',
+      returnedTitle: 'Zamówienie zwrócone',
+      returnedText: 'Zwrot zamówienia został zarejestrowany.',
+      refundedTitle: 'Płatność zwrócona',
+      refundedText: 'Zwrot płatności został zarejestrowany.',
       overdue: 'Prawie gotowe',
       step1: 'Przyjęte',
       step2: 'Robimy',
@@ -36,9 +46,19 @@
       ready: 'Abholbereit',
       collected: 'Abgeholt',
       cancelled: 'Storniert',
+      returned: 'Zurückgegeben',
+      refunded: 'Erstattet',
       noOrder: 'Keine aktive Bestellung',
       readyTitle: 'Bestellung ist fertig!',
       readyText: 'Du kannst deine Bestellung jetzt abholen.',
+      collectedTitle: 'Vielen Dank!',
+      collectedText: 'Die Bestellung wurde abgeholt.',
+      cancelledTitle: 'Bestellung storniert',
+      cancelledText: 'Diese Bestellung wurde storniert.',
+      returnedTitle: 'Bestellung zurückgegeben',
+      returnedText: 'Die Rückgabe wurde registriert.',
+      refundedTitle: 'Zahlung erstattet',
+      refundedText: 'Die Rückerstattung wurde registriert.',
       overdue: 'Fast fertig',
       step1: 'Angenommen',
       step2: 'Wir machen es',
@@ -56,9 +76,19 @@
       ready: 'Ready for pickup',
       collected: 'Collected',
       cancelled: 'Cancelled',
+      returned: 'Returned',
+      refunded: 'Refunded',
       noOrder: 'No active order',
       readyTitle: 'Your order is ready!',
       readyText: 'You can pick up your order now.',
+      collectedTitle: 'Thank you!',
+      collectedText: 'The order has been collected.',
+      cancelledTitle: 'Order cancelled',
+      cancelledText: 'This order has been cancelled.',
+      returnedTitle: 'Order returned',
+      returnedText: 'The return has been recorded.',
+      refundedTitle: 'Payment refunded',
+      refundedText: 'The refund has been recorded.',
       overdue: 'Almost ready',
       step1: 'Accepted',
       step2: 'Preparing',
@@ -76,9 +106,19 @@
       ready: 'Připraveno k vyzvednutí',
       collected: 'Vydáno',
       cancelled: 'Zrušeno',
+      returned: 'Vráceno',
+      refunded: 'Refundováno',
       noOrder: 'Žádná aktivní objednávka',
       readyTitle: 'Objednávka je připravena!',
       readyText: 'Objednávku si můžeš vyzvednout.',
+      collectedTitle: 'Děkujeme!',
+      collectedText: 'Objednávka byla vyzvednuta.',
+      cancelledTitle: 'Objednávka zrušena',
+      cancelledText: 'Tato objednávka byla zrušena.',
+      returnedTitle: 'Objednávka vrácena',
+      returnedText: 'Vrácení objednávky bylo zaznamenáno.',
+      refundedTitle: 'Platba refundována',
+      refundedText: 'Vrácení platby bylo zaznamenáno.',
       overdue: 'Téměř hotovo',
       step1: 'Přijatá',
       step2: 'Příprava',
@@ -89,6 +129,16 @@
   let currentOrder = null;
   let countdownTimer = null;
   let lastNotifiedStatus = null;
+  const TERMINAL_STATUSES = new Set([
+    'collected',
+    'cancelled',
+    'returned',
+    'refunded'
+  ]);
+
+  function isTerminalStatus(status) {
+    return TERMINAL_STATUSES.has(status);
+  }
 
   function lang() {
     if (
@@ -499,33 +549,30 @@
         '#slOrderStatusContent'
       );
 
-   if (order.status === 'collected') {
-  clearInterval(countdownTimer);
+    if (isTerminalStatus(order.status)) {
+      clearInterval(countdownTimer);
 
-  content.innerHTML = `
-    <div class="sl-ready-screen">
+      const icons = {
+        collected: '❤️',
+        cancelled: '⛔',
+        returned: '↩️',
+        refunded: '💳'
+      };
 
-      <div class="sl-ready-icon">
-        ❤️
-      </div>
+      content.innerHTML = `
+        <div class="sl-ready-screen" data-terminal-status="${order.status}">
+          <div class="sl-ready-icon">${icons[order.status]}</div>
+          <div class="sl-ready-title">${text(`${order.status}Title`)}</div>
+          <div class="sl-ready-number">#${order.order_number}</div>
+          <div class="sl-status-badge" data-status="${order.status}">
+            ${text(order.status)}
+          </div>
+          <div class="sl-ready-text">${text(`${order.status}Text`)}</div>
+        </div>
+      `;
 
-      <div class="sl-ready-title">
-        Dziękujemy!
-      </div>
-
-      <div class="sl-ready-number">
-        #${order.order_number}
-      </div>
-
-      <div class="sl-ready-text">
-        Zamówienie odebrane.
-      </div>
-
-    </div>
-  `;
-
-  return;
-}
+      return;
+    }
 
 if (order.status === 'ready') {
   clearInterval(countdownTimer);
@@ -696,10 +743,17 @@ if (order.status === 'ready') {
 
   setInterval(
     async () => {
+      if (document.hidden) {
+        return;
+      }
+
       const lastOrder =
         loadLastOrder();
 
-      if (!lastOrder?.publicToken) {
+      if (
+        !lastOrder?.publicToken ||
+        isTerminalStatus(lastOrder.status)
+      ) {
         return;
       }
 
