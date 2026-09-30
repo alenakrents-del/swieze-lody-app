@@ -6,12 +6,76 @@
   <meta name="theme-color" content="#ffc728">
 
   <link rel="preconnect" href="https://orabfrxuxvssdunkqnbx.supabase.co" crossorigin>
-  <link rel="manifest" href="staff.webmanifest">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Lody Staff">
   <title>Lody Staff</title>
-  <link rel="stylesheet" href="staff-v4.css?v=2">
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:#f4efe4;color:#171717}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+    .hidden{display:none!important}
+    .admin-shell{min-height:100vh}
+    .admin-top{
+      padding:18px 16px 12px;
+      background:#ffc728;
+      border-bottom:2px solid #171717;
+    }
+    .admin-top h1{margin:0;font-size:28px}
+    .admin-top p{margin:3px 0 0;font-size:14px}
+    .admin-main{
+      width:min(100%,760px);
+      margin:0 auto;
+      padding:18px 14px 100px;
+    }
+    .admin-auth-card{
+      background:#fff;
+      border:2px solid #171717;
+      border-radius:18px;
+      padding:18px;
+      box-shadow:4px 4px 0 #171717;
+    }
+    .admin-auth-card h2{margin:0 0 5px}
+    .muted{color:#666}
+    .admin-field{
+      display:grid;
+      gap:6px;
+      margin:15px 0;
+      font-weight:700;
+    }
+    .admin-field input{
+      width:100%;
+      min-height:48px;
+      padding:10px 12px;
+      border:2px solid #171717;
+      border-radius:12px;
+      background:#fff;
+      font:inherit;
+      font-size:16px;
+    }
+    .admin-primary,.admin-secondary{
+      width:100%;
+      min-height:48px;
+      margin-top:10px;
+      border:2px solid #171717;
+      border-radius:12px;
+      font:inherit;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .admin-primary{background:#ffc728}
+    .admin-secondary{background:#fff}
+  </style>
+
+  <link
+    rel="preload"
+    href="staff-v4.css?v=3"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  >
+  <noscript>
+    <link rel="stylesheet" href="staff-v4.css?v=3">
+  </noscript>
 </head>
 <body>
   <div class="admin-shell">
@@ -185,8 +249,52 @@
     </nav>
   </div>
 
-  <script src="config.js"></script>
-  <script src="vendor/supabase.min.js?v=1"></script>
-  <script src="staff-v4.js?v=4"></script>
+  <script>
+    (() => {
+      const loadScript = src =>
+        new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.async = true;
+          script.onload = resolve;
+          script.onerror = () => reject(
+            new Error('Nie udało się załadować: ' + src)
+          );
+          document.body.appendChild(script);
+        });
+
+      const boot = async () => {
+        try {
+          await loadScript('config.js?v=2');
+          await loadScript('vendor/supabase.min.js?v=2');
+          await loadScript('staff-v4.js?v=5');
+        } catch (error) {
+          console.error('STAFF BOOT ERROR:', error);
+
+          const box = document.getElementById('loginError');
+          if (box) {
+            box.innerHTML =
+              '<div class="admin-error">Nie udało się uruchomić panelu. Odśwież stronę.</div>';
+          }
+        }
+      };
+
+      const start = () => {
+        requestAnimationFrame(() => {
+          setTimeout(boot, 0);
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener(
+          'DOMContentLoaded',
+          start,
+          { once: true }
+        );
+      } else {
+        start();
+      }
+    })();
+  </script>
 </body>
 </html>
