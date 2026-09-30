@@ -265,9 +265,11 @@
 
       const boot = async () => {
         try {
-          await loadScript('config.js?v=2');
-          await loadScript('vendor/supabase.min.js?v=2');
-          await loadScript('staff-v4.js?v=5');
+          await Promise.all([
+            loadScript('config.js?v=3'),
+            loadScript('supabase-staff-lite.js?v=1')
+          ]);
+          await loadScript('staff-v4.js?v=6');
         } catch (error) {
           console.error('STAFF BOOT ERROR:', error);
 
