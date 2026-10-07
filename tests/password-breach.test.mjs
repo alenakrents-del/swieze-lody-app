@@ -70,6 +70,6 @@ test('customer signup and admin password update run the breach check before Supa
   assert.ok(admin.indexOf('SwiezePasswordProtection.assertSafe')<admin.indexOf('api.updatePassword'));
   assert.match(customerHtml,/password-breach\.js\?v=1[\s\S]+auth\.js\?v=2/);
   assert.match(adminHtml,/password-breach\.js\?v=1[\s\S]+admin\/admin\.js\?v=2/);
-  assert.match(sw,/const CACHE = `\$\{CACHE_PREFIX\}v39`;/);
+  assert.match(sw,/const CACHE = `\$\{CACHE_PREFIX\}v40`;/);
   assert.match(sw,/'password-breach\.js\?v=1'/);
 });
