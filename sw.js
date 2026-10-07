@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'swieze-lody-';
-const CACHE = `${CACHE_PREFIX}v39`;
+const CACHE = `${CACHE_PREFIX}v40`;
 const STAFF_ASSETS = new Set([
   '/image-upload.js',
   '/staff-catalog.js',
@@ -81,13 +81,31 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   const requestUrl = new URL(event.request.url);
+  let referrerUrl = null;
+
+  try {
+    referrerUrl = event.request.referrer
+      ? new URL(event.request.referrer)
+      : null;
+  } catch (_) {
+    // An invalid or opaque referrer cannot identify an admin request.
+  }
+
+  const isAdminPath = pathname =>
+    pathname === '/admin' || pathname.startsWith('/admin/');
+
   if (
-    requestUrl.origin === self.location.origin &&
     (
-      requestUrl.pathname.startsWith('/staff') ||
-      requestUrl.pathname === '/admin' ||
-      requestUrl.pathname.startsWith('/admin/') ||
-      STAFF_ASSETS.has(requestUrl.pathname)
+      requestUrl.origin === self.location.origin &&
+      (
+        requestUrl.pathname.startsWith('/staff') ||
+        isAdminPath(requestUrl.pathname) ||
+        STAFF_ASSETS.has(requestUrl.pathname)
+      )
+    ) ||
+    (
+      referrerUrl?.origin === self.location.origin &&
+      isAdminPath(referrerUrl.pathname)
     )
   ) {
     return;
