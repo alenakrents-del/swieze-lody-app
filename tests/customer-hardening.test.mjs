@@ -33,5 +33,5 @@ test('customer app uses the pinned local Supabase bundle offline',async()=>{
   assert.match(html,/<script src="\/vendor\/supabase\.min\.js"><\/script>/);
   assert.match(sw,/'\/vendor\/supabase\.min\.js'/);
   assert.doesNotMatch(html+sw,/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js/);
-  assert.match(sw,/CACHE_PREFIX}v38/);
+  assert.match(sw,/CACHE_PREFIX}v39/);
 });

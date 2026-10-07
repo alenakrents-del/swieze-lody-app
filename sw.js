@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'swieze-lody-';
-const CACHE = `${CACHE_PREFIX}v38`;
+const CACHE = `${CACHE_PREFIX}v39`;
 const STAFF_ASSETS = new Set([
   '/image-upload.js',
   '/staff-catalog.js',
@@ -17,7 +17,8 @@ const CORE = [
   'styles.css?v=comic-benchmark3',
   'customer-v3.css?v=2',
   'app.js?v=comic3',
-  'auth.js',
+  'password-breach.js?v=1',
+  'auth.js?v=2',
   'comic-story-data.js?v=6',
   'comic-story-canon-v7.js?v=1',
   'comic-longform-episodes-1-3.js?v=1',

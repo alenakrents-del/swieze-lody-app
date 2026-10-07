@@ -113,6 +113,8 @@ function notifyCustomerAuthChanged(event, session) {
 async function registerCustomer(name, phone, password) {
   const input = validateCustomerAuth(name, phone, password);
 
+  await window.SwiezePasswordProtection.assertSafe(input.password);
+
   const technicalEmail = phoneToTechnicalEmail(input.phone);
 
   const { data, error } = await customerAuth.auth.signUp({

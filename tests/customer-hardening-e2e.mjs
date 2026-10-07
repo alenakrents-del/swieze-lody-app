@@ -7,6 +7,8 @@ const context=await browser.newContext({serviceWorkers:'block'});
 const page=await context.newPage();
 let pwaContext;
 let statusRequests=0;
+let signupRequests=0;
+let passwordRangeRequests=0;
 
 await page.addInitScript(()=>{
   localStorage.setItem('swiezeLanguage','en');
@@ -32,8 +34,36 @@ await page.route('**/rest/v1/rpc/get_pickup_order_status',async route=>{
   });
 });
 
+await page.route('**/auth/v1/signup',async route=>{
+  signupRequests+=1;
+  await route.abort();
+});
+
+await page.route('https://api.pwnedpasswords.com/range/**',async route=>{
+  const method=route.request().method();
+  const headers={
+    'access-control-allow-origin':'*',
+    'access-control-allow-headers':'Add-Padding',
+    'content-type':'text/plain'
+  };
+  if(method==='OPTIONS')return route.fulfill({status:204,headers,body:''});
+  passwordRangeRequests+=1;
+  await route.fulfill({status:200,headers,body:'1E4C9B93F3F0682250B6CF8331B7EE68FD8:3303003\r\n'});
+});
+
 try{
   await page.goto(`${baseUrl}/`,{waitUntil:'domcontentloaded',timeout:30000});
+  await page.locator('[data-page="profile"]').first().click();
+  await page.locator('#v3AuthRegisterMode').click();
+  await page.locator('#authName').fill('Test');
+  await page.locator('#authPhone').fill('+48501234567');
+  await page.locator('#authPassword').fill('password');
+  await page.locator('#authRegister').click();
+  await page.locator('#authMessage').getByText('To hasło wystąpiło w wycieku danych.',{exact:false}).waitFor();
+  if(passwordRangeRequests!==1||signupRequests!==0){
+    throw new Error('compromised password was not blocked before Supabase signup');
+  }
+
   const button=page.locator('.sl-order-status-btn');
   await button.waitFor({state:'attached'});
   if(!await button.evaluate(element=>element.classList.contains('v3-no-active-order'))){
@@ -86,13 +116,13 @@ try{
   const cacheState=await pwaPage.evaluate(async()=>{
     await navigator.serviceWorker.ready;
     const keys=await caches.keys();
-    const cache=await caches.open('swieze-lody-v38');
+    const cache=await caches.open('swieze-lody-v39');
     return {
       keys,
       localSupabaseCached:Boolean(await cache.match('/vendor/supabase.min.js'))
     };
   });
-  if(!cacheState.keys.includes('swieze-lody-v38')||!cacheState.localSupabaseCached){
+  if(!cacheState.keys.includes('swieze-lody-v39')||!cacheState.localSupabaseCached){
     throw new Error('service worker did not cache the pinned local Supabase bundle');
   }
   await pwaPage.reload({waitUntil:'domcontentloaded'});
