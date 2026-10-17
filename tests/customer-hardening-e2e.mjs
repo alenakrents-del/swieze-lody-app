@@ -2,6 +2,13 @@ import {chromium} from 'playwright';
 
 const arg=process.argv.find(value=>value.startsWith('--base-url='));
 const baseUrl=(arg?.split('=').slice(1).join('=')||process.env.CUSTOMER_BASE_URL||'http://127.0.0.1:4173').replace(/\/$/,'');
+const shareArg=process.argv.find(value=>value.startsWith('--vercel-share='));
+const shareToken=shareArg?.split('=').slice(1).join('=')||process.env.VERCEL_SHARE_TOKEN||null;
+const accessUrl=path=>{
+  const url=new URL(path,`${baseUrl}/`);
+  if(shareToken)url.searchParams.set('_vercel_share',shareToken);
+  return url.href;
+};
 const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({serviceWorkers:'block'});
 const page=await context.newPage();
@@ -52,7 +59,7 @@ await page.route('https://api.pwnedpasswords.com/range/**',async route=>{
 });
 
 try{
-  await page.goto(`${baseUrl}/`,{waitUntil:'domcontentloaded',timeout:30000});
+  await page.goto(accessUrl('/'),{waitUntil:'domcontentloaded',timeout:30000});
   await page.locator('[data-page="profile"]').first().click();
   await page.locator('#v3AuthRegisterMode').click();
   await page.locator('#authName').fill('Test');
@@ -110,19 +117,39 @@ try{
     throw new Error('hidden document triggered background RPC polling');
   }
 
+  await page.evaluate(()=>{
+    Object.defineProperty(document,'hidden',{configurable:true,value:false});
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  const beforeVisibleTick=statusRequests;
+  await page.waitForTimeout(5250);
+  if(statusRequests<=beforeVisibleTick){
+    throw new Error('active order did not resume polling after the document became visible');
+  }
+
+  await page.evaluate(()=>{
+    const order=JSON.parse(localStorage.getItem('swiezeLastOrder'));
+    localStorage.setItem('swiezeLastOrder',JSON.stringify({...order,status:'refunded'}));
+  });
+  const beforeRefundedTick=statusRequests;
+  await page.waitForTimeout(5250);
+  if(statusRequests!==beforeRefundedTick){
+    throw new Error('refunded order resumed background RPC polling');
+  }
+
   pwaContext=await browser.newContext();
   const pwaPage=await pwaContext.newPage();
-  await pwaPage.goto(`${baseUrl}/`,{waitUntil:'domcontentloaded',timeout:30000});
+  await pwaPage.goto(accessUrl('/'),{waitUntil:'domcontentloaded',timeout:30000});
   const cacheState=await pwaPage.evaluate(async()=>{
     await navigator.serviceWorker.ready;
     const keys=await caches.keys();
-    const cache=await caches.open('swieze-lody-v39');
+    const cache=await caches.open('swieze-lody-v40');
     return {
       keys,
       localSupabaseCached:Boolean(await cache.match('/vendor/supabase.min.js'))
     };
   });
-  if(!cacheState.keys.includes('swieze-lody-v39')||!cacheState.localSupabaseCached){
+  if(!cacheState.keys.includes('swieze-lody-v40')||!cacheState.localSupabaseCached){
     throw new Error('service worker did not cache the pinned local Supabase bundle');
   }
   await pwaPage.reload({waitUntil:'domcontentloaded'});
